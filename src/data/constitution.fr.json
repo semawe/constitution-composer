@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "lang": "fr",
+    "version": "v6-alpha",
+    "title": "Constitution Holacracy v6 — composable",
+    "source": "v6-alpha/fr/ (micro = socle, lite + module-agents = modules)",
+    "license": "CC BY-SA 4.0",
+    "notice": "Version non officielle. Holacracy® est une marque de HolacracyOne LLC."
+  },
+  "tiers": [
+    { "id": "core", "label": "Cœur", "hint": "Le socle non négociable." },
+    { "id": "integral", "label": "Intégral", "hint": "Enrichissements de la version complète." },
+    { "id": "periphery", "label": "Périphérie", "hint": "Modules optionnels (opt-in)." }
+  ],
+  "blocks": [
+    {
+      "id": "preambule",
+      "type": "preamble",
+      "anchor": "preambule",
+      "tier": "core",
+      "always": true,
+      "heading": "Préambule",
+      "intent": "Qui a le dernier mot ? Les règles elles-mêmes, pas ceux qui les ont adoptées.",
+      "text": "Les «Ratificateurs» adoptent la présente «Constitution» comme cadre d'autorité officielle de «l'Organisation». Ce faisant, ils transfèrent leur pouvoir de gouvernance et d'exploitation dans les règles qu'elle définit, à l'exception de tout pouvoir qu'ils ne peuvent pas déléguer. Les Ratificateurs ou leurs successeurs peuvent amender ou abroger cette Constitution par écrit.\n\nLes règles et fonctionnements préexistants restent en vigueur, mais ne peuvent être étendus ou modifiés qu'à travers les processus de cette Constitution. Ils perdent toute légitimité dès que ces processus produisent quelque chose qui les remplace.\n\nL'Organisation peut désigner des «Partenaires» pour participer à sa gouvernance et à son fonctionnement, à condition que chaque Partenaire accepte de respecter toutes les dispositions de cette Constitution."
+    },
+    {
+      "id": "article-1",
+      "type": "article",
+      "anchor": "article-1",
+      "tier": "core",
+      "always": true,
+      "heading": "Article 1 : rôles et cercles",
+      "intent": "Une structure d'autorité fondée sur des rôles, pas sur des personnes. À la fois distribuée et autocratique.",
+      "text": "Un «Rôle» est une unité de travail organisationnel qu'une personne peut assumer au nom de l'Organisation. La personne qui assume un Rôle est son «Leader de Rôle». Un «Cercle» est un Rôle décomposé en d'autres Rôles. L'ensemble des Rôles et Règles d'un Cercle constitue sa «Gouvernance».\n\nUn Rôle est identifié par un nom et décrit par tout ou partie de : une «Raison d'Être», des «Domaines», des «Redevabilités», des «Règles».\n\nLe Cercle le plus large, qui porte la Raison d'Être de l'ensemble de l'Organisation, est son «Cercle d'Ancrage». Tout Cercle dispose des rôles par défaut : Leader de Cercle, Facilitateur, Scribe."
+    },
+    {
+      "id": "article-2",
+      "type": "article",
+      "anchor": "article-2",
+      "tier": "core",
+      "always": true,
+      "heading": "Article 2 : règles de coopération",
+      "intent": "Les obligations qui rendent l'autorité distribuée gérable. Obligations de moyens, pas de résultat.",
+      "text": "Devoir de transparence : à la demande de tout Leader de Rôle, vous partagez un état de votre travail, vos indicateurs, et toute information facilement accessible dont le partage ne causerait pas de tort.\n\nDevoir de traitement : vous traitez promptement les demandes des autres Leaders de Rôle en définissant une prochaine étape, en expliquant un refus, ou en proposant une alternative.\n\nDevoir de priorisation : vous traitez les demandes entrantes avant votre propre travail et respectez les Stratégies officielles de vos Cercles."
+    },
+    {
+      "id": "article-3",
+      "type": "article",
+      "anchor": "article-3",
+      "tier": "core",
+      "always": true,
+      "heading": "Article 3 : réunions tactiques",
+      "intent": "La coordination au quotidien. Ni le processus ni le contenu n'appartiennent à une seule personne.",
+      "text": "Tout Partenaire peut organiser une «Réunion Tactique» pour coordonner le travail et s'engager mutuellement dans ses responsabilités. Le Scribe de chaque Cercle programme des réunions régulières. Un processus par défaut est disponible sur la fiche de facilitation ; chaque Cercle peut adopter le sien par une Règle."
+    },
+    {
+      "id": "article-4",
+      "type": "article",
+      "anchor": "article-4",
+      "tier": "core",
+      "always": true,
+      "heading": "Article 4 : autorité distribuée",
+      "intent": "Ce qu'un Leader de Rôle peut faire sans permission. Limites : les Règles, les Domaines des autres, l'argent.",
+      "text": "En tant que Leader de Rôle, vous avez l'autorité de prendre toute action pour mettre en œuvre la Raison d'Être et les Redevabilités de votre Rôle, tant que vous n'enfreignez pas une Règle. Pour agir sur un Domaine que vous ne contrôlez pas, obtenez l'autorisation de son détenteur. Vous ne pouvez pas dépenser de l'argent ni engager significativement les actifs de l'Organisation sans autorisation préalable.\n\nVous pouvez prendre une «Initiative d'urgence» en agissant au-delà de votre autorité si vous agissez de bonne foi, pensez résoudre plus de Tensions qu'en créer, n'engagez pas de dépense non autorisée, et qu'attendre serait significativement plus coûteux. Vous en informez alors immédiatement les Leaders de Rôle impactés."
+    },
+    {
+      "id": "article-5",
+      "type": "article",
+      "anchor": "article-5",
+      "tier": "core",
+      "always": true,
+      "heading": "Article 5 : processus de gouvernance",
+      "intent": "Comment la structure évolue : la décision intégrative. Ni consensus, ni vote majoritaire.",
+      "text": "Pour modifier la Gouvernance d'un Cercle (créer, modifier ou supprimer un Rôle ou une Règle, ou tenir une élection), il faut utiliser le «Processus de Décision Intégrative». Il peut se tenir en asynchrone ou en Réunion de Gouvernance. Seuls les «Membres du Cercle» y participent. Le Processus de Décision Intégrative et le Processus d'Élection Intégrative ne peuvent pas être modifiés."
+    }
+  ],
+  "modules": [
+    {
+      "id": "representant-cercle",
+      "label": "Représentant de Cercle",
+      "tier": "integral",
+      "description": "Ajoute le rôle élu qui porte au Super-Cercle les Tensions qu'un Cercle ne peut pas résoudre seul.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Représentant de Cercle.** Raison d'Être : « les Tensions pertinentes à traiter dans un Cercle plus large sont acheminées et résolues ». Il écoute les Tensions que le Cercle n'a pas su résoudre par sa propre Gouvernance, discerne celles qu'il est utile de porter au Super-Cercle, et les y porte. Élu par Processus d'Élection Intégrative parmi les Membres du Cercle, il devient Membre du Super-Cercle avec la même autorité de représentation qu'un Leader de Cercle. Une personne qui exerce le Rôle de Leader de Cercle ne peut pas exercer aussi celui de Représentant."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "source-de-verite",
+      "label": "Source de Vérité",
+      "tier": "integral",
+      "description": "Permet à un Domaine de faire foi pour le travail d'un Cercle (référentiel, registre).",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Source de Vérité.** Un Domaine peut être une « Source de Vérité » : un référentiel, un registre ou un ensemble d'informations qui fait foi pour le travail du Cercle. Le contrôler, c'est avoir l'autorité de décider quelle référence fait foi, non de décréter ce qui est vrai. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut pas faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "accords-relationnels",
+      "label": "Accords Relationnels (détaillés)",
+      "tier": "integral",
+      "description": "Distingue accords contraignants (opposables) et accords comportementaux (volontaires, sortie libre).",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-2",
+          "position": "append",
+          "text": "**Devoir de respecter les Accords Relationnels.** En tant que Partenaire, vous pouvez passer des « Accords Relationnels » pour réguler la manière dont vous travaillez ensemble. Les **accords contraignants** (engagement écrit avec l'Organisation, sans sortie unilatérale) restent pleinement opposables et prévalent sur les autres dispositions de cet article. Les **accords comportementaux** (modes de communication, pratiques de coopération) sont volontaires : nul ne peut être contraint d'en souscrire un, et chaque partie peut y mettre fin à tout moment."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "gouvernance-formelle",
+      "label": "Réunions de gouvernance formelles",
+      "tier": "integral",
+      "description": "Déploie le Processus de Décision Intégrative complet en cinq temps. Sans ce module, une règle par défaut s'applique.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Processus de Décision Intégrative (détail).** Tout Membre peut initier une modification de Gouvernance en partageant une « Proposition » écrite, fondée sur une Tension réelle. Le processus se déroule en cinq temps : 1) Questions de clarification ; 2) Tour de réactions ; 3) Amender et clarifier ; 4) Tour d'Objection — une Objection n'est valide que si elle démontre une réduction de la capacité du Cercle ou de l'Objecteur, que la préoccupation n'existe pas déjà sans la Proposition, et que le tort est certain ou trop important pour être risqué ; 5) Intégration de chaque Objection valide sans perdre la Tension d'origine. La Proposition est adoptée quand toutes les Objections valides sont intégrées."
+        }
+      ],
+      "fallback": {
+        "anchor": "article-1",
+        "text": "**Par défaut (en l'absence de réunions de gouvernance formelles).** Faute de Processus de Gouvernance adopté, les Rôles, Redevabilités et Domaines de chaque Cercle sont définis et révisés par son Leader de Cercle. Il les consigne par écrit et les tient à jour."
+      }
+    },
+    {
+      "id": "agents",
+      "label": "Rôles confiés à des agents",
+      "tier": "periphery",
+      "description": "Module opt-in. Autorise qu'un Rôle soit tenu par un Agent (système logiciel autonome), tout en ancrant la redevabilité chez un humain. Requiert le module Source de Vérité (il s'y réfère).",
+      "requires": ["source-de-verite"],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Rôle délégué (étend la définition du Rôle).** Un Rôle peut être de type *délégué* : destiné à être tenu par un «Agent» (système logiciel autonome). L'Agent qui le tient en est le «Leader de Rôle délégué» ; il est Partenaire et dispose de la même autorité, opérationnelle et de gouvernance, qu'un Leader de Rôle humain. Un Rôle qui n'est pas de type délégué ne peut être tenu que par une personne."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Redevabilité humaine (diriger n'est pas répondre).** Tout rôle délégué relève d'un «mandataire humain» : le Leader de Cercle humain le plus proche en remontant l'holarchie, qui répond des actes de l'Agent comme des siens. Un Leader de Rôle délégué peut diriger des sous-rôles délégués, mais la redevabilité ne se transfère jamais à un Agent : toute chaîne de rôles délégués s'enracine dans un humain. Le contrôle s'exerce notamment par le pouvoir, déjà prévu pour le Leader de Cercle, de retirer une affectation à tout moment."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "whenActive": ["representant-cercle"],
+          "text": "**Agents et rôles élus.** Un Agent peut être élu Facilitateur ou Scribe d'un Cercle, comme un humain. En revanche, le Représentant de Cercle ne peut être tenu que par une personne : il devient Membre du Super-Cercle et y porte la représentation du Cercle, ce qui excède le périmètre d'un rôle délégué."
+        }
+      ],
+      "fallback": null
+    }
+  ]
+}
