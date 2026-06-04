@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
   type Module,
@@ -75,6 +75,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const reduce = useReducedMotion();
 
   // Scrollspy : surligne dans le sommaire la section la plus haute visible.
   useEffect(() => {
@@ -164,6 +165,14 @@ export default function Composer({ data }: { data: ConstitutionData }) {
       : `${active.size} module${active.size > 1 ? "s" : ""} actif${
           active.size > 1 ? "s" : ""
         }`;
+
+  const pct = data.modules.length ? active.size / data.modules.length : 0;
+  const versionLabel =
+    active.size === 0
+      ? "Socle — le cœur seul"
+      : active.size === data.modules.length
+        ? "Version intégrale"
+        : "Version enrichie";
 
   // Sommaire + composer, partagés entre la sidebar (desktop) et le tiroir (mobile).
   const panel = (
@@ -291,7 +300,25 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           <h1 className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl">
             {data.meta.title}
           </h1>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+
+          <div className="mt-5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-slate-600">{versionLabel}</span>
+              <span className="text-slate-400">
+                {active.size}/{data.modules.length} modules
+              </span>
+            </div>
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+              <div
+                className={`h-full rounded-full bg-gradient-to-r from-slate-400 via-teal-400 to-violet-500 ${
+                  reduce ? "" : "transition-[width] duration-500 ease-out"
+                }`}
+                style={{ width: `${Math.max(pct * 100, 3)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
             <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
               <input
                 type="checkbox"
@@ -322,12 +349,15 @@ export default function Composer({ data }: { data: ConstitutionData }) {
 
         <article className="doc-prose text-[1.05rem] text-slate-800">
           {data.blocks.map((block) => {
-            const ui = TIER_UI[block.tier];
             return (
-              <section
+              <motion.section
                 key={block.id}
                 id={block.id}
                 className="mb-10 scroll-mt-24"
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-12% 0px -12% 0px" }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
               >
                 <h2 className="mb-3 font-serif text-2xl font-semibold text-slate-900">
                   {block.heading}
@@ -395,12 +425,12 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                   ))}
                 </AnimatePresence>
 
-                {/* "+" inline : modules activables ancrés ici */}
-                <AddHere
+                {/* "+" entre paragraphes : modules activables ancrés ici */}
+                <InsertDivider
                   modules={availableChips(block.anchor)}
                   onActivate={toggle}
                 />
-              </section>
+              </motion.section>
             );
           })}
 
@@ -522,31 +552,63 @@ function ModuleToggle({
   );
 }
 
-function AddHere({
+function InsertDivider({
   modules,
   onActivate,
 }: {
   modules: Module[];
   onActivate: (id: string) => void;
 }) {
-  if (modules.length === 0) return null;
+  const [open, setOpen] = useState(false);
+  if (modules.length === 0) return <div className="h-4" />;
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
-      {modules.map((m) => {
-        const ui = TIER_UI[m.tier];
-        return (
-          <button
-            key={m.id}
-            onClick={() => onActivate(m.id)}
-            data-add={m.id}
-            title={m.description}
-            className={`inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3 py-1 text-xs text-slate-500 transition ${ui.chip}`}
+    <div className="group relative mt-5">
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Ajouter un module ici"
+          className={`flex h-7 w-7 items-center justify-center rounded-full border bg-background transition duration-200 ${
+            open
+              ? "rotate-45 border-slate-500 text-slate-700"
+              : "border-slate-300 text-slate-400 opacity-40 hover:border-slate-500 hover:text-slate-700 hover:opacity-100 group-hover:opacity-100"
+          }`}
+        >
+          <span className="text-lg leading-none">+</span>
+        </button>
+        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
           >
-            <span className="text-base leading-none">+</span>
-            {m.label}
-          </button>
-        );
-      })}
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              {modules.map((m) => {
+                const ui = TIER_UI[m.tier];
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      onActivate(m.id);
+                      setOpen(false);
+                    }}
+                    data-add={m.id}
+                    title={m.description}
+                    className={`inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3 py-1 text-xs text-slate-500 transition ${ui.chip}`}
+                  >
+                    <span className="text-base leading-none">+</span>
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
