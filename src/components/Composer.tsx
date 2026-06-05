@@ -17,6 +17,12 @@ import type { Session, User } from "@supabase/supabase-js";
 // Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
 const isGatedTier = (tier: Tier) => tier === "extension" || tier === "app";
 
+// Coachs — pages de réservation Google Agenda (créneaux 30 min de découverte).
+const COACHES = [
+  { name: "Coach 1", url: "https://calendar.example.com/booking" },
+  { name: "Coach 2", url: "https://calendar.example.com/booking" },
+];
+
 const TIER_UI: Record<
   Tier | "warning",
   { dot: string; bar: string; tag: string; tint: string; chip: string }
@@ -93,6 +99,8 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [needsCompany, setNeedsCompany] = useState(false);
   const [company, setCompany] = useState("");
   const [gate, setGate] = useState<null | "modules" | "pdf">(null);
+  const [booking, setBooking] = useState(false);
+  const [exportPrompted, setExportPrompted] = useState(false);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -180,6 +188,11 @@ export default function Composer({ data }: { data: ConstitutionData }) {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+      // Moment de haute intention : on propose la session offerte (une fois).
+      if (!exportPrompted) {
+        setExportPrompted(true);
+        setBooking(true);
+      }
     } finally {
       setPdfBusy(false);
     }
@@ -599,7 +612,33 @@ export default function Composer({ data }: { data: ConstitutionData }) {
             );
           })}
 
-          <footer className="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-400">
+          <div className="mt-12 rounded-2xl border border-slate-200 bg-gradient-to-br from-teal-50 to-violet-50 p-6">
+            <h2 className="font-serif text-xl font-semibold text-slate-900">
+              Aller plus loin avec un coach
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Composer, c&apos;est un début. Faites relire et co-construire votre
+              Constitution avec un coach certifié en Holacracy.
+            </p>
+            <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
+              <li>
+                🎁 <strong>30 minutes de découverte offertes</strong> à la
+                création de votre compte.
+              </li>
+              <li>
+                Supervision par un coach senior :{" "}
+                <strong>500 €/h</strong> ou <strong>3000 €/jour</strong>.
+              </li>
+            </ul>
+            <button
+              onClick={() => setBooking(true)}
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
+            >
+              🎁 Réserver mes 30 minutes offertes
+            </button>
+          </div>
+
+          <footer className="mt-10 border-t border-slate-200 pt-6 text-xs text-slate-400">
             {data.meta.notice} — {data.meta.license}
           </footer>
         </article>
@@ -767,6 +806,68 @@ export default function Composer({ data }: { data: ConstitutionData }) {
             >
               Plus tard
             </button>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Réservation coaching (pages Google Agenda) */}
+      {booking && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div
+            onClick={() => setBooking(false)}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 280, damping: 26 }}
+            className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+          >
+            <button
+              onClick={() => setBooking(false)}
+              aria-label="Fermer"
+              className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+            >
+              ✕
+            </button>
+            <div className="bg-gradient-to-br from-teal-500 to-violet-600 px-6 py-6 text-white">
+              <p className="text-xs font-medium uppercase tracking-widest text-white/80">
+                Votre session offerte
+              </p>
+              <h2 className="mt-1 font-serif text-2xl font-semibold">
+                30 minutes avec un coach Holacracy
+              </h2>
+              <p className="mt-2 text-sm text-white/90">
+                Choisissez votre coach et réservez un créneau de 30 minutes —
+                offert.
+              </p>
+            </div>
+            <div className="px-6 py-6">
+              <div className="space-y-2">
+                {COACHES.map((c) => (
+                  <a
+                    key={c.name}
+                    href={c.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setBooking(false)}
+                    className="flex items-center justify-between rounded-lg border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-500 hover:bg-slate-50"
+                  >
+                    <span>Réserver avec {c.name}</span>
+                    <span aria-hidden>→</span>
+                  </a>
+                ))}
+              </div>
+              <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
+                Au-delà de la découverte : supervision par un coach senior,
+                500 €/h ou 3000 €/jour.
+              </p>
+            </div>
           </motion.div>
         </motion.div>
       )}
