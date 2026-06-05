@@ -1,9 +1,12 @@
-import Composer from "@/components/Composer";
+import App from "@/components/App";
 import type { ConstitutionData } from "@/lib/constitution";
-import raw from "@/data/constitution.fr.json";
+import type { PrincipesData } from "@/components/Principes";
+import constitutionRaw from "@/data/constitution.fr.json";
+import principesRaw from "@/data/principes.fr.json";
 
-const data = raw as ConstitutionData;
+const constitution = constitutionRaw as ConstitutionData;
+const principes = principesRaw as PrincipesData;
 
 export default function Home() {
-  return <Composer data={data} />;
+  return <App constitution={constitution} principes={principes} />;
 }

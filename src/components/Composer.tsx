@@ -413,7 +413,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   return (
     <div>
       {/* Barre mobile */}
-      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="sticky top-11 z-20 flex items-center justify-between border-b border-slate-200 bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <button
           onClick={() => setMobileOpen(true)}
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-700"
@@ -438,7 +438,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
         {/* Panneau (desktop) */}
         <aside className="hidden w-72 shrink-0 lg:block">
-          <div className="sticky top-8">{panel}</div>
+          <div className="sticky top-16">{panel}</div>
         </aside>
 
         {/* Document */}

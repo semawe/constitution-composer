@@ -1,0 +1,206 @@
+"use client";
+
+import { useState } from "react";
+
+export interface Principle {
+  id: string;
+  n: string;
+  title: string;
+  text: string;
+  warning: string;
+}
+
+export interface PrincipesData {
+  meta: Record<string, string>;
+  intro: string;
+  principles: Principle[];
+}
+
+function paras(text: string) {
+  return text.split(/\n\n/).map((p, i) => (
+    <p key={i} className="mt-2 leading-relaxed">
+      {p}
+    </p>
+  ));
+}
+
+export default function Principes({ data }: { data: PrincipesData }) {
+  const [removed, setRemoved] = useState<ReadonlySet<string>>(new Set());
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [custom, setCustom] = useState<
+    { id: string; title: string; text: string }[]
+  >([]);
+  const [adding, setAdding] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newText, setNewText] = useState("");
+
+  const remove = (id: string) => {
+    setRemoved((s) => new Set([...s, id]));
+    setConfirmId(null);
+  };
+  const restore = (id: string) =>
+    setRemoved((s) => {
+      const n = new Set(s);
+      n.delete(id);
+      return n;
+    });
+  const addCustom = () => {
+    const title = newTitle.trim();
+    if (!title) return;
+    setCustom((c) => [
+      ...c,
+      { id: `custom-${c.length}`, title, text: newText.trim() },
+    ]);
+    setNewTitle("");
+    setNewText("");
+    setAdding(false);
+  };
+
+  const activeCount =
+    data.principles.filter((p) => !removed.has(p.id)).length + custom.length;
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="mb-8 border-b border-slate-200 pb-6">
+        <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+          {data.meta.version}
+        </p>
+        <h1 className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl">
+          {data.meta.title}
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          {activeCount} principe{activeCount > 1 ? "s" : ""} retenu
+          {activeCount > 1 ? "s" : ""}
+        </p>
+      </header>
+
+      <article className="doc-prose text-[1.05rem] text-slate-800">
+        <p className="mb-8 italic leading-relaxed text-slate-600">{data.intro}</p>
+
+        {data.principles.map((p) =>
+          removed.has(p.id) ? (
+            <div
+              key={p.id}
+              className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-slate-200 px-3 py-2 text-sm text-slate-400"
+            >
+              <span>
+                Principe {p.n} retiré — « {p.title} »
+              </span>
+              <button
+                onClick={() => restore(p.id)}
+                className="shrink-0 underline transition hover:text-slate-600"
+              >
+                Rétablir
+              </button>
+            </div>
+          ) : (
+            <section key={p.id} className="mb-7 border-l-2 border-slate-200 pl-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="font-serif text-lg font-semibold text-slate-900">
+                  {p.n}. {p.title}
+                </h2>
+                <button
+                  onClick={() => setConfirmId(p.id)}
+                  className="shrink-0 text-xs text-slate-400 underline transition hover:text-amber-600"
+                >
+                  Retirer
+                </button>
+              </div>
+              {paras(p.text)}
+              {confirmId === p.id && (
+                <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-amber-50/60 py-3 pl-4 pr-3">
+                  <p className="text-sm text-amber-800">
+                    <span className="font-semibold">⚠ Retirer ce principe ?</span>{" "}
+                    {p.warning}
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => remove(p.id)}
+                      className="rounded-full bg-amber-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-amber-700"
+                    >
+                      Confirmer le retrait
+                    </button>
+                    <button
+                      onClick={() => setConfirmId(null)}
+                      className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 transition hover:border-slate-500"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          ),
+        )}
+
+        {custom.map((c) => (
+          <section key={c.id} className="mb-7 border-l-2 border-violet-300 pl-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="font-serif text-lg font-semibold text-slate-900">
+                {c.title}
+              </h2>
+              <button
+                onClick={() => setCustom((cs) => cs.filter((x) => x.id !== c.id))}
+                className="shrink-0 text-xs text-slate-400 underline transition hover:text-amber-600"
+              >
+                Retirer
+              </button>
+            </div>
+            {c.text ? paras(c.text) : null}
+            <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
+              Principe ajouté
+            </p>
+          </section>
+        ))}
+
+        {adding ? (
+          <div className="mt-4 rounded-md border border-slate-200 bg-white/70 p-4">
+            <input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Titre du principe"
+              className="w-full rounded border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-slate-400"
+            />
+            <textarea
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              rows={3}
+              placeholder="Énoncé du principe (optionnel)"
+              className="doc-prose mt-2 w-full resize-y rounded border border-slate-200 p-3 text-[0.98rem] outline-none transition focus:border-slate-400"
+            />
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={addCustom}
+                disabled={!newTitle.trim()}
+                className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+              >
+                Ajouter
+              </button>
+              <button
+                onClick={() => {
+                  setAdding(false);
+                  setNewTitle("");
+                  setNewText("");
+                }}
+                className="rounded-full border border-slate-300 px-4 py-1.5 text-sm text-slate-600 transition hover:border-slate-500"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setAdding(true)}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3 py-1.5 text-sm text-slate-500 transition hover:border-slate-500 hover:text-slate-700"
+          >
+            <span className="text-base leading-none">+</span> Ajouter un principe
+          </button>
+        )}
+
+        <footer className="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-400">
+          {data.meta.notice} — {data.meta.license}
+        </footer>
+      </article>
+    </div>
+  );
+}
