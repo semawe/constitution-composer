@@ -10,6 +10,8 @@ import {
   requiredByActive,
   toggleModule,
 } from "@/lib/constitution";
+import { getSupabase } from "@/lib/supabase";
+import type { Session, User } from "@supabase/supabase-js";
 
 // Freemium : exploration libre jusqu'à ce seuil de modules actifs ; au-delà
 // (et pour l'export PDF), création de compte requise.
@@ -87,10 +89,14 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [title, setTitle] = useState(data.meta.title);
   const [values, setValues] = useState("");
   const [account, setAccount] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [needsCompany, setNeedsCompany] = useState(false);
+  const [company, setCompany] = useState("");
   const [gate, setGate] = useState<null | "modules" | "pdf">(null);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
   const reduce = useReducedMotion();
+  const supabase = useMemo(() => getSupabase(), []);
 
   // Scrollspy : surligne dans le sommaire la section la plus haute visible.
   useEffect(() => {
@@ -110,10 +116,37 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     return () => obs.disconnect();
   }, [data.blocks]);
 
-  // Compte simulé (Lot 2) — persisté localement, sera remplacé par Supabase (Lot 3).
+  // Session Supabase (Lot 3). Sans clés Supabase → repli sur le compte simulé.
+  useEffect(() => {
+    if (!supabase) {
+      try {
+        if (localStorage.getItem("cc_account") === "1") setAccount(true);
+      } catch {}
+      return;
+    }
+    const apply = (session: Session | null) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      setAccount(!!u);
+      setNeedsCompany(!!u && !u.user_metadata?.company);
+    };
+    supabase.auth.getSession().then(({ data }) => apply(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
+      apply(session),
+    );
+    return () => sub.subscription.unsubscribe();
+  }, [supabase]);
+
+  // Restaure la composition après le retour de redirection Google (round-trip OAuth).
   useEffect(() => {
     try {
-      if (localStorage.getItem("cc_account") === "1") setAccount(true);
+      const raw = localStorage.getItem("cc_compose");
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (Array.isArray(s.active)) setActive(new Set(s.active));
+      if (typeof s.title === "string" && s.title) setTitle(s.title);
+      if (typeof s.values === "string") setValues(s.values);
+      localStorage.removeItem("cc_compose");
     } catch {}
   }, []);
 
@@ -160,22 +193,54 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     doGeneratePdf();
   };
 
-  // Création de compte simulée (Lot 2). Lot 3 : Supabase + « Continuer avec Google ».
-  const createAccount = () => {
-    setAccount(true);
+  // Sauvegarde la composition avant la redirection Google (restaurée au retour).
+  const persistComposerState = () => {
     try {
-      localStorage.setItem("cc_account", "1");
+      localStorage.setItem(
+        "cc_compose",
+        JSON.stringify({ active: [...active], title, values }),
+      );
     } catch {}
-    const reason = gate;
-    setGate(null);
-    if (reason === "pdf") doGeneratePdf();
   };
 
-  const signOut = () => {
-    setAccount(false);
-    try {
-      localStorage.removeItem("cc_account");
-    } catch {}
+  // Connexion Google réelle (Supabase). Sans Supabase → compte simulé (repli).
+  const signInGoogle = async () => {
+    if (!supabase) {
+      setAccount(true);
+      try {
+        localStorage.setItem("cc_account", "1");
+      } catch {}
+      const reason = gate;
+      setGate(null);
+      if (reason === "pdf") doGeneratePdf();
+      return;
+    }
+    persistComposerState();
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + window.location.pathname },
+    });
+  };
+
+  // Onboarding : Google ne fournit pas l'entreprise → on la collecte une fois.
+  const submitCompany = async () => {
+    if (!supabase || !company.trim()) return;
+    await supabase.auth.updateUser({ data: { company: company.trim() } });
+    setNeedsCompany(false);
+  };
+
+  const signOut = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setAccount(false);
+      setNeedsCompany(false);
+    } else {
+      setAccount(false);
+      try {
+        localStorage.removeItem("cc_account");
+      } catch {}
+    }
   };
 
   const toggle = (id: string) => {
@@ -394,7 +459,10 @@ export default function Composer({ data }: { data: ConstitutionData }) {
             <p className="mt-1.5 text-xs text-slate-400">
               {account ? (
                 <>
-                  Compte actif — modules et export illimités.{" "}
+                  {user?.user_metadata?.full_name
+                    ? `Connecté : ${user.user_metadata.full_name}`
+                    : "Compte actif"}
+                  {" · "}
                   <button
                     onClick={signOut}
                     className="underline transition hover:text-slate-600"
@@ -619,7 +687,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                   </p>
                 </div>
                 <button
-                  onClick={createAccount}
+                  onClick={signInGoogle}
                   className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                 >
                   <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
@@ -631,23 +699,74 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                   Continuer avec Google
                 </button>
                 <button
-                  onClick={createAccount}
+                  onClick={signInGoogle}
                   className="mt-2 w-full rounded-lg px-4 py-2 text-sm text-slate-500 transition hover:text-slate-700"
                 >
                   J&apos;ai déjà un compte
                 </button>
                 <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
-                  À la création : nom, prénom, e-mail et entreprise. Vous pourrez
-                  réserver votre créneau de coaching depuis votre espace.
-                  <br />
-                  <span className="italic">
-                    Démo — l&apos;authentification réelle arrive au prochain lot.
-                  </span>
+                  À la création de compte : nom, prénom, e-mail et entreprise.
                 </p>
               </div>
             </motion.div>
           </motion.div>
         )}
+
+      {/* Onboarding : entreprise (non fournie par Google) */}
+      {needsCompany && account && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 280, damping: 26 }}
+            className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
+          >
+            <h2 className="font-serif text-xl font-semibold text-slate-900">
+              Bienvenue
+              {user?.user_metadata?.given_name
+                ? `, ${user.user_metadata.given_name}`
+                : ""}{" "}
+              !
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Dernière étape : votre organisation. Cela nous permet de préparer
+              votre session de coaching offerte.
+            </p>
+            <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Nom de l&apos;entreprise / organisation
+            </label>
+            <input
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Ex. Sémawé"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitCompany();
+              }}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-slate-500"
+            />
+            <button
+              onClick={submitCompany}
+              disabled={!company.trim()}
+              className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+            >
+              Continuer
+            </button>
+            <button
+              onClick={() => setNeedsCompany(false)}
+              className="mt-2 w-full rounded-lg px-4 py-2 text-xs text-slate-400 transition hover:text-slate-600"
+            >
+              Plus tard
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
