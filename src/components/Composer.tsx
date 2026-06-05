@@ -6,6 +6,7 @@ import {
   type ConstitutionData,
   type Module,
   type Tier,
+  defaultActive,
   modulesForAnchor,
   requiredByActive,
   toggleModule,
@@ -79,17 +80,47 @@ function renderInline(s: string, keyBase: string) {
 function Prose({ text }: { text: string }) {
   return (
     <>
-      {text.split(/\n\n/).map((para, i) => (
-        <p key={i} className="mb-3 leading-relaxed last:mb-0">
-          {renderInline(para, `p${i}`)}
-        </p>
-      ))}
+      {text.split(/\n\n/).map((chunk, i) => {
+        const lines = chunk.split("\n");
+        // Liste à puces : toutes les lignes commencent par "- ".
+        if (lines.length > 1 && lines.every((l) => /^- /.test(l.trim()))) {
+          return (
+            <ul key={i} className="mb-3 ml-5 list-disc space-y-1 last:mb-0">
+              {lines.map((l, j) => (
+                <li key={j} className="leading-relaxed">
+                  {renderInline(l.trim().replace(/^- /, ""), `p${i}-${j}`)}
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        // Liste numérotée : toutes les lignes commencent par "1. ", "2. "…
+        if (lines.length > 1 && lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
+          return (
+            <ol key={i} className="mb-3 ml-5 list-decimal space-y-1 last:mb-0">
+              {lines.map((l, j) => (
+                <li key={j} className="leading-relaxed">
+                  {renderInline(l.trim().replace(/^\d+\.\s/, ""), `p${i}-${j}`)}
+                </li>
+              ))}
+            </ol>
+          );
+        }
+        return (
+          <p key={i} className="mb-3 leading-relaxed last:mb-0">
+            {renderInline(chunk, `p${i}`)}
+          </p>
+        );
+      })}
     </>
   );
 }
 
 export default function Composer({ data }: { data: ConstitutionData }) {
-  const [active, setActive] = useState<ReadonlySet<string>>(new Set());
+  // Au départ : la light complète = tous les blocs retirables cochés.
+  const [active, setActive] = useState<ReadonlySet<string>>(() =>
+    defaultActive(data),
+  );
   const [showIntent, setShowIntent] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [title, setTitle] = useState(data.meta.title);
@@ -302,20 +333,33 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const availableChips = (anchor: string) =>
     modulesForAnchor(data, anchor).filter((m) => !active.has(m.id));
 
+  // Light = blocs retirables (tier integral, cochés par défaut).
+  // Au-delà = modules additifs (extension / app, off par défaut).
+  const integralMods = useMemo(
+    () => data.modules.filter((m) => m.tier === "integral"),
+    [data.modules],
+  );
+  const removed = integralMods.filter((m) => !active.has(m.id)).length;
+  const addonsOn = data.modules.filter(
+    (m) => m.tier !== "integral" && active.has(m.id),
+  ).length;
+
   const countLabel =
-    active.size === 0
-      ? "Socle seul"
-      : `${active.size} module${active.size > 1 ? "s" : ""} actif${
-          active.size > 1 ? "s" : ""
-        }`;
+    removed === 0 && addonsOn === 0
+      ? "Light complète"
+      : removed > 0 && addonsOn === 0
+        ? `${integralMods.length - removed}/${integralMods.length} blocs retirables`
+        : `${integralMods.length - removed}/${integralMods.length} blocs · ${addonsOn} ajout${addonsOn > 1 ? "s" : ""}`;
 
   const pct = data.modules.length ? active.size / data.modules.length : 0;
   const versionLabel =
-    active.size === 0
-      ? "Socle — le cœur seul"
+    removed === 0 && addonsOn === 0
+      ? "Version light — complète"
       : active.size === data.modules.length
         ? "Version intégrale"
-        : "Version enrichie";
+        : removed > 0 && addonsOn === 0
+          ? `Version allégée — ${removed} bloc${removed > 1 ? "s" : ""} retiré${removed > 1 ? "s" : ""}`
+          : "Version sur-mesure";
 
   // Sommaire + composer, partagés entre la sidebar (desktop) et le tiroir (mobile).
   const panel = (
@@ -370,10 +414,18 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           Tout activer
         </button>
         <button
+          onClick={() => setActive(defaultActive(data))}
+          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          title="Revenir à la light complète : tous les blocs retirables cochés, sans extension ni app."
+        >
+          Base light
+        </button>
+        <button
           onClick={() => setActive(new Set())}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          title="Ne garder que le socle incompressible."
         >
-          Réinitialiser
+          Socle seul
         </button>
       </div>
 
@@ -568,7 +620,8 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                         <span
                           className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${insUi.tag}`}
                         >
-                          + {ins.mod.label}
+                          {ins.mod.tier === "integral" ? "" : "+ "}
+                          {ins.mod.label}
                         </span>
                         <div className="text-[0.98rem]">
                           <Prose text={ins.text} />

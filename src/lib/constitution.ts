@@ -37,6 +37,9 @@ export interface Module {
   id: string;
   label: string;
   tier: Tier;
+  /** Coché au départ ? true = bloc retirable de la light (tier `integral`) ;
+   *  false/absent = module additif off par défaut (extension/app). */
+  default?: boolean;
   description: string;
   requires: string[];
   conflicts: string[];
@@ -126,6 +129,11 @@ export function compose(
   }
 
   return items;
+}
+
+/** État actif initial : les blocs retirables de la light (modules `default: true`). */
+export function defaultActive(data: ConstitutionData): Set<string> {
+  return new Set(data.modules.filter((m) => m.default).map((m) => m.id));
 }
 
 /** Modules actifs qui requièrent `id` (→ `id` est verrouillé tant qu'ils le sont). */

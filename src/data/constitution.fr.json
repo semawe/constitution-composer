@@ -3,14 +3,14 @@
     "lang": "fr",
     "version": "v6-alpha",
     "title": "Constitution Holacracy v6 — composable",
-    "source": "v6-alpha/fr/ (micro = socle, lite + module-agents = modules)",
+    "source": "v6-alpha/fr/HC-v6-lite.md (socle incompressible + blocs retirables, cochés par défaut)",
     "license": "CC BY-SA 4.0",
     "notice": "Version non officielle. Holacracy® est une marque de HolacracyOne LLC."
   },
   "tiers": [
-    { "id": "core", "label": "Cœur", "hint": "Le socle non négociable, présent dans toute version." },
-    { "id": "integral", "label": "Intégrale", "hint": "La constitution complète standard." },
-    { "id": "extension", "label": "Extension constitutionnelle", "hint": "Du texte constitutionnel au-delà de l'intégrale." },
+    { "id": "core", "label": "Socle", "hint": "Le cœur incompressible, présent dans toute version." },
+    { "id": "integral", "label": "Bloc retirable", "hint": "Présent par défaut (version light complète) ; décochable pour alléger." },
+    { "id": "extension", "label": "Extension constitutionnelle", "hint": "Du texte constitutionnel au-delà de la light (ex. Agents)." },
     { "id": "app", "label": "App", "hint": "Ajoute une fonction qui n'existe pas dans la constitution de base." }
   ],
   "blocks": [
@@ -21,8 +21,8 @@
       "tier": "core",
       "always": true,
       "heading": "Préambule",
-      "intent": "Qui a le dernier mot ? Les règles elles-mêmes, pas ceux qui les ont adoptées.",
-      "text": "Les «Ratificateurs» adoptent la présente «Constitution» comme cadre d'autorité officielle de «l'Organisation». Ce faisant, ils transfèrent leur pouvoir de gouvernance et d'exploitation dans les règles qu'elle définit, à l'exception de tout pouvoir qu'ils ne peuvent pas déléguer. Les Ratificateurs ou leurs successeurs peuvent amender ou abroger cette Constitution par écrit.\n\nLes règles et fonctionnements préexistants restent en vigueur, mais ne peuvent être étendus ou modifiés qu'à travers les processus de cette Constitution. Ils perdent toute légitimité dès que ces processus produisent quelque chose qui les remplace.\n\nL'Organisation peut désigner des «Partenaires» pour participer à sa gouvernance et à son fonctionnement, à condition que chaque Partenaire accepte de respecter toutes les dispositions de cette Constitution."
+      "intent": "Qui a le dernier mot ? Les règles elles-mêmes. En ratifiant, on transfère volontairement son autorité dans un cadre partagé.",
+      "text": "Les «Ratificateurs» adoptent la présente «Constitution» comme cadre d'autorité officielle de «l'Organisation». Ce faisant, ils transfèrent leur pouvoir de gouvernance et d'exploitation dans les règles qu'elle définit, à l'exception de tout pouvoir qu'ils ne peuvent pas déléguer.\n\nLes Ratificateurs ou leurs successeurs peuvent amender ou abroger cette Constitution par écrit, en s'appuyant sur l'autorité qui leur a permis de l'adopter.\n\nLes règles et fonctionnements préexistants restent en vigueur, mais ne peuvent être étendus ou modifiés qu'à travers les processus de cette Constitution. Ils perdent toute légitimité dès que ces processus produisent quelque chose qui les remplace ou les contredit.\n\nL'Organisation peut désigner des «Partenaires» au-delà des Ratificateurs pour participer à sa gouvernance et à son fonctionnement, à condition que chaque Partenaire accepte de respecter toutes les dispositions de cette Constitution. L'Organisation définit comment ce statut est accordé ou retiré, sauf indication contraire des Ratificateurs.\n\nChaque Partenaire peut exercer les pouvoirs accordés par cette Constitution dans la pleine mesure de ceux que détenaient les Ratificateurs avant l'adoption. Ses responsabilités et contraintes découlent uniquement de cette Constitution et de ses processus, ainsi que de ses obligations légales envers l'Organisation. Aucune attente implicite ni ordre émis en dehors de l'autorité accordée par cette Constitution n'a d'effet sur un Partenaire."
     },
     {
       "id": "article-1",
@@ -31,8 +31,8 @@
       "tier": "core",
       "always": true,
       "heading": "Article 1 : rôles et cercles",
-      "intent": "Une structure d'autorité fondée sur des rôles, pas sur des personnes. À la fois distribuée et autocratique.",
-      "text": "Un «Rôle» est une unité de travail organisationnel qu'une personne peut assumer au nom de l'Organisation. La personne qui assume un Rôle est son «Leader de Rôle». Un «Cercle» est un Rôle décomposé en d'autres Rôles. L'ensemble des Rôles et Règles d'un Cercle constitue sa «Gouvernance».\n\nUn Rôle est identifié par un nom et décrit par tout ou partie de : une «Raison d'Être», des «Domaines», des «Redevabilités», des «Règles».\n\nLe Cercle le plus large, qui porte la Raison d'Être de l'ensemble de l'Organisation, est son «Cercle d'Ancrage». Tout Cercle dispose des rôles par défaut : Leader de Cercle, Facilitateur, Scribe."
+      "intent": "Une structure d'autorité fondée sur des Rôles, pas sur des personnes. À la fois distribuée (chaque Rôle a son autorité) et autocratique (plein pouvoir dans son périmètre).",
+      "text": "Un «Rôle» est une unité de travail organisationnel qu'une personne peut assumer au nom de l'Organisation. La personne qui assume un Rôle est son «Leader de Rôle».\n\nChaque Rôle porte un nom descriptif et un ou plusieurs des éléments suivants :\n\n- une «Raison d'Être» : la capacité, le potentiel ou l'objectif que le Rôle poursuit ;\n- un ou plusieurs «Domaines» : des actifs, des processus ou toute autre chose que le Rôle contrôle de manière exclusive ;\n- une ou plusieurs «Redevabilités» : des activités récurrentes que le Rôle conduit au service des autres Rôles ou de sa Raison d'Être.\n\nUn Rôle peut également contenir des «Règles» : des octrois ou restrictions d'autorité applicables en son sein. Tout ce qui concerne les comportements des personnes relève des Accords Relationnels.\n\n**Responsabilités des Leaders de Rôle.** En tant que Leader de Rôle, vous êtes responsable de :\n\n- détecter et traiter les Tensions : comparer l'expression réelle de votre Rôle à son potentiel idéal — chaque écart est une «Tension» — et prendre des initiatives pour les réduire ;\n- clarifier et suivre votre travail : définir régulièrement les actions et résultats utiles, les consigner par écrit et les tenir à jour ;\n- exécuter : lorsque vous avez du temps pour agir dans un Rôle, choisir et réaliser ce qui crée le plus de valeur pour l'Organisation.\n\n**Les Cercles.** Un «Cercle» est un conteneur permettant d'organiser des Rôles et des Règles autour d'une Raison d'Être commune. L'ensemble des Rôles et Règles d'un Cercle constitue sa «Gouvernance». Chaque Rôle contient lui-même un Cercle, qui peut à son tour contenir ses propres Rôles et Règles : ce Cercle intérieur est un «Sous-Cercle» du Cercle qui le contient, lequel est son «Super-Cercle».\n\nLe Cercle le plus large, qui porte la Raison d'Être de l'ensemble de l'Organisation, est son «Cercle d'Ancrage». Il détient toutes les autorités et tous les Domaines de l'Organisation et n'a pas de Super-Cercle.\n\nTout Cercle peut se doter d'un «Facilitateur» et d'un «Scribe». Un Cercle peut ajouter des Redevabilités ou des Domaines à ces Rôles, mais ne peut pas modifier leur Raison d'Être ni ce que la Constitution leur attribue.\n\n**Leaders de Cercle.** Être Leader d'un Rôle, c'est aussi être «Leader de Cercle» à l'intérieur de ce Rôle. Le Leader de Cercle porte la Raison d'Être de ce Rôle ainsi que toutes ses Redevabilités qui ne sont pas déléguées à d'autres Rôles ou processus au sein du Cercle. Il est Membre de son Cercle, qu'il anime de l'intérieur, et Membre du Super-Cercle qui contient son Rôle. Le Cercle d'Ancrage n'a pas de Leader de Cercle, sauf indication contraire dans une Règle.\n\nUn Leader de Cercle :\n\n- peut affecter les Rôles du Cercle à une ou plusieurs personnes volontaires, et révoquer ces affectations à tout moment ;\n- assume automatiquement les Rôles non pourvus du Cercle ;\n- peut définir des «Stratégies» pour guider la hiérarchisation des priorités dans le Cercle ;\n- peut rediriger vers un autre Rôle du Cercle toute référence externe qui pointe vers le Cercle ou l'un de ses Rôles.\n\nUn Cercle peut ajouter des Redevabilités ou des Domaines au Rôle de Leader de Cercle, puis les retirer ; ces ajouts s'appliquent récursivement à tous les Sous-Cercles. Un Cercle peut retirer une autorité du Leader de Cercle en la plaçant sur un autre Rôle, mais il ne peut pas supprimer le Rôle de Leader de Cercle.\n\n**Facilitateur.** Tout Cercle qui en a besoin peut se doter d'un Facilitateur. Sa Raison d'Être : « une Gouvernance du Cercle et des pratiques opérationnelles conformes à la Constitution ». Le Facilitateur :\n\n- facilite les Réunions Tactiques et de Gouvernance régulières du Cercle ;\n- aide le Cercle et ses Membres à utiliser les processus définis par cette Constitution, en réunion comme en dehors ;\n- peut déclarer une Rupture de Processus dans son Cercle ou dans un Sous-Cercle ;\n- déclenche les nouvelles élections des Rôles élus à l'expiration de leur mandat.\n\nLe Cercle peut ajouter des Redevabilités ou des Domaines à ce Rôle, mais ne peut pas modifier sa Raison d'Être ni ce que la Constitution lui attribue."
     },
     {
       "id": "article-2",
@@ -41,8 +41,8 @@
       "tier": "core",
       "always": true,
       "heading": "Article 2 : règles de coopération",
-      "intent": "Les obligations qui rendent l'autorité distribuée gérable. Obligations de moyens, pas de résultat.",
-      "text": "Devoir de transparence : à la demande de tout Leader de Rôle, vous partagez un état de votre travail, vos indicateurs, et toute information facilement accessible dont le partage ne causerait pas de tort.\n\nDevoir de traitement : vous traitez promptement les demandes des autres Leaders de Rôle en définissant une prochaine étape, en expliquant un refus, ou en proposant une alternative.\n\nDevoir de priorisation : vous traitez les demandes entrantes avant votre propre travail et respectez les Stratégies officielles de vos Cercles."
+      "intent": "Les obligations qui rendent l'autorité distribuée gérable. Des obligations de moyens, pas de résultat : estimer n'est pas s'engager, traiter n'est pas accéder.",
+      "text": "**Devoir de transparence.** Vous devez partager, à la demande de tout Leader de Rôle :\n\n- un état de votre travail en cours : ce que vous poursuivez, vos priorités relatives et une estimation de vos échéances — une estimation tient compte de votre contexte, ce n'est pas une promesse ;\n- les indicateurs que vous suivez dans vos Rôles ;\n- toute autre information facilement accessible et dont le partage ne causerait pas de tort.\n\n**Devoir de traitement.** Vous devez traiter promptement les demandes des autres Leaders de Rôle :\n\n- si on vous demande des nouvelles de votre travail, définir et communiquer au moins une prochaine étape, ou expliquer ce que vous attendez avant d'avancer ;\n- si on vous demande de prendre en charge un travail, l'accepter si cela a du sens pour l'un de vos Rôles, expliquer votre refus, ou proposer une alternative qui répond à l'intention du demandeur ;\n- si on vous demande une autorisation sur un Domaine que vous contrôlez, l'autoriser sauf si cela réduit votre capacité à assumer votre Rôle, et dans ce cas l'expliquer.\n\n**Devoir de priorisation.** Vous devez prioriser votre attention :\n\n- traiter les demandes entrantes avant d'exécuter votre propre travail, quitte à y répondre par lots à un moment opportun ;\n- participer aux réunions pour lesquelles on vous en a fait explicitement la demande, sauf engagement déjà planifié à ce moment ;\n- respecter les Stratégies et priorités officielles de vos Cercles, plus importantes que votre propre jugement sur ce qui compte ;\n- interpréter toute échéance comme un signal de priorisation, non comme une obligation absolue de résultat."
     },
     {
       "id": "article-3",
@@ -51,8 +51,8 @@
       "tier": "core",
       "always": true,
       "heading": "Article 3 : réunions tactiques",
-      "intent": "La coordination au quotidien. Ni le processus ni le contenu n'appartiennent à une seule personne.",
-      "text": "Tout Partenaire peut organiser une «Réunion Tactique» pour coordonner le travail et s'engager mutuellement dans ses responsabilités. Le Scribe de chaque Cercle programme des réunions régulières. Un processus par défaut est disponible sur la fiche de facilitation ; chaque Cercle peut adopter le sien par une Règle."
+      "intent": "La coordination opérationnelle au quotidien. Ni le processus ni le contenu n'appartiennent à une seule personne.",
+      "text": "Le Cercle coordonne son travail au quotidien et ses Membres s'engagent mutuellement dans leurs responsabilités. La forme que prend cette coordination est définie ci-dessous."
     },
     {
       "id": "article-4",
@@ -61,8 +61,8 @@
       "tier": "core",
       "always": true,
       "heading": "Article 4 : autorité distribuée",
-      "intent": "Ce qu'un Leader de Rôle peut faire sans permission. Limites : les Règles, les Domaines des autres, l'argent.",
-      "text": "En tant que Leader de Rôle, vous avez l'autorité de prendre toute action pour mettre en œuvre la Raison d'Être et les Redevabilités de votre Rôle, tant que vous n'enfreignez pas une Règle. Pour agir sur un Domaine que vous ne contrôlez pas, obtenez l'autorisation de son détenteur. Vous ne pouvez pas dépenser de l'argent ni engager significativement les actifs de l'Organisation sans autorisation préalable.\n\nVous pouvez prendre une «Initiative d'urgence» en agissant au-delà de votre autorité si vous agissez de bonne foi, pensez résoudre plus de Tensions qu'en créer, n'engagez pas de dépense non autorisée, et qu'attendre serait significativement plus coûteux. Vous en informez alors immédiatement les Leaders de Rôle impactés."
+      "intent": "Ce qu'un Leader de Rôle peut faire sans demander la permission. Limites claires : les Règles, les Domaines des autres, l'argent.",
+      "text": "En tant que Leader de Rôle, vous avez l'autorité de prendre toute action ou décision pour mettre en œuvre la Raison d'Être et les Redevabilités de votre Rôle, tant que vous n'enfreignez pas une Règle de cette Constitution ou d'un Cercle qui contient votre Rôle.\n\n**Règles et Domaines.** Vous ne pouvez pas enfreindre les Règles de votre Rôle ni de tout Cercle qui le contient. Vous pouvez agir librement sur vos propres Domaines. Pour agir sur un Domaine que vous ne contrôlez pas, vous devez obtenir l'autorisation de celui qui le contrôle, soit directement, soit en annonçant votre intention et en laissant un délai raisonnable pour qu'on s'y oppose. Pas d'opposition dans ce délai vaut autorisation pour cette action spécifique.\n\n**Dépenses de ressources.** Vous ne pouvez pas dépenser de l'argent de l'Organisation ni engager significativement l'un de ses actifs (équipements, données, droits, réputation, budget temps) sans autorisation préalable du Rôle qui contrôle ces ressources. Annoncez votre intention par écrit avec la raison et le Rôle concerné, et laissez un délai raisonnable ; sans blocage dans ce délai, vous êtes autorisé à dépenser dans le cadre déclaré. Le Cercle ou le Rôle qui contrôle l'argent peut organiser et contrôler ces dépenses autrement par une Règle dédiée."
     },
     {
       "id": "article-5",
@@ -71,83 +71,218 @@
       "tier": "core",
       "always": true,
       "heading": "Article 5 : processus de gouvernance",
-      "intent": "Comment la structure évolue : la décision intégrative. Ni consensus, ni vote majoritaire.",
-      "text": "Pour modifier la Gouvernance d'un Cercle (créer, modifier ou supprimer un Rôle ou une Règle, ou tenir une élection), il faut utiliser le «Processus de Décision Intégrative». Il peut se tenir en asynchrone ou en Réunion de Gouvernance. Seuls les «Membres du Cercle» y participent. Le Processus de Décision Intégrative et le Processus d'Élection Intégrative ne peuvent pas être modifiés."
+      "intent": "Comment la structure évolue. Le cœur : on ne change la Gouvernance que par les processus prévus, pas par décision unilatérale.",
+      "text": "Pour modifier la Gouvernance d'un Cercle — créer, modifier ou supprimer un Rôle ou une Règle, ou tenir une élection — on suit les processus définis dans cet article.\n\n**Membres du Cercle.** Seuls les «Membres du Cercle» participent à son Processus de Gouvernance : les Partenaires qui sont Leader d'un Rôle en son sein.\n\n**Les Règles.** Une Règle peut uniquement, sur les Rôles du Cercle, octroyer ou contraindre une autorité, ou réguler l'accès à un Domaine. Elle ne s'applique qu'au Cercle qui la décide, sauf si elle précise explicitement qu'elle vaut aussi pour les Sous-Cercles. Une Règle peut modifier une règle par défaut de cette Constitution uniquement là où celle-ci l'autorise explicitement ; elle est alors récursive dans les Sous-Cercles."
     }
   ],
   "modules": [
     {
-      "id": "representant-cercle",
-      "label": "Représentant de Cercle",
+      "id": "source-de-verite",
+      "label": "Source de Vérité",
       "tier": "integral",
-      "description": "Ajoute le rôle élu qui porte au Super-Cercle les Tensions qu'un Cercle ne peut pas résoudre seul.",
+      "default": true,
+      "description": "Permet qu'un Domaine fasse foi pour le travail du Cercle (référentiel, registre). Retirer : aucun Domaine ne fait autorité comme référence.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Représentant de Cercle.** Raison d'Être : « les Tensions pertinentes à traiter dans un Cercle plus large sont acheminées et résolues ». Il écoute les Tensions que le Cercle n'a pas su résoudre par sa propre Gouvernance, discerne celles qu'il est utile de porter au Super-Cercle, et les y porte. Élu par Processus d'Élection Intégrative parmi les Membres du Cercle, il devient Membre du Super-Cercle avec la même autorité de représentation qu'un Leader de Cercle. Une personne qui exerce le Rôle de Leader de Cercle ne peut pas exercer aussi celui de Représentant."
+          "text": "**Source de Vérité.** Un Domaine peut être une «Source de Vérité» : un référentiel, un registre ou un ensemble d'informations qui fait foi pour le travail du Cercle. Le contrôler, c'est avoir l'autorité de décider quelle référence fait foi, non de décréter ce qui est vrai. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
         }
       ],
       "fallback": null
     },
     {
-      "id": "source-de-verite",
-      "label": "Source de Vérité",
+      "id": "delegation-domaine",
+      "label": "Délégation d'un Domaine",
       "tier": "integral",
-      "description": "Permet à un Domaine de faire foi pour le travail d'un Cercle (référentiel, registre).",
+      "default": true,
+      "description": "Autorise un Cercle à confier l'un de ses Domaines à un Rôle. Retirer : les Domaines restent contrôlés au niveau du Cercle.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Source de Vérité.** Un Domaine peut être une « Source de Vérité » : un référentiel, un registre ou un ensemble d'informations qui fait foi pour le travail du Cercle. Le contrôler, c'est avoir l'autorité de décider quelle référence fait foi, non de décréter ce qui est vrai. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut pas faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
+          "text": "**Délégation d'un Domaine à un Rôle.** Un Cercle peut déléguer l'un de ses Domaines à l'un de ses Rôles. Le Leader de ce Rôle peut alors contrôler ce Domaine au nom du Cercle et créer des Règles pour le régir. Le Cercle conserve le droit de définir ses propres Règles sur ce Domaine, lesquelles priment en cas de conflit. Déléguer un Domaine ne délègue pas l'autorité de dépenser de l'argent ou des actifs, sauf mention explicite."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "focus",
+      "label": "Focus",
+      "tier": "integral",
+      "default": true,
+      "description": "Permet de restreindre une affectation de Rôle à un contexte. Retirer : les Rôles s'affectent sans découpage par contexte.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Focus.** Un Leader de Cercle peut limiter une affectation à un contexte spécifique, appelé «Focus». Dans ce cas, cette affectation est considérée comme un Rôle distinct pour ce contexte."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "scribe",
+      "label": "Scribe",
+      "tier": "integral",
+      "default": true,
+      "description": "Ajoute le rôle qui tient les registres et les réunions du Cercle. Retiré : le Leader de Cercle en assume les fonctions.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Scribe.** Tout Cercle qui en a besoin peut se doter d'un «Scribe». Sa Raison d'Être : « gérer les enregistrements et les réunions du Cercle requis par la Constitution ». Le Scribe programme les Réunions Tactiques et de Gouvernance régulières, saisit et publie leurs résultats ainsi que les décisions de Gouvernance prises en asynchrone, tient à jour les registres officiels du Cercle (Rôles, Règles, Stratégies) et contrôle ce Domaine, tranche à la demande les conflits d'interprétation de cette Constitution, et peut radier une décision de Gouvernance qui l'enfreint. Le Cercle peut lui ajouter des Redevabilités ou des Domaines, mais ne peut pas modifier sa Raison d'Être ni ce que la Constitution lui attribue."
+        }
+      ],
+      "fallback": {
+        "anchor": "article-1",
+        "text": "**Par défaut (sans Scribe).** Les fonctions habituellement portées par le Scribe — programmer et consigner les réunions, tenir les registres du Cercle, trancher les conflits d'interprétation — sont assumées par le Leader de Cercle."
+      }
+    },
+    {
+      "id": "representant-cercle",
+      "label": "Représentant de Cercle",
+      "tier": "integral",
+      "default": true,
+      "description": "Ajoute le rôle élu qui porte au Super-Cercle les Tensions qu'un Cercle ne résout pas seul. Requiert le Processus d'Élection Intégrative.",
+      "requires": ["election-integrative"],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Représentant de Cercle.** Sa Raison d'Être : « les Tensions pertinentes à traiter dans un Cercle plus large sont acheminées et résolues ». Il écoute les Tensions que le Cercle n'a pas su résoudre par sa propre Gouvernance, discerne celles qu'il est utile de porter au Super-Cercle, et les y porte. Élu par Processus d'Élection Intégrative parmi les Membres du Cercle, il devient Membre du Super-Cercle avec la même autorité de représentation qu'un Leader de Cercle. Une personne qui exerce le Rôle de Leader de Cercle ne peut pas exercer aussi celui de Représentant."
+        },
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Représentant de Cercle (gouvernance).** Tout Membre du Cercle peut demander l'élection d'un Représentant de Cercle pour représenter son Cercle dans le Super-Cercle, en plus du Leader de Cercle. Il est élu par Processus d'Élection Intégrative et devient Membre du Cercle plus large avec la même autorité de représentation qu'un Leader de Cercle."
         }
       ],
       "fallback": null
     },
     {
       "id": "accords-relationnels",
-      "label": "Accords Relationnels (détaillés)",
+      "label": "Accords Relationnels",
       "tier": "integral",
-      "description": "Distingue accords contraignants (opposables) et accords comportementaux (volontaires, sortie libre).",
+      "default": true,
+      "description": "Distingue accords contraignants (opposables) et comportementaux (volontaires, sortie libre). Retirer : la coopération s'en tient aux trois devoirs.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-2",
           "position": "append",
-          "text": "**Devoir de respecter les Accords Relationnels.** En tant que Partenaire, vous pouvez passer des « Accords Relationnels » pour réguler la manière dont vous travaillez ensemble. Les **accords contraignants** (engagement écrit avec l'Organisation, sans sortie unilatérale) restent pleinement opposables et prévalent sur les autres dispositions de cet article. Les **accords comportementaux** (modes de communication, pratiques de coopération) sont volontaires : nul ne peut être contraint d'en souscrire un, et chaque partie peut y mettre fin à tout moment."
+          "text": "**Accords Relationnels.** En tant que Partenaire, vous pouvez passer des «Accords Relationnels» pour réguler la manière dont vous travaillez ensemble. Les **accords contraignants** — engagement écrit avec l'Organisation, sans sortie unilatérale (contrat de travail, règlement intérieur, lettre de mission signée) — restent pleinement opposables et prévalent sur les autres dispositions de cet article. Les **accords comportementaux** — modes de communication, pratiques de coopération, engagements mutuels — sont volontaires : nul ne peut être contraint d'en souscrire un, ils ne peuvent pas contredire les devoirs ci-dessus, et chaque partie peut y mettre fin à tout moment en informant l'autre."
         }
       ],
       "fallback": null
     },
     {
-      "id": "gouvernance-formelle",
-      "label": "Réunions de gouvernance formelles",
+      "id": "reunions-tactiques",
+      "label": "Réunion Tactique (processus)",
       "tier": "integral",
-      "description": "Déploie le Processus de Décision Intégrative complet en cinq temps. Sans ce module, une règle par défaut s'applique.",
+      "default": true,
+      "description": "Déploie la Réunion Tactique structurée en quatre temps. Retirée : l'Organisation garde ses habitudes de réunion actuelles.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-3",
+          "position": "append",
+          "text": "**Réunion Tactique.** Tout Partenaire peut organiser une «Réunion Tactique» pour coordonner le travail et s'engager mutuellement dans ses responsabilités. Le Scribe de chaque Cercle programme des réunions régulières ; le Facilitateur les facilite. Sauf Règle contraire du Cercle, le processus est le suivant :\n\n1. Inclusion : un tour rapide pour se rendre disponible. Aucune réaction.\n2. Synchronisation : chacun partage ce qu'il juge utile sur son travail en cours. Aucune discussion.\n3. Triage des points : on établit un ordre du jour à l'aide d'étiquettes courtes, puis chaque point est traité un par un, le porteur faisant des demandes concrètes aux présents. Le Facilitateur gère le temps.\n4. Clôture : chacun partage brièvement une réflexion de fin de réunion. Aucune réaction.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Chaque Cercle peut adopter le sien par une Règle."
+        }
+      ],
+      "fallback": {
+        "anchor": "article-3",
+        "text": "**Par défaut (sans réunions tactiques formalisées).** L'Organisation conserve ses habitudes de réunion actuelles, jusqu'à ce qu'un Leader de Cercle en décide autrement pour son Cercle, ou que les Ratificateurs en disposent autrement."
+      }
+    },
+    {
+      "id": "initiative-urgence",
+      "label": "Initiative d'urgence",
+      "tier": "integral",
+      "default": true,
+      "description": "Autorise à enfreindre une Règle dans l'urgence, sous conditions strictes. Retirer : aucune exception d'urgence à l'autorité distribuée.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-4",
+          "position": "append",
+          "text": "**Initiative d'urgence.** Vous pouvez agir au-delà de votre autorité ou enfreindre des Règles si toutes les conditions suivantes sont réunies :\n\n1. vous agissez de bonne foi au service d'un Rôle ;\n2. vous pensez que l'action résoudra plus de Tensions qu'elle n'en crée ;\n3. elle n'engage pas de dépenses non autorisées ;\n4. attendre serait significativement plus coûteux que d'agir.\n\nVous devez alors en informer immédiatement les Leaders de Rôle impactés, prendre les mesures correctives demandées, et ne pas réitérer si on vous le demande."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "decision-integrative",
+      "label": "Processus de Décision Intégrative",
+      "tier": "integral",
+      "default": true,
+      "description": "Déploie la décision intégrative en cinq temps. Retirée : le Leader de Cercle édite seul la Gouvernance.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-5",
           "position": "append",
-          "text": "**Processus de Décision Intégrative (détail).** Tout Membre peut initier une modification de Gouvernance en partageant une « Proposition » écrite, fondée sur une Tension réelle. Le processus se déroule en cinq temps : 1) Questions de clarification ; 2) Tour de réactions ; 3) Amender et clarifier ; 4) Tour d'Objection — une Objection n'est valide que si elle démontre une réduction de la capacité du Cercle ou de l'Objecteur, que la préoccupation n'existe pas déjà sans la Proposition, et que le tort est certain ou trop important pour être risqué ; 5) Intégration de chaque Objection valide sans perdre la Tension d'origine. La Proposition est adoptée quand toutes les Objections valides sont intégrées."
+          "text": "**Processus de Décision Intégrative.** Tout Membre du Cercle peut initier une modification de Gouvernance en partageant une «Proposition» écrite avec les autres Membres, via un canal validé par le Scribe ou lors d'une Réunion de Gouvernance. Pour être valide, une Proposition décrit une Tension réelle ressentie par le Proposeur dans l'un de ses Rôles, s'appuie sur un exemple, et explique comment elle l'aurait réduite. Le processus se déroule en cinq temps :\n\n1. Questions de clarification : les Membres peuvent demander à expliciter la Proposition ou la Tension. Aucune réaction.\n2. Tour de réactions : chaque Membre réagit à tour de rôle, sans dialogue.\n3. Amender et clarifier : le Proposeur peut amender sa Proposition à la lumière des réactions, au service de la Tension d'origine.\n4. Tour d'objection : une Objection n'est valide que si elle démontre que la Proposition réduirait la capacité du Cercle ou d'un Rôle de l'Objecteur, que la préoccupation n'existe pas déjà sans la Proposition, et que le tort est certain ou trop important pour être risqué. Une Proposition qui enfreint cette Constitution constitue toujours une Objection valide.\n5. Intégration : pour chaque Objection valide, Proposeur et Objecteur cherchent un amendement qui la lève sans perdre la Tension d'origine.\n\nLa Proposition est adoptée quand toutes les Objections valides sont intégrées, ou s'il n'y en a aucune. Ce processus ne peut pas être modifié."
         }
       ],
       "fallback": {
-        "anchor": "article-1",
-        "text": "**Par défaut (en l'absence de réunions de gouvernance formelles).** Faute de Processus de Gouvernance adopté, les Rôles, Redevabilités et Domaines de chaque Cercle sont définis et révisés par son Leader de Cercle. Il les consigne par écrit et les tient à jour."
+        "anchor": "article-5",
+        "text": "**Par défaut (sans Processus de Décision Intégrative).** Le Leader de Cercle édite seul la Gouvernance de son Cercle — créer, modifier ou supprimer Rôles et Règles — ou autorise d'autres à le faire, sauf indication contraire d'un Leader de Cercle plus large ou des Ratificateurs."
       }
+    },
+    {
+      "id": "election-integrative",
+      "label": "Processus d'Élection Intégrative",
+      "tier": "integral",
+      "default": true,
+      "description": "Déploie l'élection sans candidature ni campagne, par nominations argumentées. Retiré : les Rôles structurels sont désignés par le Leader de Cercle.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Processus d'Élection Intégrative.** Tout Membre peut demander la tenue d'une élection pour un Facilitateur, un Scribe ou un Représentant de Cercle. Le processus :\n\n1. chaque Membre nomme par écrit et en privé le candidat qui lui semble le plus adapté, avec sa raison ;\n2. les nominations sont partagées avec tous les Membres ;\n3. chaque Membre peut modifier sa nomination en expliquant sa raison ;\n4. le Facilitateur propose le candidat le plus nommé ; en cas d'égalité, il peut proposer celui qui s'est nommé lui-même, le titulaire sortant, ou tirer au sort ;\n5. les Membres peuvent soulever des Objections ; le Facilitateur ouvre alors une discussion pour les lever ou revient à l'étape précédente.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Ce processus ne peut pas être modifié."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "rupture-processus",
+      "label": "Rupture de Processus",
+      "tier": "integral",
+      "default": true,
+      "description": "Donne au Super-Cercle un recours quand un Cercle enfreint la Constitution. Retirer : aucune procédure de rétablissement formelle.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Rupture de Processus.** Une «Rupture de Processus» se produit lorsqu'un Cercle adopte un comportement qui enfreint cette Constitution. Le Facilitateur du Cercle ou du Super-Cercle peut la déclarer. Le Facilitateur du Super-Cercle acquiert alors l'autorité de rétablir le processus — y compris en prenant le relais comme Facilitateur ou Scribe, ou en affectant un Leader de Cercle supplémentaire dont les décisions priment sur celles des autres Leaders de Cercle."
+        }
+      ],
+      "fallback": null
     },
     {
       "id": "agents",
       "label": "Rôles confiés à des agents",
       "tier": "extension",
-      "description": "Module opt-in. Autorise qu'un Rôle soit tenu par un Agent (système logiciel autonome), tout en ancrant la redevabilité chez un humain. Requiert le module Source de Vérité (il s'y réfère).",
+      "default": false,
+      "description": "Extension opt-in. Autorise qu'un Rôle soit tenu par un Agent (système logiciel autonome), tout en ancrant la redevabilité chez un humain. Requiert le bloc Source de Vérité.",
       "requires": ["source-de-verite"],
       "conflicts": [],
       "insertions": [
@@ -174,6 +309,7 @@
       "id": "revue-appreciative",
       "label": "Revue appréciative",
       "tier": "app",
+      "default": false,
       "description": "App (brouillon) : une pratique régulière de reconnaissance et de feedback appréciatif au sein du Cercle.",
       "requires": [],
       "conflicts": [],
@@ -181,7 +317,7 @@
         {
           "anchor": "article-3",
           "position": "append",
-          "text": "**Revue appréciative (app).** *Brouillon — à détailler.* Le Cercle tient régulièrement une « Revue Appréciative » : un temps dédié, distinct des Réunions Tactiques et de Gouvernance, où chaque Partenaire exprime reconnaissance et retours appréciatifs sur la contribution des autres."
+          "text": "**Revue appréciative (app).** *Brouillon — à détailler.* Le Cercle tient régulièrement une «Revue Appréciative» : un temps dédié, distinct des Réunions Tactiques et de Gouvernance, où chaque Partenaire exprime reconnaissance et retours appréciatifs sur la contribution des autres."
         }
       ],
       "fallback": null
@@ -190,6 +326,7 @@
       "id": "decision-remunerations",
       "label": "Décision sur les rémunérations",
       "tier": "app",
+      "default": false,
       "description": "App (brouillon) : un mécanisme de décision dédié aux rémunérations (évaluation par les pairs, ratios).",
       "requires": [],
       "conflicts": [],
