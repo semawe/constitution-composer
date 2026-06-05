@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const LS_PRINCIPES = "cc_principes";
 
 export interface Principle {
   id: string;
@@ -33,6 +35,35 @@ export default function Principes({ data }: { data: PrincipesData }) {
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newText, setNewText] = useState("");
+  const [raisonEtre, setRaisonEtre] = useState("");
+  const [devise, setDevise] = useState("");
+  const [loaded, setLoaded] = useState(false);
+
+  // Restaure l'état des principes (survit au changement d'onglet et au rechargement).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_PRINCIPES);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (Array.isArray(s.removed)) setRemoved(new Set(s.removed));
+        if (Array.isArray(s.custom)) setCustom(s.custom);
+        if (typeof s.raisonEtre === "string") setRaisonEtre(s.raisonEtre);
+        if (typeof s.devise === "string") setDevise(s.devise);
+      }
+    } catch {}
+    setLoaded(true);
+  }, []);
+
+  // Persiste à chaque changement (après le chargement initial).
+  useEffect(() => {
+    if (!loaded) return;
+    try {
+      localStorage.setItem(
+        LS_PRINCIPES,
+        JSON.stringify({ removed: [...removed], custom, raisonEtre, devise }),
+      );
+    } catch {}
+  }, [loaded, removed, custom, raisonEtre, devise]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -75,7 +106,33 @@ export default function Principes({ data }: { data: PrincipesData }) {
       </header>
 
       <article className="doc-prose text-[1.05rem] text-slate-800">
-        <p className="mb-8 italic leading-relaxed text-slate-600">{data.intro}</p>
+        <p className="mb-6 italic leading-relaxed text-slate-600">{data.intro}</p>
+
+        <div className="mb-8 space-y-3 rounded-md border border-slate-200 bg-white/70 p-4">
+          <div>
+            <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Raison d&apos;Être de l&apos;organisation
+            </label>
+            <textarea
+              value={raisonEtre}
+              onChange={(e) => setRaisonEtre(e.target.value)}
+              rows={2}
+              placeholder="La raison d'être que ces principes servent — quelques lignes."
+              className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-transparent p-2.5 text-[0.98rem] leading-relaxed outline-none transition focus:border-slate-400"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Devise <span className="normal-case text-slate-400">(facultatif)</span>
+            </label>
+            <input
+              value={devise}
+              onChange={(e) => setDevise(e.target.value)}
+              placeholder="Une formule courte qui vous rassemble."
+              className="mt-1 w-full rounded border border-slate-200 bg-transparent px-2.5 py-2 text-sm outline-none transition focus:border-slate-400"
+            />
+          </div>
+        </div>
 
         {data.principles.map((p) =>
           removed.has(p.id) ? (

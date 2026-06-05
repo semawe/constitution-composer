@@ -39,11 +39,14 @@ export default function App({
         <ThemeToggle />
       </nav>
 
-      {view === "constitution" ? (
+      {/* Les deux vues restent montées (masquage CSS) : changer d'onglet ne
+          perd plus la saisie en cours de l'autre vue. */}
+      <div className={view === "constitution" ? "" : "hidden"}>
         <Composer data={constitution} />
-      ) : (
+      </div>
+      <div className={view === "principes" ? "" : "hidden"}>
         <Principes data={principes} />
-      )}
+      </div>
     </div>
   );
 }
