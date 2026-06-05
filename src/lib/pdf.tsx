@@ -44,8 +44,14 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "Times-Bold",
     fontSize: 22,
-    marginBottom: 18,
+    marginBottom: 4,
     color: COLOR.title,
+  },
+  date: {
+    fontFamily: "Helvetica",
+    fontSize: 9,
+    color: COLOR.muted,
+    marginBottom: 18,
   },
   h2: {
     fontFamily: "Times-Bold",
@@ -137,11 +143,13 @@ function ComposedDoc({
   active,
   title,
   values,
+  date,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
   title: string;
   values: string;
+  date?: string;
 }) {
   const items = compose(data, active);
   return (
@@ -149,6 +157,7 @@ function ComposedDoc({
       <Page size="A4" style={styles.page}>
         <Text style={styles.kicker}>{(data.meta.version ?? "").toUpperCase()}</Text>
         <Text style={styles.title}>{title}</Text>
+        {date && <Text style={styles.date}>Composé le {date}</Text>}
 
         {items.map((it) => {
           if (it.kind === "block") {
@@ -180,7 +189,9 @@ function ComposedDoc({
         })}
 
         <Text style={styles.footer} fixed>
-          {data.meta.notice} — {data.meta.license}
+          Composé avec le Composeur de Constitution de Sémawé, diffusé sous
+          licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
+          {data.meta.notice}
         </Text>
       </Page>
     </Document>
@@ -190,11 +201,17 @@ function ComposedDoc({
 export async function generateComposedPdfBlob(
   data: ConstitutionData,
   active: ReadonlySet<string>,
-  opts?: { title?: string; values?: string },
+  opts?: { title?: string; values?: string; date?: string },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
   const values = opts?.values ?? "";
   return pdf(
-    <ComposedDoc data={data} active={active} title={title} values={values} />,
+    <ComposedDoc
+      data={data}
+      active={active}
+      title={title}
+      values={values}
+      date={opts?.date}
+    />,
   ).toBlob();
 }

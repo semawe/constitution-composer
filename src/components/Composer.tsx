@@ -226,7 +226,15 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setPdfBusy(true);
     try {
       const { generateComposedPdfBlob } = await import("@/lib/pdf");
-      const blob = await generateComposedPdfBlob(data, active, { title, values });
+      const blob = await generateComposedPdfBlob(data, active, {
+        title,
+        values,
+        date: new Date().toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        }),
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -556,9 +564,18 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                 <button
                   onClick={() => handleLoadVersion(v)}
                   title="Charger cette version"
-                  className="min-w-0 flex-1 truncate text-left text-slate-700"
+                  className="min-w-0 flex-1 truncate text-left"
                 >
-                  {v.name || "Sans titre"}
+                  <span className="block truncate text-slate-700">
+                    {v.name || "Sans titre"}
+                  </span>
+                  <span className="block text-[0.7rem] text-slate-400">
+                    {new Date(v.updated_at).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </span>
                 </button>
                 <button
                   onClick={() => handleRenameVersion(v)}
@@ -845,7 +862,9 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           </div>
 
           <footer className="mt-10 border-t border-slate-200 pt-6 text-xs text-slate-400">
-            {data.meta.notice} — {data.meta.license}
+            Composé avec le Composeur de Constitution de Sémawé, diffusé sous
+            licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
+            {data.meta.notice}
           </footer>
         </article>
         </main>
