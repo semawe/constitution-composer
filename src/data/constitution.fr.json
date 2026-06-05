@@ -8,9 +8,10 @@
     "notice": "Version non officielle. Holacracy® est une marque de HolacracyOne LLC."
   },
   "tiers": [
-    { "id": "core", "label": "Cœur", "hint": "Le socle non négociable." },
-    { "id": "integral", "label": "Intégral", "hint": "Enrichissements de la version complète." },
-    { "id": "periphery", "label": "Périphérie", "hint": "Modules optionnels (opt-in)." }
+    { "id": "core", "label": "Cœur", "hint": "Le socle non négociable, présent dans toute version." },
+    { "id": "integral", "label": "Intégrale", "hint": "La constitution complète standard." },
+    { "id": "extension", "label": "Extension constitutionnelle", "hint": "Du texte constitutionnel au-delà de l'intégrale." },
+    { "id": "app", "label": "App", "hint": "Ajoute une fonction qui n'existe pas dans la constitution de base." }
   ],
   "blocks": [
     {
@@ -145,7 +146,7 @@
     {
       "id": "agents",
       "label": "Rôles confiés à des agents",
-      "tier": "periphery",
+      "tier": "extension",
       "description": "Module opt-in. Autorise qu'un Rôle soit tenu par un Agent (système logiciel autonome), tout en ancrant la redevabilité chez un humain. Requiert le module Source de Vérité (il s'y réfère).",
       "requires": ["source-de-verite"],
       "conflicts": [],
@@ -165,6 +166,38 @@
           "position": "append",
           "whenActive": ["representant-cercle"],
           "text": "**Agents et rôles élus.** Un Agent peut être élu Facilitateur ou Scribe d'un Cercle, comme un humain. En revanche, le Représentant de Cercle ne peut être tenu que par une personne : il devient Membre du Super-Cercle et y porte la représentation du Cercle, ce qui excède le périmètre d'un rôle délégué."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "revue-appreciative",
+      "label": "Revue appréciative",
+      "tier": "app",
+      "description": "App (brouillon) : une pratique régulière de reconnaissance et de feedback appréciatif au sein du Cercle.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-3",
+          "position": "append",
+          "text": "**Revue appréciative (app).** *Brouillon — à détailler.* Le Cercle tient régulièrement une « Revue Appréciative » : un temps dédié, distinct des Réunions Tactiques et de Gouvernance, où chaque Partenaire exprime reconnaissance et retours appréciatifs sur la contribution des autres."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "decision-remunerations",
+      "label": "Décision sur les rémunérations",
+      "tier": "app",
+      "description": "App (brouillon) : un mécanisme de décision dédié aux rémunérations (évaluation par les pairs, ratios).",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Décision sur les rémunérations (app).** *Brouillon — à détailler.* L'Organisation se dote d'un mécanisme de décision dédié aux rémunérations, distinct du Processus de Décision Intégrative : évaluation entre pairs, grille de critères et ratios, et révision périodique."
         }
       ],
       "fallback": null

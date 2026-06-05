@@ -29,12 +29,19 @@ const TIER_UI: Record<
     tint: "bg-teal-50/50",
     chip: "hover:border-teal-400 hover:text-teal-700",
   },
-  periphery: {
+  extension: {
     dot: "bg-violet-500",
     bar: "border-violet-400",
     tag: "bg-violet-50 text-violet-700 ring-violet-200",
     tint: "bg-violet-50/50",
     chip: "hover:border-violet-400 hover:text-violet-700",
+  },
+  app: {
+    dot: "bg-rose-500",
+    bar: "border-rose-400",
+    tag: "bg-rose-50 text-rose-700 ring-rose-200",
+    tint: "bg-rose-50/50",
+    chip: "hover:border-rose-400 hover:text-rose-700",
   },
   warning: {
     dot: "bg-amber-500",
@@ -73,6 +80,8 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [active, setActive] = useState<ReadonlySet<string>>(new Set());
   const [showIntent, setShowIntent] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [title, setTitle] = useState(data.meta.title);
+  const [values, setValues] = useState("");
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -108,11 +117,19 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setPdfBusy(true);
     try {
       const { generateComposedPdfBlob } = await import("@/lib/pdf");
-      const blob = await generateComposedPdfBlob(data, active);
+      const blob = await generateComposedPdfBlob(data, active, { title, values });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "ma-constitution-holacracy.pdf";
+      const slug =
+        (title || "constitution")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[̀-ͯ]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 60) || "constitution";
+      a.download = `${slug}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -228,7 +245,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         </button>
       </div>
 
-      {(["integral", "periphery"] as Tier[]).map((tier) => (
+      {(["integral", "extension", "app"] as Tier[]).map((tier) => (
         <div key={tier} className="mt-6">
           <div className="flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${TIER_UI[tier].dot}`} />
@@ -297,9 +314,15 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {data.meta.version}
           </p>
-          <h1 className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl">
-            {data.meta.title}
-          </h1>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            aria-label="Titre de votre Constitution"
+            placeholder={data.meta.title}
+            spellCheck={false}
+            className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-3xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
+          />
+          <p className="mt-1 text-xs text-slate-400">Titre modifiable — donnez un nom à votre Constitution.</p>
 
           <div className="mt-5">
             <div className="flex items-center justify-between text-xs">
@@ -424,6 +447,10 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                     </motion.div>
                   ))}
                 </AnimatePresence>
+
+                {block.id === "preambule" && (
+                  <PreambleValues values={values} setValues={setValues} />
+                )}
 
                 {/* "+" entre paragraphes : modules activables ancrés ici */}
                 <InsertDivider
@@ -613,11 +640,67 @@ function InsertDivider({
   );
 }
 
+function PreambleValues({
+  values,
+  setValues,
+}: {
+  values: string;
+  setValues: (v: string) => void;
+}) {
+  const [editing, setEditing] = useState(values.trim().length > 0);
+  const paraCount = values
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean).length;
+
+  if (!editing) {
+    return (
+      <button
+        onClick={() => setEditing(true)}
+        className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3 py-1 text-xs text-slate-500 transition hover:border-slate-500 hover:text-slate-700"
+      >
+        <span className="text-base leading-none">+</span>
+        Ajouter vos valeurs et principes
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 rounded-md border border-slate-200 bg-white/70 p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Valeurs et principes
+        </span>
+        <span
+          className={`text-xs ${
+            paraCount > 4 ? "text-amber-600" : "text-slate-400"
+          }`}
+        >
+          {paraCount}/4 paragraphes
+        </span>
+      </div>
+      <textarea
+        value={values}
+        onChange={(e) => setValues(e.target.value)}
+        rows={6}
+        placeholder="Exprimez les valeurs et principes propres à votre organisation. Restez bref : 4 paragraphes maximum. Séparez les paragraphes par une ligne vide."
+        className="doc-prose w-full resize-y rounded border border-slate-200 bg-white p-3 text-[0.98rem] leading-relaxed text-slate-800 outline-none transition focus:border-slate-400"
+      />
+      {paraCount > 4 && (
+        <p className="mt-1 text-xs text-amber-600">
+          Conseil : restez sous 4 paragraphes pour garder le préambule lisible.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Legend({ tierLabel }: { tierLabel: Record<string, string> }) {
   const rows: { key: Tier | "warning"; label: string }[] = [
     { key: "core", label: tierLabel.core ?? "Cœur" },
-    { key: "integral", label: tierLabel.integral ?? "Intégral" },
-    { key: "periphery", label: tierLabel.periphery ?? "Périphérie" },
+    { key: "integral", label: tierLabel.integral ?? "Intégrale" },
+    { key: "extension", label: tierLabel.extension ?? "Extension constitutionnelle" },
+    { key: "app", label: tierLabel.app ?? "App" },
     { key: "warning", label: "Règle par défaut" },
   ];
   return (

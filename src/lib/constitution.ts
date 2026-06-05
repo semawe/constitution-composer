@@ -1,7 +1,7 @@
 // Moteur de composition. Consomme le modèle de données du fond
 // (source de vérité : holacracy-constitution/composer/SCHEMA.md).
 
-export type Tier = "core" | "integral" | "periphery";
+export type Tier = "core" | "integral" | "extension" | "app";
 
 export interface TierDef {
   id: Tier;

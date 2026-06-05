@@ -15,7 +15,8 @@ import { type ConstitutionData, type Tier, compose } from "./constitution";
 const COLOR: Record<Tier | "warning" | "ink" | "muted" | "rule" | "title", string> = {
   core: "#334155",
   integral: "#0d9488",
-  periphery: "#7c3aed",
+  extension: "#7c3aed",
+  app: "#be123c",
   warning: "#b45309",
   ink: "#1f2937",
   muted: "#64748b",
@@ -52,6 +53,13 @@ const styles = StyleSheet.create({
     marginTop: 18,
     marginBottom: 6,
     color: COLOR.title,
+  },
+  valuesHeading: {
+    fontFamily: "Times-Bold",
+    fontSize: 12,
+    marginTop: 10,
+    marginBottom: 4,
+    color: COLOR.ink,
   },
   para: { marginBottom: 6 },
   bold: { fontFamily: "Times-Bold" },
@@ -100,16 +108,20 @@ function paragraphs(text: string) {
 function ComposedDoc({
   data,
   active,
+  title,
+  values,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
+  title: string;
+  values: string;
 }) {
   const items = compose(data, active);
   return (
-    <Document title={data.meta.title}>
+    <Document title={title}>
       <Page size="A4" style={styles.page}>
         <Text style={styles.kicker}>{(data.meta.version ?? "").toUpperCase()}</Text>
-        <Text style={styles.title}>{data.meta.title}</Text>
+        <Text style={styles.title}>{title}</Text>
 
         {items.map((it) => {
           if (it.kind === "block") {
@@ -117,6 +129,12 @@ function ComposedDoc({
               <View key={it.key}>
                 {it.heading && <Text style={styles.h2}>{it.heading}</Text>}
                 {paragraphs(it.text)}
+                {it.key === "block:preambule" && values.trim() && (
+                  <View>
+                    <Text style={styles.valuesHeading}>Valeurs et principes</Text>
+                    {paragraphs(values)}
+                  </View>
+                )}
               </View>
             );
           }
@@ -143,6 +161,11 @@ function ComposedDoc({
 export async function generateComposedPdfBlob(
   data: ConstitutionData,
   active: ReadonlySet<string>,
+  opts?: { title?: string; values?: string },
 ): Promise<Blob> {
-  return pdf(<ComposedDoc data={data} active={active} />).toBlob();
+  const title = opts?.title?.trim() || data.meta.title;
+  const values = opts?.values ?? "";
+  return pdf(
+    <ComposedDoc data={data} active={active} title={title} values={values} />,
+  ).toBlob();
 }
