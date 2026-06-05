@@ -11,6 +11,10 @@ import {
   toggleModule,
 } from "@/lib/constitution";
 
+// Freemium : exploration libre jusqu'à ce seuil de modules actifs ; au-delà
+// (et pour l'export PDF), création de compte requise.
+const FREE_MODULE_LIMIT = 5;
+
 const TIER_UI: Record<
   Tier | "warning",
   { dot: string; bar: string; tag: string; tint: string; chip: string }
@@ -82,6 +86,8 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [pdfBusy, setPdfBusy] = useState(false);
   const [title, setTitle] = useState(data.meta.title);
   const [values, setValues] = useState("");
+  const [account, setAccount] = useState(false);
+  const [gate, setGate] = useState<null | "modules" | "pdf">(null);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -104,6 +110,13 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     return () => obs.disconnect();
   }, [data.blocks]);
 
+  // Compte simulé (Lot 2) — persisté localement, sera remplacé par Supabase (Lot 3).
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("cc_account") === "1") setAccount(true);
+    } catch {}
+  }, []);
+
   const goTo = (id: string) => {
     setActiveId(id); // retour immédiat, sans attendre le scrollspy
     document.getElementById(id)?.scrollIntoView({
@@ -113,7 +126,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setMobileOpen(false);
   };
 
-  const handlePdf = async () => {
+  const doGeneratePdf = async () => {
     setPdfBusy(true);
     try {
       const { generateComposedPdfBlob } = await import("@/lib/pdf");
@@ -139,8 +152,41 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     }
   };
 
-  const toggle = (id: string) =>
-    setActive((prev) => toggleModule(data, prev, id));
+  const handlePdf = () => {
+    if (!account) {
+      setGate("pdf");
+      return;
+    }
+    doGeneratePdf();
+  };
+
+  // Création de compte simulée (Lot 2). Lot 3 : Supabase + « Continuer avec Google ».
+  const createAccount = () => {
+    setAccount(true);
+    try {
+      localStorage.setItem("cc_account", "1");
+    } catch {}
+    const reason = gate;
+    setGate(null);
+    if (reason === "pdf") doGeneratePdf();
+  };
+
+  const signOut = () => {
+    setAccount(false);
+    try {
+      localStorage.removeItem("cc_account");
+    } catch {}
+  };
+
+  const toggle = (id: string) => {
+    const next = toggleModule(data, active, id);
+    // Mur freemium : au-delà du seuil gratuit, on demande un compte.
+    if (!account && next.size > FREE_MODULE_LIMIT && next.size > active.size) {
+      setGate("modules");
+      return;
+    }
+    setActive(next);
+  };
 
   // Modules inactifs qui portent un remplacement obligatoire = trous comblés.
   const gaps = data.modules.filter((m) => !active.has(m.id) && m.fallback);
@@ -232,7 +278,13 @@ export default function Composer({ data }: { data: ConstitutionData }) {
 
       <div className="mt-4 flex gap-2 text-xs">
         <button
-          onClick={() => setActive(new Set(data.modules.map((m) => m.id)))}
+          onClick={() => {
+            if (!account && data.modules.length > FREE_MODULE_LIMIT) {
+              setGate("modules");
+              return;
+            }
+            setActive(new Set(data.modules.map((m) => m.id)));
+          }}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
         >
           Tout activer
@@ -339,6 +391,21 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                 style={{ width: `${Math.max(pct * 100, 3)}%` }}
               />
             </div>
+            <p className="mt-1.5 text-xs text-slate-400">
+              {account ? (
+                <>
+                  Compte actif — modules et export illimités.{" "}
+                  <button
+                    onClick={signOut}
+                    className="underline transition hover:text-slate-600"
+                  >
+                    se déconnecter
+                  </button>
+                </>
+              ) : (
+                `Gratuit jusqu'à ${FREE_MODULE_LIMIT} modules. Compte requis au-delà et pour le PDF.`
+              )}
+            </p>
           </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
@@ -468,10 +535,9 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         </main>
       </div>
 
-      {/* Tiroir mobile */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <div className="fixed inset-0 z-40 lg:hidden">
+      {/* Tiroir mobile (rendu conditionnel simple) */}
+      {mobileOpen && (
+          <motion.div key="drawer" className="fixed inset-0 z-40 lg:hidden">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -497,9 +563,91 @@ export default function Composer({ data }: { data: ConstitutionData }) {
               </div>
               {panel}
             </motion.aside>
-          </div>
+          </motion.div>
         )}
-      </AnimatePresence>
+
+      {/* Mur freemium — création de compte (rendu conditionnel simple) */}
+      {gate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          >
+            <div
+              onClick={() => setGate(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 280, damping: 26 }}
+              className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+            >
+              <button
+                onClick={() => setGate(null)}
+                aria-label="Fermer"
+                className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+              >
+                ✕
+              </button>
+              <div className="bg-gradient-to-br from-teal-500 to-violet-600 px-6 py-7 text-white">
+                <p className="text-xs font-medium uppercase tracking-widest text-white/80">
+                  Créez votre compte gratuit
+                </p>
+                <h2 className="mt-1 font-serif text-2xl font-semibold">
+                  {gate === "pdf"
+                    ? "Téléchargez votre Constitution"
+                    : "Continuez votre composition"}
+                </h2>
+                <p className="mt-2 text-sm text-white/90">
+                  {gate === "pdf"
+                    ? "Le PDF de votre Constitution composée est réservé aux membres — la création de compte est gratuite."
+                    : `Au-delà de ${FREE_MODULE_LIMIT} modules, créez un compte gratuit pour continuer à enrichir votre Constitution.`}
+                </p>
+              </div>
+              <div className="px-6 py-6">
+                <div className="mb-5 flex items-start gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3">
+                  <span className="text-xl leading-none">🎁</span>
+                  <p className="text-sm text-teal-900">
+                    <strong>30 minutes de coaching offertes</strong> avec un coach
+                    certifié en Holacracy à la création de votre compte.
+                    <span className="mt-0.5 block text-xs text-teal-700">
+                      Coaching premium ensuite à 500 €/h.
+                    </span>
+                  </p>
+                </div>
+                <button
+                  onClick={createAccount}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                >
+                  <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
+                    <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
+                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" />
+                    <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
+                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
+                  </svg>
+                  Continuer avec Google
+                </button>
+                <button
+                  onClick={createAccount}
+                  className="mt-2 w-full rounded-lg px-4 py-2 text-sm text-slate-500 transition hover:text-slate-700"
+                >
+                  J&apos;ai déjà un compte
+                </button>
+                <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
+                  À la création : nom, prénom, e-mail et entreprise. Vous pourrez
+                  réserver votre créneau de coaching depuis votre espace.
+                  <br />
+                  <span className="italic">
+                    Démo — l&apos;authentification réelle arrive au prochain lot.
+                  </span>
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
     </div>
   );
 }
