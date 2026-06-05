@@ -26,8 +26,18 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${sourceSerif.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${sourceSerif.variable} dark h-full antialiased`}
     >
+      <head>
+        {/* Applique le thème choisi avant le paint (dark par défaut). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('cc-theme')==='light')document.documentElement.classList.remove('dark')}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+/* Dark mode piloté par la classe .dark sur <html> (et non prefers-color-scheme),
+   pour que le sélecteur de thème fasse foi. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #faf9f7;
   --foreground: #1f2937;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
 }
 
 @theme inline {
@@ -14,6 +23,9 @@
 
 html {
   color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -35,3 +47,59 @@ body {
   background: rgb(0 0 0 / 0.12);
   border-radius: 9999px;
 }
+.dark .thin-scroll::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.16);
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   Couche de thème sombre. Le code des composants emploie des couleurs
+   neutres en dur (slate/white) ; plutôt que d'ajouter `dark:` partout,
+   on remappe ici les utilitaires récurrents quand <html> porte .dark.
+   Spécificité (.dark .x) = (0,2,0) > utilitaire simple (0,1,0).
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Surfaces */
+.dark .bg-white { background-color: #1e293b; }
+.dark .bg-white\/70 { background-color: rgb(30 41 59 / 0.7); }
+.dark .bg-slate-50 { background-color: #1e293b; }
+.dark .bg-slate-100 { background-color: #273449; }
+.dark .bg-slate-200 { background-color: #334155; }
+.dark .bg-slate-900 { background-color: #334155; }
+.dark .hover\:bg-slate-100:hover { background-color: #273449; }
+.dark .hover\:bg-slate-50:hover { background-color: #1e293b; }
+
+/* Texte */
+.dark .text-slate-900 { color: #f1f5f9; }
+.dark .text-slate-800 { color: #e2e8f0; }
+.dark .text-slate-700 { color: #cbd5e1; }
+.dark .text-slate-600 { color: #cbd5e1; }
+.dark .text-slate-500 { color: #94a3b8; }
+.dark .text-slate-400 { color: #7c8aa0; }
+.dark .text-slate-300 { color: #64748b; }
+
+/* Bordures */
+.dark .border-slate-100 { border-color: #1e293b; }
+.dark .border-slate-200 { border-color: #334155; }
+.dark .border-slate-300 { border-color: #475569; }
+.dark .border-transparent { border-color: transparent; }
+
+/* Teintes des modules (insertions / tags) : versions sombres translucides */
+.dark .bg-teal-50 { background-color: rgb(13 148 136 / 0.18); }
+.dark .bg-teal-50\/50 { background-color: rgb(13 148 136 / 0.14); }
+.dark .bg-violet-50 { background-color: rgb(124 58 237 / 0.18); }
+.dark .bg-violet-50\/50 { background-color: rgb(124 58 237 / 0.14); }
+.dark .bg-rose-50 { background-color: rgb(225 29 72 / 0.18); }
+.dark .bg-rose-50\/50 { background-color: rgb(225 29 72 / 0.14); }
+.dark .bg-amber-50 { background-color: rgb(217 119 6 / 0.18); }
+.dark .bg-amber-50\/60 { background-color: rgb(217 119 6 / 0.18); }
+.dark .text-teal-700 { color: #5eead4; }
+.dark .text-violet-700 { color: #c4b5fd; }
+.dark .text-rose-700 { color: #fda4af; }
+.dark .text-amber-700 { color: #fcd34d; }
+.dark .text-amber-600 { color: #fbbf24; }
+.dark .text-teal-900 { color: #99f6e4; }
+
+/* Carte coach : dégradé clair → teinte sombre */
+.dark .from-teal-50 { --tw-gradient-from: rgb(13 148 136 / 0.16); }
+.dark .to-violet-50 { --tw-gradient-to: rgb(124 58 237 / 0.16); }
+.dark .border-teal-200 { border-color: rgb(13 148 136 / 0.4); }

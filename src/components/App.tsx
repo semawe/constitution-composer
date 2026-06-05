@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Composer from "@/components/Composer";
 import Principes, { type PrincipesData } from "@/components/Principes";
+import ThemeToggle from "@/components/ThemeToggle";
 import type { ConstitutionData } from "@/lib/constitution";
 
 function tabClass(active: boolean) {
@@ -35,6 +36,7 @@ export default function App({
         >
           Déclaration de Principes
         </button>
+        <ThemeToggle />
       </nav>
 
       {view === "constitution" ? (
