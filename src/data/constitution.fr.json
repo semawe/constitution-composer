@@ -9,8 +9,8 @@
   },
   "tiers": [
     { "id": "core", "label": "Socle", "hint": "Le cœur incompressible, présent dans toute version." },
-    { "id": "integral", "label": "Bloc retirable", "hint": "Présent par défaut (version light complète) ; décochable pour alléger." },
-    { "id": "extension", "label": "Extension constitutionnelle", "hint": "Du texte constitutionnel au-delà de la light (ex. Agents)." },
+    { "id": "integral", "label": "Bloc retirable", "hint": "Présent par défaut (version Lite complète) ; décochable pour alléger." },
+    { "id": "extension", "label": "Extension constitutionnelle", "hint": "Du texte constitutionnel au-delà de la Lite (ex. Agents)." },
     { "id": "app", "label": "App", "hint": "Ajoute une fonction qui n'existe pas dans la constitution de base." }
   ],
   "blocks": [

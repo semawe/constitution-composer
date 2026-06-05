@@ -117,7 +117,7 @@ function Prose({ text }: { text: string }) {
 }
 
 export default function Composer({ data }: { data: ConstitutionData }) {
-  // Au départ : la light complète = tous les blocs retirables cochés.
+  // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
     defaultActive(data),
   );
@@ -333,7 +333,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const availableChips = (anchor: string) =>
     modulesForAnchor(data, anchor).filter((m) => !active.has(m.id));
 
-  // Light = blocs retirables (tier integral, cochés par défaut).
+  // Lite = blocs retirables (tier integral, cochés par défaut).
   // Au-delà = modules additifs (extension / app, off par défaut).
   const integralMods = useMemo(
     () => data.modules.filter((m) => m.tier === "integral"),
@@ -346,7 +346,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
 
   const countLabel =
     removed === 0 && addonsOn === 0
-      ? "Light complète"
+      ? "Lite complète"
       : removed > 0 && addonsOn === 0
         ? `${integralMods.length - removed}/${integralMods.length} blocs retirables`
         : `${integralMods.length - removed}/${integralMods.length} blocs · ${addonsOn} ajout${addonsOn > 1 ? "s" : ""}`;
@@ -354,7 +354,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const pct = data.modules.length ? active.size / data.modules.length : 0;
   const versionLabel =
     removed === 0 && addonsOn === 0
-      ? "Version light — complète"
+      ? "Version Lite — complète"
       : active.size === data.modules.length
         ? "Version intégrale"
         : removed > 0 && addonsOn === 0
@@ -416,9 +416,9 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         <button
           onClick={() => setActive(defaultActive(data))}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
-          title="Revenir à la light complète : tous les blocs retirables cochés, sans extension ni app."
+          title="Revenir à la Lite complète : tous les blocs retirables cochés, sans extension ni app."
         >
-          Base light
+          Base Lite
         </button>
         <button
           onClick={() => setActive(new Set())}
