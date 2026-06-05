@@ -13,9 +13,9 @@ import {
 import { getSupabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 
-// Freemium : exploration libre jusqu'à ce seuil de modules actifs ; au-delà
-// (et pour l'export PDF), création de compte requise.
-const FREE_MODULE_LIMIT = 5;
+// Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
+// Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
+const isGatedTier = (tier: Tier) => tier === "extension" || tier === "app";
 
 const TIER_UI: Record<
   Tier | "warning",
@@ -244,9 +244,11 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   };
 
   const toggle = (id: string) => {
+    const mod = data.modules.find((m) => m.id === id);
     const next = toggleModule(data, active, id);
-    // Mur freemium : au-delà du seuil gratuit, on demande un compte.
-    if (!account && next.size > FREE_MODULE_LIMIT && next.size > active.size) {
+    const activating = next.size > active.size;
+    // Paliers : activer une Extension ou une App requiert un compte.
+    if (!account && activating && mod && isGatedTier(mod.tier)) {
       setGate("modules");
       return;
     }
@@ -344,7 +346,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
       <div className="mt-4 flex gap-2 text-xs">
         <button
           onClick={() => {
-            if (!account && data.modules.length > FREE_MODULE_LIMIT) {
+            if (!account && data.modules.some((m) => isGatedTier(m.tier))) {
               setGate("modules");
               return;
             }
@@ -376,6 +378,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                 key={m.id}
                 mod={m}
                 on={active.has(m.id)}
+                premium={!account && isGatedTier(m.tier)}
                 lockedBy={requiredByActive(data, active, m.id).map(
                   (x) => x.label,
                 )}
@@ -471,7 +474,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                   </button>
                 </>
               ) : (
-                `Gratuit jusqu'à ${FREE_MODULE_LIMIT} modules. Compte requis au-delà et pour le PDF.`
+                "Cœur et Intégrale en accès libre. Compte requis pour les Extensions, les Apps et le PDF."
               )}
             </p>
           </div>
@@ -667,12 +670,12 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                 <h2 className="mt-1 font-serif text-2xl font-semibold">
                   {gate === "pdf"
                     ? "Téléchargez votre Constitution"
-                    : "Continuez votre composition"}
+                    : "Débloquez les modules avancés"}
                 </h2>
                 <p className="mt-2 text-sm text-white/90">
                   {gate === "pdf"
                     ? "Le PDF de votre Constitution composée est réservé aux membres — la création de compte est gratuite."
-                    : `Au-delà de ${FREE_MODULE_LIMIT} modules, créez un compte gratuit pour continuer à enrichir votre Constitution.`}
+                    : "Les Extensions constitutionnelles et les Apps sont réservées aux membres. La création de compte est gratuite."}
                 </p>
               </div>
               <div className="px-6 py-6">
@@ -774,12 +777,14 @@ export default function Composer({ data }: { data: ConstitutionData }) {
 function ModuleToggle({
   mod,
   on,
+  premium,
   lockedBy,
   requires,
   onToggle,
 }: {
   mod: Module;
   on: boolean;
+  premium: boolean;
   lockedBy: string[];
   requires: string[];
   onToggle: () => void;
@@ -830,6 +835,11 @@ function ModuleToggle({
         </span>
         <span className="min-w-0 leading-snug">
           {mod.label}
+          {premium && !on && (
+            <span className="ml-1.5 inline-block align-middle rounded-full bg-slate-100 px-1.5 py-px text-[0.62rem] font-medium text-slate-500">
+              compte
+            </span>
+          )}
           {locked && (
             <span className="mt-0.5 block text-[0.7rem] font-normal text-slate-400">
               requis par {lockedBy.join(", ")}
