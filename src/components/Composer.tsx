@@ -12,6 +12,14 @@ import {
   toggleModule,
 } from "@/lib/constitution";
 import { getSupabase } from "@/lib/supabase";
+import {
+  type SavedComposition,
+  MAX_COMPOSITIONS,
+  listCompositions,
+  saveComposition,
+  renameComposition,
+  deleteComposition,
+} from "@/lib/compositions";
 import type { Session, User } from "@supabase/supabase-js";
 
 // Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
@@ -129,7 +137,10 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [user, setUser] = useState<User | null>(null);
   const [needsCompany, setNeedsCompany] = useState(false);
   const [company, setCompany] = useState("");
-  const [gate, setGate] = useState<null | "modules" | "pdf">(null);
+  const [gate, setGate] = useState<null | "modules" | "pdf" | "save">(null);
+  const [versions, setVersions] = useState<SavedComposition[]>([]);
+  const [versionMsg, setVersionMsg] = useState<string | null>(null);
+  const [versionBusy, setVersionBusy] = useState(false);
   const [booking, setBooking] = useState(false);
   const [exportPrompted, setExportPrompted] = useState(false);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
@@ -168,6 +179,19 @@ export default function Composer({ data }: { data: ConstitutionData }) {
       setUser(u);
       setAccount(!!u);
       setNeedsCompany(!!u && !u.user_metadata?.company);
+      // Miroir des infos utilisateur dans `profiles` (pour l'écran admin).
+      if (u) {
+        supabase
+          .from("profiles")
+          .upsert({
+            id: u.id,
+            email: u.email,
+            full_name: u.user_metadata?.full_name ?? null,
+            company: u.user_metadata?.company ?? null,
+            updated_at: new Date().toISOString(),
+          })
+          .then(() => {});
+      }
     };
     supabase.auth.getSession().then(({ data }) => apply(data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
@@ -299,6 +323,75 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setActive(next);
   };
 
+  // Mes versions (Phase B) : charge la liste dès qu'un compte est actif.
+  useEffect(() => {
+    if (!account) {
+      setVersions([]);
+      return;
+    }
+    let alive = true;
+    listCompositions()
+      .then((rows) => alive && setVersions(rows))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [account]);
+
+  const refreshVersions = () =>
+    listCompositions()
+      .then(setVersions)
+      .catch(() => {});
+
+  const handleSaveVersion = async () => {
+    if (!account) {
+      setGate("save");
+      return;
+    }
+    if (versions.length >= MAX_COMPOSITIONS) {
+      setVersionMsg(
+        `Limite de ${MAX_COMPOSITIONS} versions atteinte — supprimez-en une pour enregistrer.`,
+      );
+      return;
+    }
+    setVersionBusy(true);
+    setVersionMsg(null);
+    try {
+      await saveComposition((title || "Sans titre").trim(), {
+        title,
+        values,
+        active: [...active],
+      });
+      await refreshVersions();
+      setVersionMsg("Version enregistrée.");
+    } catch {
+      setVersionMsg("Échec de l'enregistrement.");
+    } finally {
+      setVersionBusy(false);
+    }
+  };
+
+  const handleLoadVersion = (v: SavedComposition) => {
+    setActive(new Set(v.payload.active ?? []));
+    setTitle(v.payload.title ?? data.meta.title);
+    setValues(v.payload.values ?? "");
+    setVersionMsg(`« ${v.name} » chargée.`);
+  };
+
+  const handleRenameVersion = async (v: SavedComposition) => {
+    const name = window.prompt("Nouveau nom de la version", v.name);
+    if (!name || !name.trim()) return;
+    await renameComposition(v.id, name.trim());
+    await refreshVersions();
+  };
+
+  const handleDeleteVersion = async (v: SavedComposition) => {
+    if (!window.confirm(`Supprimer la version « ${v.name} » ?`)) return;
+    await deleteComposition(v.id);
+    await refreshVersions();
+    setVersionMsg(null);
+  };
+
   // Modules inactifs qui portent un remplacement obligatoire = trous comblés.
   const gaps = data.modules.filter((m) => !active.has(m.id) && m.fallback);
 
@@ -427,6 +520,66 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         >
           Socle seul
         </button>
+      </div>
+
+      <div className="mt-6 border-t border-slate-200 pt-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Mes versions
+          </h2>
+          <span className="text-xs text-slate-400">
+            {versions.length}/{MAX_COMPOSITIONS}
+          </span>
+        </div>
+        <button
+          onClick={handleSaveVersion}
+          disabled={versionBusy}
+          className="mt-2 w-full rounded-full bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-700 disabled:opacity-60"
+        >
+          {versionBusy ? "Enregistrement…" : "Enregistrer cette version"}
+        </button>
+        {versionMsg && (
+          <p className="mt-1.5 text-xs text-slate-500">{versionMsg}</p>
+        )}
+        {!account && (
+          <p className="mt-1.5 text-xs text-slate-400">
+            Connexion requise pour sauvegarder vos versions.
+          </p>
+        )}
+        {versions.length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {versions.map((v) => (
+              <li
+                key={v.id}
+                className="group flex items-center gap-1 rounded-md px-1.5 py-1 text-sm hover:bg-slate-100"
+              >
+                <button
+                  onClick={() => handleLoadVersion(v)}
+                  title="Charger cette version"
+                  className="min-w-0 flex-1 truncate text-left text-slate-700"
+                >
+                  {v.name || "Sans titre"}
+                </button>
+                <button
+                  onClick={() => handleRenameVersion(v)}
+                  aria-label="Renommer"
+                  title="Renommer"
+                  className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-slate-700 group-hover:opacity-100"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => handleDeleteVersion(v)}
+                  aria-label="Supprimer"
+                  title="Supprimer"
+                  className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-rose-600 group-hover:opacity-100"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {(["integral", "extension", "app"] as Tier[]).map((tier) => (
@@ -762,12 +915,16 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                 <h2 className="mt-1 font-serif text-2xl font-semibold">
                   {gate === "pdf"
                     ? "Téléchargez votre Constitution"
-                    : "Débloquez les modules avancés"}
+                    : gate === "save"
+                      ? "Sauvegardez vos versions"
+                      : "Débloquez les modules avancés"}
                 </h2>
                 <p className="mt-2 text-sm text-white/90">
                   {gate === "pdf"
                     ? "Le PDF de votre Constitution composée est réservé aux membres — la création de compte est gratuite."
-                    : "Les Extensions constitutionnelles et les Apps sont réservées aux membres. La création de compte est gratuite."}
+                    : gate === "save"
+                      ? "Enregistrez jusqu'à cinq versions de votre Constitution et retrouvez-les à chaque visite. La création de compte est gratuite."
+                      : "Les Extensions constitutionnelles et les Apps sont réservées aux membres. La création de compte est gratuite."}
                 </p>
               </div>
               <div className="px-6 py-6">
