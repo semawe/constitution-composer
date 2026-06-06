@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Composer from "@/components/Composer";
 import Principes, { type PrincipesData } from "@/components/Principes";
+import Glossaire from "@/components/Glossaire";
 import ThemeToggle from "@/components/ThemeToggle";
 import type { ConstitutionData } from "@/lib/constitution";
 
@@ -21,7 +22,20 @@ export default function App({
   constitution: ConstitutionData;
   principes: PrincipesData;
 }) {
-  const [view, setView] = useState<"constitution" | "principes">("constitution");
+  const [view, setView] = useState<
+    "constitution" | "principes" | "glossaire"
+  >("constitution");
+
+  // Clic sur un terme défini dans un document → bascule vers le glossaire et
+  // défile jusqu'à l'entrée correspondante.
+  const goToTerm = (key: string) => {
+    setView("glossaire");
+    setTimeout(() => {
+      document
+        .getElementById(`glossaire-${key}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
 
   // Identité visuelle partagée par les deux documents (logo / police / couleur
   // de titre). Persistée localement ; les versions sauvegardées la mémorisent
@@ -78,13 +92,23 @@ export default function App({
         >
           Déclaration de Principes
         </button>
+        <button
+          onClick={() => setView("glossaire")}
+          className={tabClass(view === "glossaire")}
+        >
+          Glossaire
+        </button>
         <ThemeToggle />
       </nav>
 
       {/* Les deux vues restent montées (masquage CSS) : changer d'onglet ne
           perd plus la saisie en cours de l'autre vue. */}
       <div className={view === "constitution" ? "" : "hidden"}>
-        <Composer data={constitution} branding={branding} />
+        <Composer
+          data={constitution}
+          branding={branding}
+          onTermClick={goToTerm}
+        />
       </div>
       <div className={view === "principes" ? "" : "hidden"}>
         <Principes
@@ -92,7 +116,11 @@ export default function App({
           logo={logo}
           font={font}
           titleColor={titleColor}
+          onTermClick={goToTerm}
         />
+      </div>
+      <div className={view === "glossaire" ? "" : "hidden"}>
+        <Glossaire font={font} />
       </div>
     </div>
   );

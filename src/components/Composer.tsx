@@ -2,6 +2,7 @@
 
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { FONT_OPTIONS, fontVars } from "@/lib/branding";
+import { linkifyTerms } from "@/lib/glossary";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
@@ -74,19 +75,29 @@ const TIER_UI: Record<
   },
 };
 
-function renderInline(s: string, keyBase: string) {
+type TermClick = (key: string) => void;
+
+function renderInline(s: string, keyBase: string, onTermClick: TermClick) {
   return s.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
     part.startsWith("**") && part.endsWith("**") ? (
       <strong key={`${keyBase}-${i}`} className="font-semibold text-slate-900">
         {part.slice(2, -2)}
       </strong>
     ) : (
-      <span key={`${keyBase}-${i}`}>{part}</span>
+      <span key={`${keyBase}-${i}`}>
+        {linkifyTerms(part, onTermClick, `${keyBase}-${i}`)}
+      </span>
     ),
   );
 }
 
-function Prose({ text }: { text: string }) {
+function Prose({
+  text,
+  onTermClick,
+}: {
+  text: string;
+  onTermClick: TermClick;
+}) {
   return (
     <>
       {text.split(/\n\n/).map((chunk, i) => {
@@ -97,7 +108,7 @@ function Prose({ text }: { text: string }) {
             <ul key={i} className="mb-3 ml-5 list-disc space-y-1 last:mb-0">
               {lines.map((l, j) => (
                 <li key={j} className="leading-relaxed">
-                  {renderInline(l.trim().replace(/^- /, ""), `p${i}-${j}`)}
+                  {renderInline(l.trim().replace(/^- /, ""), `p${i}-${j}`, onTermClick)}
                 </li>
               ))}
             </ul>
@@ -109,7 +120,7 @@ function Prose({ text }: { text: string }) {
             <ol key={i} className="mb-3 ml-5 list-decimal space-y-1 last:mb-0">
               {lines.map((l, j) => (
                 <li key={j} className="leading-relaxed">
-                  {renderInline(l.trim().replace(/^\d+\.\s/, ""), `p${i}-${j}`)}
+                  {renderInline(l.trim().replace(/^\d+\.\s/, ""), `p${i}-${j}`, onTermClick)}
                 </li>
               ))}
             </ol>
@@ -117,7 +128,7 @@ function Prose({ text }: { text: string }) {
         }
         return (
           <p key={i} className="mb-3 leading-relaxed last:mb-0">
-            {renderInline(chunk, `p${i}`)}
+            {renderInline(chunk, `p${i}`, onTermClick)}
           </p>
         );
       })}
@@ -137,9 +148,11 @@ interface Branding {
 export default function Composer({
   data,
   branding,
+  onTermClick,
 }: {
   data: ConstitutionData;
   branding: Branding;
+  onTermClick: (key: string) => void;
 }) {
   // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
@@ -901,7 +914,7 @@ export default function Composer({
                   )}
                 </AnimatePresence>
 
-                <Prose text={block.text} />
+                <Prose text={block.text} onTermClick={onTermClick} />
 
                 {/* Insertions actives + remplacements obligatoires */}
                 <AnimatePresence initial={false}>
@@ -924,7 +937,7 @@ export default function Composer({
                           {ins.mod.label}
                         </span>
                         <div className="text-[0.98rem]">
-                          <Prose text={ins.text} />
+                          <Prose text={ins.text} onTermClick={onTermClick} />
                         </div>
                       </motion.div>
                     );
@@ -946,7 +959,7 @@ export default function Composer({
                         ⚠ Règle par défaut — « {m.label} » non activé
                       </span>
                       <div className="text-[0.98rem]">
-                        <Prose text={m.fallback!.text} />
+                        <Prose text={m.fallback!.text} onTermClick={onTermClick} />
                       </div>
                     </motion.div>
                   ))}

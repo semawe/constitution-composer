@@ -2,6 +2,7 @@
 
 import { type DragEvent, useEffect, useMemo, useState } from "react";
 import { fontVars } from "@/lib/branding";
+import { linkifyTerms } from "@/lib/glossary";
 import { getSupabase } from "@/lib/supabase";
 
 const LS_PRINCIPES = "cc_principes";
@@ -23,10 +24,14 @@ export interface PrincipesData {
   principles: Principle[];
 }
 
-function paras(text: string) {
+function paras(
+  text: string,
+  onTermClick: (key: string) => void,
+  keyBase = "t",
+) {
   return text.split(/\n\n/).map((p, i) => (
     <p key={i} className="mt-2 leading-relaxed">
-      {p}
+      {linkifyTerms(p, onTermClick, `${keyBase}-${i}`)}
     </p>
   ));
 }
@@ -36,11 +41,13 @@ export default function Principes({
   logo,
   font,
   titleColor,
+  onTermClick,
 }: {
   data: PrincipesData;
   logo: string;
   font: string;
   titleColor: string;
+  onTermClick: (key: string) => void;
 }) {
   const [removed, setRemoved] = useState<ReadonlySet<string>>(new Set());
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -402,7 +409,11 @@ export default function Principes({
                     Retirer
                   </button>
                 </div>
-                {p ? paras(p.text) : c!.text ? paras(c!.text) : null}
+                {p
+                  ? paras(p.text, onTermClick, id)
+                  : c!.text
+                    ? paras(c!.text, onTermClick, id)
+                    : null}
                 {c && (
                   <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
                     Principe ajouté

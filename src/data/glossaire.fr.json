@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "title": "Glossaire",
+    "intro": "Les termes définis par la Constitution. Dans le document, ils sont soulignés en pointillé : survolez pour une définition courte, cliquez pour venir ici."
+  },
+  "terms": [
+    { "key": "accords-relationnels", "term": "Accords Relationnels", "definition": "Accords sur la manière dont les Partenaires entretiennent leurs relations ou s'acquittent de leurs fonctions dans l'Organisation." },
+    { "key": "cercle", "term": "Cercle", "definition": "Un conteneur qui organise des Rôles et des Règles autour d'une Raison d'Être commune." },
+    { "key": "cercle-ancrage", "term": "Cercle d'Ancrage", "definition": "Le Cercle le plus large, qui porte la Raison d'Être de l'ensemble de l'Organisation et n'a pas de Super-Cercle." },
+    { "key": "constitution", "term": "Constitution", "definition": "Les règles du jeu de la structure d'autorité officielle de l'Organisation." },
+    { "key": "domaines", "term": "Domaines", "definition": "Des actifs, processus ou autres choses qu'un Rôle contrôle de manière exclusive, au service de sa Raison d'Être." },
+    { "key": "facilitateur", "term": "Facilitateur", "definition": "Rôle élu chargé d'une Gouvernance et de pratiques opérationnelles conformes à la Constitution." },
+    { "key": "focus", "term": "Focus", "definition": "Contexte spécifique auquel une affectation de Rôle est limitée ; elle compte alors comme un Rôle distinct pour ce contexte." },
+    { "key": "gouvernance", "term": "Gouvernance", "definition": "L'ensemble des Rôles et des Règles au sein d'un Cercle." },
+    { "key": "initiative-urgence", "term": "Initiative d'urgence", "definition": "Action d'un Leader de Rôle au-delà de son autorité ou enfreignant une Règle, sous conditions strictes, lorsqu'attendre serait trop coûteux." },
+    { "key": "leader-de-cercle", "term": "Leader de Cercle", "definition": "Personne qui assume le Rôle de Leader de Cercle : porte sa Raison d'Être et ses Redevabilités non déléguées, et affecte les Rôles." },
+    { "key": "leader-de-role", "term": "Leader de Rôle", "definition": "La personne qui assume un Rôle." },
+    { "key": "membres-du-cercle", "term": "Membres du Cercle", "definition": "Les Partenaires qui sont Leader d'un Rôle dans le Cercle ; eux seuls participent à son Processus de Gouvernance." },
+    { "key": "objection", "term": "Objection", "definition": "Préoccupation valide sur une Proposition : elle doit démontrer une réduction de capacité, ne pas préexister, et un tort certain ou trop risqué." },
+    { "key": "organisation", "term": "Organisation", "definition": "Groupement formel ou informel de plusieurs personnes œuvrant pour un but commun." },
+    { "key": "partenaires", "term": "Partenaires", "definition": "Personnes qui acceptent de respecter toutes les dispositions applicables de la Constitution." },
+    { "key": "processus-decision-integrative", "term": "Processus de Décision Intégrative", "definition": "Méthode de modification de la Gouvernance en cinq temps : clarifications, réactions, amendement, objections, intégration." },
+    { "key": "processus-election-integrative", "term": "Processus d'Élection Intégrative", "definition": "Méthode de désignation des Rôles élus (Facilitateur, Scribe, Représentant de Cercle) par nominations argumentées." },
+    { "key": "proposition", "term": "Proposition", "definition": "Point de départ d'une modification de Gouvernance : décrit une Tension réelle, un exemple, et comment elle la réduit." },
+    { "key": "raison-detre", "term": "Raison d'Être", "definition": "Une capacité, un potentiel ou un objectif qu'un Rôle ou un Cercle poursuit ou exprime." },
+    { "key": "ratificateurs", "term": "Ratificateurs", "definition": "Personnes qui adoptent la Constitution et transfèrent leur pouvoir dans les règles qu'elle définit." },
+    { "key": "redevabilites", "term": "Redevabilités", "definition": "Activités continues qu'un Rôle conduit au service d'autres Rôles ou de sa Raison d'Être." },
+    { "key": "regles", "term": "Règles", "definition": "Octrois, restrictions d'autorité ou dispositions particulières s'appliquant au sein d'un Rôle ou d'un Cercle." },
+    { "key": "representant-de-cercle", "term": "Représentant de Cercle", "definition": "Rôle élu qui porte au Super-Cercle les Tensions qu'un Cercle n'a pas pu résoudre par sa propre Gouvernance." },
+    { "key": "reunion-tactique", "term": "Réunion Tactique", "definition": "Réunion de coordination du travail au quotidien, ouverte à tout Partenaire, où chacun fait des demandes concrètes aux autres." },
+    { "key": "role", "term": "Rôle", "definition": "Une unité de travail organisationnel qu'une personne assume au nom de l'Organisation : nom, Raison d'Être, Domaines, Redevabilités." },
+    { "key": "rupture-de-processus", "term": "Rupture de Processus", "definition": "Comportement d'un Cercle qui enfreint la Constitution ; le Facilitateur du Super-Cercle peut alors rétablir le processus." },
+    { "key": "scribe", "term": "Scribe", "definition": "Rôle élu qui gère les enregistrements et les réunions du Cercle requis par la Constitution." },
+    { "key": "source-de-verite", "term": "Source de Vérité", "definition": "Domaine — référentiel ou registre — qui fait foi pour le travail du Cercle ; soumis à l'holarchie." },
+    { "key": "sous-cercle", "term": "Sous-Cercle", "definition": "Cercle contenu à l'intérieur d'un Rôle ou d'un Cercle." },
+    { "key": "strategies", "term": "Stratégies", "definition": "Priorités définies par un Leader de Cercle pour guider la hiérarchisation des choix dans le Cercle." },
+    { "key": "super-cercle", "term": "Super-Cercle", "definition": "Le Cercle plus large qui contient un Rôle ou un Cercle." },
+    { "key": "tension", "term": "Tension", "definition": "Écart entre l'expression réelle d'un Rôle et son potentiel idéal tel que perçu par son Leader de Rôle." }
+  ]
+}
