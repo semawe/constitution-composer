@@ -20,12 +20,29 @@ interface CompositionRow {
   payload: { title?: string; active?: string[] } | null;
   updated_at: string;
 }
+interface DeclarationRow {
+  user_id: string;
+  payload: {
+    removed?: string[];
+    custom?: unknown[];
+    raisonEtre?: string;
+    devise?: string;
+    ratifiers?: string;
+    signatories?: string;
+  } | null;
+  updated_at: string;
+}
 
 type State =
   | { kind: "loading" }
   | { kind: "unconfigured" }
   | { kind: "denied" }
-  | { kind: "ready"; profiles: ProfileRow[]; comps: CompositionRow[] };
+  | {
+      kind: "ready";
+      profiles: ProfileRow[];
+      comps: CompositionRow[];
+      decls: DeclarationRow[];
+    };
 
 function fmtDate(s: string) {
   try {
@@ -57,7 +74,7 @@ export default function AdminPage() {
         setState({ kind: "denied" });
         return;
       }
-      const [p, c] = await Promise.all([
+      const [p, c, d] = await Promise.all([
         sb
           .from("profiles")
           .select("id,email,full_name,company,created_at")
@@ -66,11 +83,13 @@ export default function AdminPage() {
           .from("compositions")
           .select("id,user_id,name,payload,updated_at")
           .order("updated_at", { ascending: false }),
+        sb.from("declarations").select("user_id,payload,updated_at"),
       ]);
       setState({
         kind: "ready",
         profiles: (p.data ?? []) as ProfileRow[],
         comps: (c.data ?? []) as CompositionRow[],
+        decls: (d.data ?? []) as DeclarationRow[],
       });
     })();
   }, []);
@@ -84,6 +103,11 @@ export default function AdminPage() {
       m.set(c.user_id, arr);
     }
     return m;
+  }, [state]);
+
+  const declByUser = useMemo(() => {
+    if (state.kind !== "ready") return new Map<string, DeclarationRow>();
+    return new Map(state.decls.map((d) => [d.user_id, d]));
   }, [state]);
 
   return (
@@ -134,6 +158,10 @@ export default function AdminPage() {
             <div className="space-y-3">
               {state.profiles.map((p) => {
                 const comps = compsByUser.get(p.id) ?? [];
+                const decl = declByUser.get(p.id);
+                const dp = decl?.payload;
+                const countNames = (s?: string) =>
+                  s ? s.split("\n").filter((x) => x.trim()).length : 0;
                 return (
                   <div
                     key={p.id}
@@ -168,6 +196,27 @@ export default function AdminPage() {
                           </li>
                         ))}
                       </ul>
+                    )}
+                    {dp && (
+                      <div className="mt-2 border-t border-slate-100 pt-2 text-sm">
+                        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                          Déclaration de Principes
+                        </p>
+                        {dp.raisonEtre ? (
+                          <p className="mt-0.5 text-slate-700">
+                            Raison d&apos;être : {dp.raisonEtre}
+                          </p>
+                        ) : null}
+                        {dp.devise ? (
+                          <p className="text-slate-600">Devise : {dp.devise}</p>
+                        ) : null}
+                        <p className="text-xs text-slate-400">
+                          {dp.custom?.length ?? 0} principe(s) ajouté(s) ·{" "}
+                          {countNames(dp.ratifiers)} ratificateur(s) ·{" "}
+                          {countNames(dp.signatories)} signataire(s) ·{" "}
+                          {fmtDate(decl!.updated_at)}
+                        </p>
+                      </div>
                     )}
                   </div>
                 );

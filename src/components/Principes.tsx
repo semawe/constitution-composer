@@ -168,6 +168,71 @@ export default function Principes({
     order,
   ]);
 
+  // Rattachement au compte : la Déclaration est aussi stockée dans Supabase
+  // (visible côté admin) dès que l'utilisateur est connecté.
+  const declarationPayload = useMemo(
+    () => ({
+      removed: [...removed],
+      custom,
+      order,
+      raisonEtre,
+      devise,
+      ratifiers,
+      signatories,
+    }),
+    [removed, custom, order, raisonEtre, devise, ratifiers, signatories],
+  );
+
+  // À la connexion : charge la Déclaration du compte si elle existe.
+  useEffect(() => {
+    if (!supabase || !account) return;
+    let alive = true;
+    supabase
+      .from("declarations")
+      .select("payload")
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!alive || !data?.payload) return;
+        const p = data.payload as {
+          removed?: string[];
+          custom?: { id: string; title: string; text: string }[];
+          order?: string[];
+          raisonEtre?: string;
+          devise?: string;
+          ratifiers?: string;
+          signatories?: string;
+        };
+        if (Array.isArray(p.removed)) setRemoved(new Set(p.removed));
+        if (Array.isArray(p.custom)) setCustom(p.custom);
+        if (Array.isArray(p.order)) setOrder(p.order);
+        if (typeof p.raisonEtre === "string") setRaisonEtre(p.raisonEtre);
+        if (typeof p.devise === "string") setDevise(p.devise);
+        if (typeof p.ratifiers === "string") setRatifiers(p.ratifiers);
+        if (typeof p.signatories === "string") setSignatories(p.signatories);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [supabase, account]);
+
+  // Sauvegarde différée dans le compte à chaque changement (connecté).
+  useEffect(() => {
+    if (!supabase || !account || !loaded) return;
+    const t = setTimeout(async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("declarations").upsert({
+        user_id: user.id,
+        payload: declarationPayload,
+        updated_at: new Date().toISOString(),
+      });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [supabase, account, loaded, declarationPayload]);
+
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
     setConfirmId(null);
