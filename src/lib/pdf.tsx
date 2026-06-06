@@ -7,6 +7,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -85,12 +86,18 @@ const styles = StyleSheet.create({
     bottom: 28,
     left: 56,
     right: 56,
-    fontFamily: "Helvetica",
-    fontSize: 8,
-    color: COLOR.muted,
+    flexDirection: "row",
+    alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: COLOR.rule,
     paddingTop: 8,
+  },
+  footerLogo: { width: 16, marginRight: 6 },
+  footerText: {
+    flex: 1,
+    fontFamily: "Helvetica",
+    fontSize: 8,
+    color: COLOR.muted,
   },
 });
 
@@ -144,19 +151,23 @@ function ComposedDoc({
   title,
   values,
   date,
+  titleColor,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
   title: string;
   values: string;
   date?: string;
+  titleColor?: string;
 }) {
   const items = compose(data, active);
   return (
     <Document title={title}>
       <Page size="A4" style={styles.page}>
         <Text style={styles.kicker}>{(data.meta.version ?? "").toUpperCase()}</Text>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, titleColor ? { color: titleColor } : {}]}>
+          {title}
+        </Text>
         {date && <Text style={styles.date}>Composé le {date}</Text>}
 
         {items.map((it) => {
@@ -188,11 +199,15 @@ function ComposedDoc({
           );
         })}
 
-        <Text style={styles.footer} fixed>
-          Composé avec le Composeur de Constitution de Sémawé, diffusé sous
-          licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
-          {data.meta.notice}
-        </Text>
+        <View style={styles.footer} fixed>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <Image style={styles.footerLogo} src="/logo-semawe-light.png" />
+          <Text style={styles.footerText}>
+            Composé avec le Composeur de Constitution de Sémawé, diffusé sous
+            licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
+            {data.meta.notice}
+          </Text>
+        </View>
       </Page>
     </Document>
   );
@@ -201,7 +216,7 @@ function ComposedDoc({
 export async function generateComposedPdfBlob(
   data: ConstitutionData,
   active: ReadonlySet<string>,
-  opts?: { title?: string; values?: string; date?: string },
+  opts?: { title?: string; values?: string; date?: string; titleColor?: string },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
   const values = opts?.values ?? "";
@@ -212,6 +227,7 @@ export async function generateComposedPdfBlob(
       title={title}
       values={values}
       date={opts?.date}
+      titleColor={opts?.titleColor}
     />,
   ).toBlob();
 }

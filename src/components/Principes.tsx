@@ -254,8 +254,24 @@ export default function Principes({ data }: { data: PrincipesData }) {
           </button>
         )}
 
-        <footer className="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-400">
-          {data.meta.notice} — {data.meta.license}
+        <footer className="mt-12 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-semawe-light.png"
+            alt="Sémawé"
+            className="h-10 w-auto shrink-0 dark:hidden"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-semawe-dark.png"
+            alt="Sémawé"
+            className="hidden h-10 w-auto shrink-0 dark:block"
+          />
+          <span>
+            Déclaration de Principes composée avec le Composeur de Sémawé,
+            diffusée sous licence {data.meta.license}, dérivée de la Constitution
+            Holacracy. {data.meta.notice}
+          </span>
         </footer>
       </article>
     </div>

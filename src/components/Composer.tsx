@@ -141,6 +141,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [versions, setVersions] = useState<SavedComposition[]>([]);
   const [versionMsg, setVersionMsg] = useState<string | null>(null);
   const [versionBusy, setVersionBusy] = useState(false);
+  const [titleColor, setTitleColor] = useState("");
   const [booking, setBooking] = useState(false);
   const [exportPrompted, setExportPrompted] = useState(false);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
@@ -229,6 +230,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
       const blob = await generateComposedPdfBlob(data, active, {
         title,
         values,
+        titleColor: titleColor || undefined,
         date: new Date().toLocaleDateString("fr-FR", {
           day: "2-digit",
           month: "long",
@@ -369,6 +371,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         title,
         values,
         active: [...active],
+        titleColor: titleColor || undefined,
       });
       await refreshVersions();
       setVersionMsg("Version enregistrée.");
@@ -383,6 +386,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setActive(new Set(v.payload.active ?? []));
     setTitle(v.payload.title ?? data.meta.title);
     setValues(v.payload.values ?? "");
+    setTitleColor(v.payload.titleColor ?? "");
     setVersionMsg(`« ${v.name} » chargée.`);
   };
 
@@ -675,9 +679,38 @@ export default function Composer({ data }: { data: ConstitutionData }) {
             aria-label="Titre de votre Constitution"
             placeholder={data.meta.title}
             spellCheck={false}
+            style={titleColor ? { color: titleColor } : undefined}
             className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-3xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
           />
-          <p className="mt-1 text-xs text-slate-400">Titre modifiable — donnez un nom à votre Constitution.</p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+            <span>Titre modifiable — donnez un nom à votre Constitution.</span>
+            <span className="flex items-center gap-1.5">
+              Couleur
+              <input
+                type="color"
+                value={titleColor || "#0f172a"}
+                onChange={(e) => setTitleColor(e.target.value)}
+                aria-label="Couleur du titre"
+                className="h-5 w-6 cursor-pointer rounded border border-slate-300 bg-transparent p-0"
+              />
+              <input
+                type="text"
+                value={titleColor}
+                onChange={(e) => setTitleColor(e.target.value)}
+                placeholder="#0f172a"
+                spellCheck={false}
+                className="w-20 rounded border border-slate-200 bg-transparent px-1.5 py-0.5 font-mono outline-none focus:border-slate-400"
+              />
+              {titleColor && (
+                <button
+                  onClick={() => setTitleColor("")}
+                  className="underline transition hover:text-slate-600"
+                >
+                  défaut
+                </button>
+              )}
+            </span>
+          </div>
 
           <div className="mt-5">
             <div className="flex items-center justify-between text-xs">
@@ -861,10 +894,24 @@ export default function Composer({ data }: { data: ConstitutionData }) {
             </button>
           </div>
 
-          <footer className="mt-10 border-t border-slate-200 pt-6 text-xs text-slate-400">
-            Composé avec le Composeur de Constitution de Sémawé, diffusé sous
-            licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
-            {data.meta.notice}
+          <footer className="mt-10 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-semawe-light.png"
+              alt="Sémawé"
+              className="h-10 w-auto shrink-0 dark:hidden"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-semawe-dark.png"
+              alt="Sémawé"
+              className="hidden h-10 w-auto shrink-0 dark:block"
+            />
+            <span>
+              Composé avec le Composeur de Constitution de Sémawé, diffusé sous
+              licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
+              {data.meta.notice}
+            </span>
           </footer>
         </article>
         </main>

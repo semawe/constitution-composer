@@ -8,6 +8,7 @@ export interface CompositionPayload {
   title: string;
   values: string;
   active: string[]; // ids des blocs retirables / modules cochés
+  titleColor?: string; // couleur du titre choisie (hex), vide = défaut du thème
 }
 
 export interface SavedComposition {
