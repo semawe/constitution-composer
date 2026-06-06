@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Composer from "@/components/Composer";
 import Principes, { type PrincipesData } from "@/components/Principes";
 import Glossaire from "@/components/Glossaire";
+import Marketplace from "@/components/Marketplace";
 import ThemeToggle from "@/components/ThemeToggle";
 import type { ConstitutionData } from "@/lib/constitution";
 import { getSupabase } from "@/lib/supabase";
@@ -25,8 +26,18 @@ export default function App({
   principes: PrincipesData;
 }) {
   const [view, setView] = useState<
-    "constitution" | "principes" | "glossaire"
+    "constitution" | "principes" | "glossaire" | "appstore"
   >("constitution");
+
+  // Depuis l'App Store : ouvrir le composeur à l'ancre de l'app choisie.
+  const openInComposer = (anchor: string) => {
+    setView("constitution");
+    setTimeout(() => {
+      document
+        .getElementById(anchor)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
 
   // Lien admin visible seulement pour les e-mails associés.
   const [isAdmin, setIsAdmin] = useState(false);
@@ -114,6 +125,12 @@ export default function App({
         >
           Glossaire
         </button>
+        <button
+          onClick={() => setView("appstore")}
+          className={tabClass(view === "appstore")}
+        >
+          App Store
+        </button>
         {isAdmin && (
           <a
             href="/admin/"
@@ -145,6 +162,9 @@ export default function App({
       </div>
       <div className={view === "glossaire" ? "" : "hidden"}>
         <Glossaire font={font} />
+      </div>
+      <div className={view === "appstore" ? "" : "hidden"}>
+        <Marketplace data={constitution} onOpen={openInComposer} />
       </div>
     </div>
   );
