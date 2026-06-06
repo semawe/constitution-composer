@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     borderTopColor: COLOR.rule,
     paddingTop: 8,
   },
+  docLogo: { height: 44, marginBottom: 12, objectFit: "contain" },
   footerLogo: { width: 16, marginRight: 6 },
   footerText: {
     flex: 1,
@@ -186,6 +187,7 @@ function ComposedDoc({
   date,
   titleColor,
   font,
+  logo,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
@@ -194,12 +196,17 @@ function ComposedDoc({
   date?: string;
   titleColor?: string;
   font?: string;
+  logo?: string;
 }) {
   const items = compose(data, active);
   const fam = PDF_FONTS[font ?? "source-serif"] ?? "Source Serif 4";
   return (
     <Document title={title}>
       <Page size="A4" style={[styles.page, { fontFamily: fam }]}>
+        {logo ? (
+          // eslint-disable-next-line jsx-a11y/alt-text
+          <Image style={styles.docLogo} src={logo} />
+        ) : null}
         <Text style={styles.kicker}>{(data.meta.version ?? "").toUpperCase()}</Text>
         <Text style={[styles.title, titleColor ? { color: titleColor } : {}]}>
           {title}
@@ -258,6 +265,7 @@ export async function generateComposedPdfBlob(
     date?: string;
     titleColor?: string;
     font?: string;
+    logo?: string;
   },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
@@ -272,6 +280,7 @@ export async function generateComposedPdfBlob(
       date={opts?.date}
       titleColor={opts?.titleColor}
       font={opts?.font}
+      logo={opts?.logo}
     />,
   ).toBlob();
 }

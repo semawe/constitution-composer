@@ -10,6 +10,7 @@ export interface CompositionPayload {
   active: string[]; // ids des blocs retirables / modules cochés
   titleColor?: string; // couleur du titre choisie (hex), vide = défaut du thème
   font?: string; // clé de la police du document (cf. FONT_OPTIONS)
+  logo?: string; // logo de l'organisation, en data URL (redimensionné)
 }
 
 export interface SavedComposition {

@@ -1,6 +1,12 @@
 "use client";
 
-import { type CSSProperties, useEffect, useMemo, useState } from "react";
+import {
+  type CSSProperties,
+  type ChangeEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
@@ -152,8 +158,37 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [versionBusy, setVersionBusy] = useState(false);
   const [titleColor, setTitleColor] = useState("");
   const [font, setFont] = useState("source-serif");
+  const [logo, setLogo] = useState("");
   const docFontStack =
     FONT_OPTIONS.find((f) => f.key === font)?.stack ?? FONT_OPTIONS[0].stack;
+
+  // Charge un logo : redimensionné (max 400 px) côté client pour garder un
+  // data URL léger, stocké tel quel dans la composition.
+  const onLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        const max = 400;
+        let { width, height } = img;
+        if (width > max || height > max) {
+          const r = Math.min(max / width, max / height);
+          width = Math.round(width * r);
+          height = Math.round(height * r);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d")?.drawImage(img, 0, 0, width, height);
+        setLogo(canvas.toDataURL("image/png"));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
   const [booking, setBooking] = useState(false);
   const [exportPrompted, setExportPrompted] = useState(false);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
@@ -244,6 +279,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         values,
         titleColor: titleColor || undefined,
         font,
+        logo: logo || undefined,
         date: new Date().toLocaleDateString("fr-FR", {
           day: "2-digit",
           month: "long",
@@ -386,6 +422,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         active: [...active],
         titleColor: titleColor || undefined,
         font,
+        logo: logo || undefined,
       });
       await refreshVersions();
       setVersionMsg("Version enregistrée.");
@@ -402,6 +439,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setValues(v.payload.values ?? "");
     setTitleColor(v.payload.titleColor ?? "");
     setFont(v.payload.font ?? "source-serif");
+    setLogo(v.payload.logo ?? "");
     setVersionMsg(`« ${v.name} » chargée.`);
   };
 
@@ -701,6 +739,14 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {data.meta.version}
           </p>
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logo}
+              alt="Logo de l'organisation"
+              className="mb-3 mt-1 max-h-16 w-auto"
+            />
+          )}
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -726,6 +772,26 @@ export default function Composer({ data }: { data: ConstitutionData }) {
                   </option>
                 ))}
               </select>
+            </span>
+            <span className="flex items-center gap-1.5">
+              Logo
+              <label className="cursor-pointer underline transition hover:text-slate-600">
+                {logo ? "changer" : "ajouter"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onLogoChange}
+                  className="hidden"
+                />
+              </label>
+              {logo && (
+                <button
+                  onClick={() => setLogo("")}
+                  className="underline transition hover:text-slate-600"
+                >
+                  retirer
+                </button>
+              )}
             </span>
             <span className="flex items-center gap-1.5">
               Couleur
