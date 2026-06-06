@@ -126,6 +126,25 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   docLogo: { height: 44, marginBottom: 12, objectFit: "contain" },
+  devise: { fontSize: 12, fontStyle: "italic", color: COLOR.muted, marginBottom: 10 },
+  intro: { fontStyle: "italic", color: COLOR.muted, marginBottom: 14 },
+  h3: { fontWeight: 700, fontSize: 12, marginTop: 12, marginBottom: 3, color: COLOR.title },
+  signHeading: {
+    fontFamily: "Helvetica",
+    fontSize: 8,
+    letterSpacing: 1,
+    color: COLOR.muted,
+    marginTop: 14,
+    marginBottom: 6,
+  },
+  signRow: { flexDirection: "row", alignItems: "flex-end", marginBottom: 12 },
+  signName: { width: 160, fontSize: 11 },
+  signLine: {
+    flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: COLOR.rule,
+    height: 14,
+  },
   footerLogo: { width: 16, marginRight: 6 },
   footerText: {
     flex: 1,
@@ -254,6 +273,100 @@ function ComposedDoc({
       </Page>
     </Document>
   );
+}
+
+export interface PrincipesPdfData {
+  meta: Record<string, string>;
+  intro: string;
+  raisonEtre?: string;
+  devise?: string;
+  adoptionText: string;
+  items: { n: number; title: string; text: string }[];
+  ratifiers: string[];
+  signatories: string[];
+  logo?: string;
+  font?: string;
+  titleColor?: string;
+}
+
+function SignatureList({ names }: { names: string[] }) {
+  return (
+    <>
+      {names.map((name, i) => (
+        <View key={i} style={styles.signRow}>
+          <Text style={styles.signName}>{name}</Text>
+          <View style={styles.signLine} />
+        </View>
+      ))}
+    </>
+  );
+}
+
+function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
+  const fam = PDF_FONTS[d.font ?? "source-serif"] ?? "Source Serif 4";
+  return (
+    <Document title={d.meta.title}>
+      <Page size="A4" style={[styles.page, { fontFamily: fam }]}>
+        {d.logo ? (
+          // eslint-disable-next-line jsx-a11y/alt-text
+          <Image style={styles.docLogo} src={d.logo} />
+        ) : null}
+        <Text style={styles.kicker}>{(d.meta.version ?? "").toUpperCase()}</Text>
+        <Text style={[styles.title, d.titleColor ? { color: d.titleColor } : {}]}>
+          {d.meta.title}
+        </Text>
+        {d.devise ? <Text style={styles.devise}>« {d.devise} »</Text> : null}
+        {d.raisonEtre ? (
+          <View>
+            <Text style={styles.valuesHeading}>Raison d&apos;Être</Text>
+            {paragraphs(d.raisonEtre)}
+          </View>
+        ) : null}
+        <Text style={styles.intro}>{d.intro}</Text>
+
+        {d.items.map((it, i) => (
+          <View key={i}>
+            <Text style={styles.h3}>
+              {it.n}. {it.title}
+            </Text>
+            {it.text ? paragraphs(it.text) : null}
+          </View>
+        ))}
+
+        <Text style={styles.h2}>Adoption</Text>
+        {paragraphs(d.adoptionText)}
+        {d.ratifiers.length > 0 && (
+          <View>
+            <Text style={styles.signHeading}>RATIFICATEURS</Text>
+            <SignatureList names={d.ratifiers} />
+          </View>
+        )}
+        {d.signatories.length > 0 && (
+          <View>
+            <Text style={styles.signHeading}>SIGNATAIRES</Text>
+            <SignatureList names={d.signatories} />
+          </View>
+        )}
+
+        <View style={styles.footer} fixed>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <Image style={styles.footerLogo} src="/logo-semawe-light.png" />
+          <Text style={styles.footerText}>
+            Déclaration de Principes composée avec le Composeur de Sémawé,
+            diffusée sous licence {d.meta.license}, dérivée de la Constitution
+            Holacracy. {d.meta.notice}
+          </Text>
+        </View>
+      </Page>
+    </Document>
+  );
+}
+
+export async function generatePrincipesPdfBlob(
+  d: PrincipesPdfData,
+): Promise<Blob> {
+  ensureFonts();
+  return pdf(<PrincipesDoc d={d} />).toBlob();
 }
 
 export async function generateComposedPdfBlob(

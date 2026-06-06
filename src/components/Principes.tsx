@@ -1,7 +1,8 @@
 "use client";
 
-import { type DragEvent, useEffect, useState } from "react";
+import { type DragEvent, useEffect, useMemo, useState } from "react";
 import { fontVars } from "@/lib/branding";
+import { getSupabase } from "@/lib/supabase";
 
 const LS_PRINCIPES = "cc_principes";
 
@@ -56,6 +57,45 @@ export default function Principes({
   const [order, setOrder] = useState<string[]>([]);
   const [dragId, setDragId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+
+  // Compte (mur freemium du PDF de la Déclaration, comme la Constitution).
+  const supabase = useMemo(() => getSupabase(), []);
+  const [account, setAccount] = useState(false);
+  const [gate, setGate] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) {
+      try {
+        if (localStorage.getItem("cc_account") === "1") setAccount(true);
+      } catch {}
+      return;
+    }
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setAccount(!!data.session?.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) =>
+      setAccount(!!s?.user),
+    );
+    return () => sub.subscription.unsubscribe();
+  }, [supabase]);
+
+  const signIn = async () => {
+    if (!supabase) {
+      setAccount(true);
+      try {
+        localStorage.setItem("cc_account", "1");
+      } catch {}
+      setGate(false);
+      return;
+    }
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + window.location.pathname,
+      },
+    });
+  };
 
   // Restaure l'état des principes (survit au changement d'onglet et au rechargement).
   useEffect(() => {
@@ -159,6 +199,61 @@ export default function Principes({
     setDragId(null);
   };
 
+  const parseNames = (s: string) =>
+    s
+      .split("\n")
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+  const doPdf = async () => {
+    setPdfBusy(true);
+    try {
+      const items = orderedIds
+        .filter((id) => !(builtinById.has(id) && removed.has(id)))
+        .map((id, i) => {
+          const p = builtinById.get(id);
+          const c = customById.get(id);
+          return {
+            n: i + 1,
+            title: p ? p.title : (c?.title ?? ""),
+            text: p ? p.text : (c?.text ?? ""),
+          };
+        });
+      const { generatePrincipesPdfBlob } = await import("@/lib/pdf");
+      const blob = await generatePrincipesPdfBlob({
+        meta: data.meta,
+        intro: data.intro,
+        raisonEtre: raisonEtre.trim() || undefined,
+        devise: devise.trim() || undefined,
+        adoptionText: ADOPTION_TEXT,
+        items,
+        ratifiers: parseNames(ratifiers),
+        signatories: parseNames(signatories),
+        logo: logo || undefined,
+        font,
+        titleColor: titleColor || undefined,
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "declaration-de-principes.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
+  const handlePdf = () => {
+    if (!account) {
+      setGate(true);
+      return;
+    }
+    doPdf();
+  };
+
   return (
     <div
       className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
@@ -182,10 +277,28 @@ export default function Principes({
         >
           {data.meta.title}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          {activeCount} principe{activeCount > 1 ? "s" : ""} retenu
-          {activeCount > 1 ? "s" : ""}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-slate-500">
+            {activeCount} principe{activeCount > 1 ? "s" : ""} retenu
+            {activeCount > 1 ? "s" : ""}
+          </p>
+          <button
+            onClick={handlePdf}
+            disabled={pdfBusy}
+            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-60"
+          >
+            <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden>
+              <path
+                d="M8 1.5v8m0 0L5 6.5m3 3l3-3M2.5 11.5v1a2 2 0 002 2h7a2 2 0 002-2v-1"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {pdfBusy ? "Génération…" : "Télécharger le PDF signable"}
+          </button>
+        </div>
       </header>
 
       <article className="doc-prose text-[1.05rem] text-slate-800">
@@ -425,6 +538,50 @@ export default function Principes({
           </span>
         </footer>
       </article>
+
+      {gate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            onClick={() => setGate(false)}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          />
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <button
+              onClick={() => setGate(false)}
+              aria-label="Fermer"
+              className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+            >
+              ✕
+            </button>
+            <div className="bg-gradient-to-br from-teal-500 to-violet-600 px-6 py-7 text-white">
+              <p className="text-xs font-medium uppercase tracking-widest text-white/80">
+                Créez votre compte gratuit
+              </p>
+              <h2 className="mt-1 font-serif text-2xl font-semibold">
+                Téléchargez votre Déclaration
+              </h2>
+              <p className="mt-2 text-sm text-white/90">
+                Le PDF signable de votre Déclaration de Principes est réservé aux
+                membres — la création de compte est gratuite.
+              </p>
+            </div>
+            <div className="px-6 py-6">
+              <button
+                onClick={signIn}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+              >
+                <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
+                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
+                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" />
+                  <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
+                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
+                </svg>
+                Continuer avec Google
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
