@@ -5,6 +5,12 @@ import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminEmail } from "@/lib/admin";
 import type { User } from "@supabase/supabase-js";
+import constitutionData from "@/data/constitution.fr.json";
+
+// id de bloc retirable / module → libellé, pour afficher ce qu'un compte a retenu.
+const MODULE_LABEL = new Map(
+  (constitutionData.modules ?? []).map((m) => [m.id, m.label]),
+);
 
 interface ProfileRow {
   id: string;
@@ -181,20 +187,28 @@ export default function AdminPage() {
                     </p>
                     {comps.length > 0 && (
                       <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2">
-                        {comps.map((c) => (
-                          <li
-                            key={c.id}
-                            className="flex items-baseline justify-between text-sm"
-                          >
-                            <span className="text-slate-700">
-                              {c.name || c.payload?.title || "Sans titre"}
-                            </span>
-                            <span className="text-xs text-slate-400">
-                              {c.payload?.active?.length ?? 0} blocs ·{" "}
-                              {fmtDate(c.updated_at)}
-                            </span>
-                          </li>
-                        ))}
+                        {comps.map((c) => {
+                          const labels = (c.payload?.active ?? []).map(
+                            (id) => MODULE_LABEL.get(id) ?? id,
+                          );
+                          return (
+                            <li key={c.id} className="text-sm">
+                              <div className="flex items-baseline justify-between gap-3">
+                                <span className="font-medium text-slate-700">
+                                  {c.name || c.payload?.title || "Sans titre"}
+                                </span>
+                                <span className="shrink-0 text-xs text-slate-400">
+                                  {labels.length} bloc(s) · {fmtDate(c.updated_at)}
+                                </span>
+                              </div>
+                              {labels.length > 0 && (
+                                <p className="text-xs text-slate-500">
+                                  {labels.join(" · ")}
+                                </p>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                     {dp && (
