@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type DragEvent, useEffect, useState } from "react";
 import { fontVars } from "@/lib/branding";
 
 const LS_PRINCIPES = "cc_principes";
@@ -53,6 +53,8 @@ export default function Principes({
   const [devise, setDevise] = useState("");
   const [ratifiers, setRatifiers] = useState("");
   const [signatories, setSignatories] = useState("");
+  const [order, setOrder] = useState<string[]>([]);
+  const [dragId, setDragId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   // Restaure l'état des principes (survit au changement d'onglet et au rechargement).
@@ -67,6 +69,7 @@ export default function Principes({
         if (typeof s.devise === "string") setDevise(s.devise);
         if (typeof s.ratifiers === "string") setRatifiers(s.ratifiers);
         if (typeof s.signatories === "string") setSignatories(s.signatories);
+        if (Array.isArray(s.order)) setOrder(s.order);
       }
     } catch {}
     setLoaded(true);
@@ -85,10 +88,20 @@ export default function Principes({
           devise,
           ratifiers,
           signatories,
+          order,
         }),
       );
     } catch {}
-  }, [loaded, removed, custom, raisonEtre, devise, ratifiers, signatories]);
+  }, [
+    loaded,
+    removed,
+    custom,
+    raisonEtre,
+    devise,
+    ratifiers,
+    signatories,
+    order,
+  ]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -103,10 +116,9 @@ export default function Principes({
   const addCustom = () => {
     const title = newTitle.trim();
     if (!title) return;
-    setCustom((c) => [
-      ...c,
-      { id: `custom-${c.length}`, title, text: newText.trim() },
-    ]);
+    const id = `custom-${Date.now()}`;
+    setCustom((c) => [...c, { id, title, text: newText.trim() }]);
+    setOrder((o) => [...o, id]);
     setNewTitle("");
     setNewText("");
     setAdding(false);
@@ -114,6 +126,38 @@ export default function Principes({
 
   const activeCount =
     data.principles.filter((p) => !removed.has(p.id)).length + custom.length;
+
+  // Ordre d'affichage unifié (principes d'origine + ajoutés), réordonnable.
+  const builtinById = new Map(data.principles.map((p) => [p.id, p]));
+  const customById = new Map(custom.map((c) => [c.id, c]));
+  const allIds = [
+    ...data.principles.map((p) => p.id),
+    ...custom.map((c) => c.id),
+  ];
+  const orderedIds = [
+    ...order.filter((id) => allIds.includes(id)),
+    ...allIds.filter((id) => !order.includes(id)),
+  ];
+  // Numérotation adaptative : compte uniquement les principes non retirés.
+  const numberById = new Map<string, number>();
+  let runningNo = 0;
+  for (const id of orderedIds) {
+    if (builtinById.has(id) && removed.has(id)) continue;
+    runningNo += 1;
+    numberById.set(id, runningNo);
+  }
+
+  const moveTo = (targetId: string) => {
+    if (!dragId || dragId === targetId) return;
+    const arr = [...orderedIds];
+    const from = arr.indexOf(dragId);
+    const to = arr.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    arr.splice(from, 1);
+    arr.splice(to, 0, dragId);
+    setOrder(arr);
+    setDragId(null);
+  };
 
   return (
     <div
@@ -173,81 +217,112 @@ export default function Principes({
           </div>
         </div>
 
-        {data.principles.map((p) =>
-          removed.has(p.id) ? (
-            <div
-              key={p.id}
-              className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-slate-200 px-3 py-2 text-sm text-slate-400"
-            >
-              <span>
-                Principe {p.n} retiré — « {p.title} »
-              </span>
-              <button
-                onClick={() => restore(p.id)}
-                className="shrink-0 underline transition hover:text-slate-600"
+        <p className="mb-4 text-xs text-slate-400">
+          Glissez un principe par sa poignée <span aria-hidden>⠿</span> pour le
+          réordonner ; la numérotation s&apos;adapte.
+        </p>
+
+        {orderedIds.map((id) => {
+          const p = builtinById.get(id);
+          const c = customById.get(id);
+
+          // Principe d'origine retiré : placeholder gardé à sa place.
+          if (p && removed.has(id)) {
+            return (
+              <div
+                key={id}
+                className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-slate-200 px-3 py-2 text-sm text-slate-400"
               >
-                Rétablir
-              </button>
-            </div>
-          ) : (
-            <section key={p.id} className="mb-7 border-l-2 border-slate-200 pl-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-serif text-lg font-semibold text-slate-900">
-                  {p.n}. {p.title}
-                </h2>
+                <span>Principe retiré — « {p.title} »</span>
                 <button
-                  onClick={() => setConfirmId(p.id)}
-                  className="shrink-0 text-xs text-slate-400 underline transition hover:text-amber-600"
+                  onClick={() => restore(id)}
+                  className="shrink-0 underline transition hover:text-slate-600"
                 >
-                  Retirer
+                  Rétablir
                 </button>
               </div>
-              {paras(p.text)}
-              {confirmId === p.id && (
-                <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-amber-50/60 py-3 pl-4 pr-3">
-                  <p className="text-sm text-amber-800">
-                    <span className="font-semibold">⚠ Retirer ce principe ?</span>{" "}
-                    {p.warning}
-                  </p>
-                  <div className="mt-2 flex gap-2">
-                    <button
-                      onClick={() => remove(p.id)}
-                      className="rounded-full bg-amber-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-amber-700"
-                    >
-                      Confirmer le retrait
-                    </button>
-                    <button
-                      onClick={() => setConfirmId(null)}
-                      className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 transition hover:border-slate-500"
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                </div>
-              )}
-            </section>
-          ),
-        )}
+            );
+          }
 
-        {custom.map((c) => (
-          <section key={c.id} className="mb-7 border-l-2 border-violet-300 pl-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="font-serif text-lg font-semibold text-slate-900">
-                {c.title}
-              </h2>
-              <button
-                onClick={() => setCustom((cs) => cs.filter((x) => x.id !== c.id))}
-                className="shrink-0 text-xs text-slate-400 underline transition hover:text-amber-600"
-              >
-                Retirer
-              </button>
-            </div>
-            {c.text ? paras(c.text) : null}
-            <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
-              Principe ajouté
-            </p>
-          </section>
-        ))}
+          const num = numberById.get(id);
+          const dragging = dragId === id;
+          const dragProps = {
+            draggable: true,
+            onDragStart: () => setDragId(id),
+            onDragOver: (e: DragEvent) => e.preventDefault(),
+            onDrop: () => moveTo(id),
+            onDragEnd: () => setDragId(null),
+          };
+          const grip = (
+            <span
+              className="mt-1 shrink-0 cursor-grab select-none text-slate-300 transition hover:text-slate-500"
+              title="Glisser pour réordonner"
+              aria-hidden
+            >
+              ⠿
+            </span>
+          );
+          const accent = c ? "border-violet-300" : "border-slate-200";
+
+          return (
+            <section
+              key={id}
+              {...dragProps}
+              className={`mb-7 flex gap-2 border-l-2 pl-4 transition ${accent} ${
+                dragging ? "opacity-40" : ""
+              }`}
+            >
+              {grip}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="font-serif text-lg font-semibold text-slate-900">
+                    {num}. {p ? p.title : c!.title}
+                  </h2>
+                  <button
+                    onClick={() =>
+                      p
+                        ? setConfirmId(id)
+                        : setCustom((cs) => cs.filter((x) => x.id !== id))
+                    }
+                    className="shrink-0 text-xs text-slate-400 underline transition hover:text-amber-600"
+                  >
+                    Retirer
+                  </button>
+                </div>
+                {p ? paras(p.text) : c!.text ? paras(c!.text) : null}
+                {c && (
+                  <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
+                    Principe ajouté
+                  </p>
+                )}
+                {p && confirmId === id && (
+                  <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-amber-50/60 py-3 pl-4 pr-3">
+                    <p className="text-sm text-amber-800">
+                      <span className="font-semibold">
+                        ⚠ Retirer ce principe ?
+                      </span>{" "}
+                      {p.warning}
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() => remove(id)}
+                        className="rounded-full bg-amber-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-amber-700"
+                      >
+                        Confirmer le retrait
+                      </button>
+                      <button
+                        onClick={() => setConfirmId(null)}
+                        className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 transition hover:border-slate-500"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })}
 
         {adding ? (
           <div className="mt-4 rounded-md border border-slate-200 bg-white/70 p-4">
