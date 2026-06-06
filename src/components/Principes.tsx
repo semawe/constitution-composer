@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fontVars } from "@/lib/branding";
 
 const LS_PRINCIPES = "cc_principes";
 
@@ -26,7 +27,17 @@ function paras(text: string) {
   ));
 }
 
-export default function Principes({ data }: { data: PrincipesData }) {
+export default function Principes({
+  data,
+  logo,
+  font,
+  titleColor,
+}: {
+  data: PrincipesData;
+  logo: string;
+  font: string;
+  titleColor: string;
+}) {
   const [removed, setRemoved] = useState<ReadonlySet<string>>(new Set());
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [custom, setCustom] = useState<
@@ -91,12 +102,26 @@ export default function Principes({ data }: { data: PrincipesData }) {
     data.principles.filter((p) => !removed.has(p.id)).length + custom.length;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <div
+      className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
+      style={fontVars(font)}
+    >
       <header className="mb-8 border-b border-slate-200 pb-6">
+        {logo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logo}
+            alt="Logo de l'organisation"
+            className="mb-3 max-h-16 w-auto"
+          />
+        )}
         <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
           {data.meta.version}
         </p>
-        <h1 className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl">
+        <h1
+          className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl"
+          style={titleColor ? { color: titleColor } : undefined}
+        >
           {data.meta.title}
         </h1>
         <p className="mt-2 text-sm text-slate-500">

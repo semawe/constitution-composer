@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  type CSSProperties,
-  type ChangeEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { FONT_OPTIONS, fontVars } from "@/lib/branding";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
@@ -36,15 +31,6 @@ const isGatedTier = (tier: Tier) => tier === "extension" || tier === "app";
 const COACHES = [
   { name: "Coach 1", url: "https://calendar.example.com/booking" },
   { name: "Coach 2", url: "https://calendar.example.com/booking" },
-];
-
-// Polices du document (cf. @font-face dans globals.css + Font.register dans pdf.tsx).
-const FONT_OPTIONS = [
-  { key: "source-serif", label: "Source Serif", stack: "'Source Serif 4', Georgia, serif" },
-  { key: "eb-garamond", label: "EB Garamond", stack: "'EB Garamond', Georgia, serif" },
-  { key: "lora", label: "Lora", stack: "'Lora', Georgia, serif" },
-  { key: "inter", label: "Inter", stack: "'Inter', system-ui, sans-serif" },
-  { key: "ibm-plex", label: "IBM Plex Sans", stack: "'IBM Plex Sans', system-ui, sans-serif" },
 ];
 
 const TIER_UI: Record<
@@ -139,7 +125,22 @@ function Prose({ text }: { text: string }) {
   );
 }
 
-export default function Composer({ data }: { data: ConstitutionData }) {
+interface Branding {
+  logo: string;
+  setLogo: (v: string) => void;
+  font: string;
+  setFont: (v: string) => void;
+  titleColor: string;
+  setTitleColor: (v: string) => void;
+}
+
+export default function Composer({
+  data,
+  branding,
+}: {
+  data: ConstitutionData;
+  branding: Branding;
+}) {
   // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
     defaultActive(data),
@@ -156,11 +157,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [versions, setVersions] = useState<SavedComposition[]>([]);
   const [versionMsg, setVersionMsg] = useState<string | null>(null);
   const [versionBusy, setVersionBusy] = useState(false);
-  const [titleColor, setTitleColor] = useState("");
-  const [font, setFont] = useState("source-serif");
-  const [logo, setLogo] = useState("");
-  const docFontStack =
-    FONT_OPTIONS.find((f) => f.key === font)?.stack ?? FONT_OPTIONS[0].stack;
+  const { logo, setLogo, font, setFont, titleColor, setTitleColor } = branding;
 
   // Charge un logo : redimensionné (max 400 px) côté client pour garder un
   // data URL léger, stocké tel quel dans la composition.
@@ -724,16 +721,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
             pour tout ce qui est dedans (titre, intertitres, corps). */}
         <main
           className="min-w-0 flex-1"
-          style={
-            {
-              // .doc-prose lit --font-serif ; les utilitaires font-serif/font-sans
-              // (Tailwind @theme inline) lisent les variables sources next/font.
-              "--font-serif": docFontStack,
-              "--font-sans": docFontStack,
-              "--font-source-serif": docFontStack,
-              "--font-geist-sans": docFontStack,
-            } as CSSProperties
-          }
+          style={fontVars(font)}
         >
         <header className="mb-8 border-b border-slate-200 pb-6">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
