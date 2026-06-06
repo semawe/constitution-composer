@@ -5,6 +5,9 @@ import { fontVars } from "@/lib/branding";
 
 const LS_PRINCIPES = "cc_principes";
 
+const ADOPTION_TEXT =
+  "En ratifiant la présente Déclaration, les Ratificateurs adoptent les principes énoncés ci-dessus comme fondement de la gouvernance de leur organisation. Ils transfèrent leur autorité dans le cadre que ces principes dessinent et s'engagent à n'exercer le pouvoir qu'à travers les processus qui en découlent. Les Partenaires signataires acceptent d'œuvrer selon ces mêmes principes.";
+
 export interface Principle {
   id: string;
   n: string;
@@ -48,6 +51,8 @@ export default function Principes({
   const [newText, setNewText] = useState("");
   const [raisonEtre, setRaisonEtre] = useState("");
   const [devise, setDevise] = useState("");
+  const [ratifiers, setRatifiers] = useState("");
+  const [signatories, setSignatories] = useState("");
   const [loaded, setLoaded] = useState(false);
 
   // Restaure l'état des principes (survit au changement d'onglet et au rechargement).
@@ -60,6 +65,8 @@ export default function Principes({
         if (Array.isArray(s.custom)) setCustom(s.custom);
         if (typeof s.raisonEtre === "string") setRaisonEtre(s.raisonEtre);
         if (typeof s.devise === "string") setDevise(s.devise);
+        if (typeof s.ratifiers === "string") setRatifiers(s.ratifiers);
+        if (typeof s.signatories === "string") setSignatories(s.signatories);
       }
     } catch {}
     setLoaded(true);
@@ -71,10 +78,17 @@ export default function Principes({
     try {
       localStorage.setItem(
         LS_PRINCIPES,
-        JSON.stringify({ removed: [...removed], custom, raisonEtre, devise }),
+        JSON.stringify({
+          removed: [...removed],
+          custom,
+          raisonEtre,
+          devise,
+          ratifiers,
+          signatories,
+        }),
       );
     } catch {}
-  }, [loaded, removed, custom, raisonEtre, devise]);
+  }, [loaded, removed, custom, raisonEtre, devise, ratifiers, signatories]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -278,6 +292,43 @@ export default function Principes({
             <span className="text-base leading-none">+</span> Ajouter un principe
           </button>
         )}
+
+        <section className="mt-12 border-t border-slate-200 pt-6">
+          <h2 className="font-serif text-xl font-semibold text-slate-900">
+            Adoption
+          </h2>
+          <p className="mt-2 leading-relaxed">{ADOPTION_TEXT}</p>
+          <div className="mt-5 grid gap-6 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                Ratificateurs
+              </label>
+              <textarea
+                value={ratifiers}
+                onChange={(e) => setRatifiers(e.target.value)}
+                rows={4}
+                placeholder="Un nom et prénom par ligne."
+                className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-slate-400"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                Signataires
+              </label>
+              <textarea
+                value={signatories}
+                onChange={(e) => setSignatories(e.target.value)}
+                rows={4}
+                placeholder="Un nom et prénom par ligne."
+                className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-slate-400"
+              />
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-slate-400">
+            Ces noms apparaîtront avec une ligne de signature dans le PDF de la
+            Déclaration.
+          </p>
+        </section>
 
         <footer className="mt-12 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
           {/* eslint-disable-next-line @next/next/no-img-element */}
