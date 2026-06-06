@@ -38,8 +38,8 @@ function ensureFonts() {
     Font.register({
       family: PDF_FONTS[key],
       fonts: [
-        { src: `/fonts/${file}-400.woff2`, fontWeight: 400 },
-        { src: `/fonts/${file}-700.woff2`, fontWeight: 700 },
+        { src: `/fonts/${file}-400.woff`, fontWeight: 400 },
+        { src: `/fonts/${file}-700.woff`, fontWeight: 700 },
       ],
     });
   }

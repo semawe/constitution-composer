@@ -8,7 +8,7 @@ import { getSupabase } from "@/lib/supabase";
 const LS_PRINCIPES = "cc_principes";
 
 const ADOPTION_TEXT =
-  "En ratifiant la présente Déclaration, les Ratificateurs adoptent les principes énoncés ci-dessus comme fondement de la gouvernance de leur organisation. Ils transfèrent leur autorité dans le cadre que ces principes dessinent et s'engagent à n'exercer le pouvoir qu'à travers les processus qui en découlent. Les Partenaires signataires acceptent d'œuvrer selon ces mêmes principes.";
+  "En ratifiant le présent document, les Ratificateurs adoptent l'ensemble indissociable que forment ces Principes et la Constitution comme cadre de gouvernance et d'exploitation de leur organisation. Ils transfèrent leur autorité dans ce que ces Principes et cette Constitution définissent ensemble, et s'engagent à n'exercer le pouvoir qu'à travers les processus qui en découlent. Les Partenaires signataires acceptent d'œuvrer selon ce même cadre.";
 
 export interface Principle {
   id: string;
