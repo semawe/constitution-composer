@@ -197,8 +197,16 @@ export default function AdminPage() {
                                 <span className="font-medium text-slate-700">
                                   {c.name || c.payload?.title || "Sans titre"}
                                 </span>
-                                <span className="shrink-0 text-xs text-slate-400">
-                                  {labels.length} bloc(s) · {fmtDate(c.updated_at)}
+                                <span className="flex shrink-0 items-baseline gap-3 text-xs text-slate-400">
+                                  <Link
+                                    href={`/admin/view/?comp=${c.id}`}
+                                    className="underline transition hover:text-slate-700"
+                                  >
+                                    Voir
+                                  </Link>
+                                  <span>
+                                    {labels.length} bloc(s) · {fmtDate(c.updated_at)}
+                                  </span>
                                 </span>
                               </div>
                               {labels.length > 0 && (
