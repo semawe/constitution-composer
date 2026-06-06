@@ -57,6 +57,9 @@ export default function Principes({
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newText, setNewText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editText, setEditText] = useState("");
   const [raisonEtre, setRaisonEtre] = useState("");
   const [devise, setDevise] = useState("");
   const [ratifiers, setRatifiers] = useState("");
@@ -252,6 +255,21 @@ export default function Principes({
     setNewTitle("");
     setNewText("");
     setAdding(false);
+  };
+  const startEdit = (c: { id: string; title: string; text: string }) => {
+    setEditingId(c.id);
+    setEditTitle(c.title);
+    setEditText(c.text);
+  };
+  const saveEdit = () => {
+    const t = editTitle.trim();
+    if (!t || !editingId) return;
+    setCustom((cs) =>
+      cs.map((x) =>
+        x.id === editingId ? { ...x, title: t, text: editText.trim() } : x,
+      ),
+    );
+    setEditingId(null);
   };
 
   const activeCount =
@@ -477,30 +495,75 @@ export default function Principes({
             >
               {grip}
               <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="font-serif text-lg font-semibold text-slate-900">
-                    {num}. {p ? p.title : c!.title}
-                  </h2>
-                  <button
-                    onClick={() =>
-                      p
-                        ? setConfirmId(id)
-                        : setCustom((cs) => cs.filter((x) => x.id !== id))
-                    }
-                    className="shrink-0 text-xs text-slate-400 underline transition hover:text-amber-600"
-                  >
-                    Retirer
-                  </button>
-                </div>
-                {p
-                  ? paras(p.text, onTermClick, id)
-                  : c!.text
-                    ? paras(c!.text, onTermClick, id)
-                    : null}
-                {c && (
-                  <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
-                    Principe ajouté
-                  </p>
+                {c && editingId === id ? (
+                  <div>
+                    <input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      placeholder="Titre du principe"
+                      className="w-full rounded border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-slate-400"
+                    />
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={3}
+                      placeholder="Énoncé du principe (optionnel)"
+                      className="doc-prose mt-2 w-full resize-y rounded border border-slate-200 p-3 text-[0.98rem] outline-none transition focus:border-slate-400"
+                    />
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={saveEdit}
+                        disabled={!editTitle.trim()}
+                        className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                      >
+                        Enregistrer
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="rounded-full border border-slate-300 px-4 py-1.5 text-sm text-slate-600 transition hover:border-slate-500"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h2 className="font-serif text-lg font-semibold text-slate-900">
+                        {num}. {p ? p.title : c!.title}
+                      </h2>
+                      <div className="flex shrink-0 gap-3 text-xs text-slate-400">
+                        {c && (
+                          <button
+                            onClick={() => startEdit(c)}
+                            className="underline transition hover:text-slate-700"
+                          >
+                            Éditer
+                          </button>
+                        )}
+                        <button
+                          onClick={() =>
+                            p
+                              ? setConfirmId(id)
+                              : setCustom((cs) => cs.filter((x) => x.id !== id))
+                          }
+                          className="underline transition hover:text-amber-600"
+                        >
+                          Retirer
+                        </button>
+                      </div>
+                    </div>
+                    {p
+                      ? paras(p.text, onTermClick, id)
+                      : c!.text
+                        ? paras(c!.text, onTermClick, id)
+                        : null}
+                    {c && (
+                      <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
+                        Principe ajouté
+                      </p>
+                    )}
+                  </>
                 )}
                 {p && confirmId === id && (
                   <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-amber-50/60 py-3 pl-4 pr-3">

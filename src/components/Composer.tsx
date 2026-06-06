@@ -517,7 +517,18 @@ export default function Composer({
     );
 
   const availableChips = (anchor: string) =>
-    modulesForAnchor(data, anchor).filter((m) => !active.has(m.id));
+    modulesForAnchor(data, anchor).filter(
+      (m) => !active.has(m.id) && m.tier !== "integral",
+    );
+
+  // Blocs retirables (tier integral) retirés, ancrés ici → marqueur de réinsertion.
+  const removedRetirables = (anchor: string) =>
+    data.modules.filter(
+      (m) =>
+        m.tier === "integral" &&
+        !active.has(m.id) &&
+        m.insertions.some((ins) => ins.anchor === anchor),
+    );
 
   // Lite = blocs retirables (tier integral, cochés par défaut).
   // Au-delà = modules additifs (extension / app, off par défaut).
@@ -983,11 +994,28 @@ export default function Composer({
                   ))}
                 </AnimatePresence>
 
+                {/* Blocs retirables retirés : fin liseré + "+" pour réinsérer
+                    dans le fil de lecture. */}
+                {removedRetirables(block.anchor).map((m) => (
+                  <button
+                    key={`reins-${m.id}`}
+                    onClick={() => toggle(m.id)}
+                    title={`Réinsérer : ${m.label}`}
+                    className="group/reins mt-3 flex w-full items-center gap-2 text-left"
+                  >
+                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
+                      <span className="text-sm leading-none">+</span> {m.label}
+                    </span>
+                    <span className="h-px flex-1 bg-slate-200" />
+                  </button>
+                ))}
+
                 {block.id === "preambule" && (
                   <PreambleValues values={values} setValues={setValues} />
                 )}
 
-                {/* "+" entre paragraphes : modules activables ancrés ici */}
+                {/* "+" entre paragraphes : extensions / apps activables ancrées ici */}
                 <InsertDivider
                   modules={availableChips(block.anchor)}
                   onActivate={toggle}
