@@ -122,12 +122,20 @@ export default function AdminPage() {
         <h1 className="font-serif text-2xl font-semibold text-slate-900">
           Admin — leads &amp; compositions
         </h1>
-        <Link
-          href="/"
-          className="text-sm text-slate-500 underline transition hover:text-slate-800"
-        >
-          ← Retour au composeur
-        </Link>
+        <div className="flex items-center gap-4 text-sm">
+          <Link
+            href="/admin/insertions/"
+            className="text-slate-500 underline transition hover:text-slate-800"
+          >
+            Config des insertions
+          </Link>
+          <Link
+            href="/"
+            className="text-slate-500 underline transition hover:text-slate-800"
+          >
+            ← Composeur
+          </Link>
+        </div>
       </div>
 
       {state.kind === "loading" && (
