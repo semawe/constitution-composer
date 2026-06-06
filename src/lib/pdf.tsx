@@ -8,10 +8,43 @@ import {
   Text,
   View,
   Image,
+  Font,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
 import { type ConstitutionData, type Tier, compose } from "./constitution";
+
+// Polices du document, auto-hébergées dans /public/fonts (mêmes fichiers que
+// les @font-face de globals.css). Enregistrées à la demande, une seule fois.
+const PDF_FONTS: Record<string, string> = {
+  "source-serif": "Source Serif 4",
+  "eb-garamond": "EB Garamond",
+  lora: "Lora",
+  inter: "Inter",
+  "ibm-plex": "IBM Plex Sans",
+};
+const FONT_FILE: Record<string, string> = {
+  "source-serif": "source-serif",
+  "eb-garamond": "eb-garamond",
+  lora: "lora",
+  inter: "inter",
+  "ibm-plex": "ibm-plex",
+};
+let fontsRegistered = false;
+function ensureFonts() {
+  if (fontsRegistered) return;
+  for (const key of Object.keys(PDF_FONTS)) {
+    const file = FONT_FILE[key];
+    Font.register({
+      family: PDF_FONTS[key],
+      fonts: [
+        { src: `/fonts/${file}-400.woff2`, fontWeight: 400 },
+        { src: `/fonts/${file}-700.woff2`, fontWeight: 700 },
+      ],
+    });
+  }
+  fontsRegistered = true;
+}
 
 const COLOR: Record<Tier | "warning" | "ink" | "muted" | "rule" | "title", string> = {
   core: "#334155",
@@ -43,7 +76,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    fontFamily: "Times-Bold",
+    fontWeight: 700,
     fontSize: 22,
     marginBottom: 4,
     color: COLOR.title,
@@ -55,21 +88,21 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   h2: {
-    fontFamily: "Times-Bold",
+    fontWeight: 700,
     fontSize: 15,
     marginTop: 18,
     marginBottom: 6,
     color: COLOR.title,
   },
   valuesHeading: {
-    fontFamily: "Times-Bold",
+    fontWeight: 700,
     fontSize: 12,
     marginTop: 10,
     marginBottom: 4,
     color: COLOR.ink,
   },
   para: { marginBottom: 6 },
-  bold: { fontFamily: "Times-Bold" },
+  bold: { fontWeight: 700 },
   listItem: { flexDirection: "row", marginBottom: 2, paddingLeft: 8 },
   listMarker: { width: 16 },
   listBody: { flex: 1 },
@@ -152,6 +185,7 @@ function ComposedDoc({
   values,
   date,
   titleColor,
+  font,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
@@ -159,11 +193,13 @@ function ComposedDoc({
   values: string;
   date?: string;
   titleColor?: string;
+  font?: string;
 }) {
   const items = compose(data, active);
+  const fam = PDF_FONTS[font ?? "source-serif"] ?? "Source Serif 4";
   return (
     <Document title={title}>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={[styles.page, { fontFamily: fam }]}>
         <Text style={styles.kicker}>{(data.meta.version ?? "").toUpperCase()}</Text>
         <Text style={[styles.title, titleColor ? { color: titleColor } : {}]}>
           {title}
@@ -216,10 +252,17 @@ function ComposedDoc({
 export async function generateComposedPdfBlob(
   data: ConstitutionData,
   active: ReadonlySet<string>,
-  opts?: { title?: string; values?: string; date?: string; titleColor?: string },
+  opts?: {
+    title?: string;
+    values?: string;
+    date?: string;
+    titleColor?: string;
+    font?: string;
+  },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
   const values = opts?.values ?? "";
+  ensureFonts();
   return pdf(
     <ComposedDoc
       data={data}
@@ -228,6 +271,7 @@ export async function generateComposedPdfBlob(
       values={values}
       date={opts?.date}
       titleColor={opts?.titleColor}
+      font={opts?.font}
     />,
   ).toBlob();
 }

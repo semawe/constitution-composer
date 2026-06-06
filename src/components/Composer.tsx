@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
@@ -30,6 +30,15 @@ const isGatedTier = (tier: Tier) => tier === "extension" || tier === "app";
 const COACHES = [
   { name: "Coach 1", url: "https://calendar.example.com/booking" },
   { name: "Coach 2", url: "https://calendar.example.com/booking" },
+];
+
+// Polices du document (cf. @font-face dans globals.css + Font.register dans pdf.tsx).
+const FONT_OPTIONS = [
+  { key: "source-serif", label: "Source Serif", stack: "'Source Serif 4', Georgia, serif" },
+  { key: "eb-garamond", label: "EB Garamond", stack: "'EB Garamond', Georgia, serif" },
+  { key: "lora", label: "Lora", stack: "'Lora', Georgia, serif" },
+  { key: "inter", label: "Inter", stack: "'Inter', system-ui, sans-serif" },
+  { key: "ibm-plex", label: "IBM Plex Sans", stack: "'IBM Plex Sans', system-ui, sans-serif" },
 ];
 
 const TIER_UI: Record<
@@ -142,6 +151,9 @@ export default function Composer({ data }: { data: ConstitutionData }) {
   const [versionMsg, setVersionMsg] = useState<string | null>(null);
   const [versionBusy, setVersionBusy] = useState(false);
   const [titleColor, setTitleColor] = useState("");
+  const [font, setFont] = useState("source-serif");
+  const docFontStack =
+    FONT_OPTIONS.find((f) => f.key === font)?.stack ?? FONT_OPTIONS[0].stack;
   const [booking, setBooking] = useState(false);
   const [exportPrompted, setExportPrompted] = useState(false);
   const [activeId, setActiveId] = useState<string>(data.blocks[0]?.id ?? "");
@@ -231,6 +243,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         title,
         values,
         titleColor: titleColor || undefined,
+        font,
         date: new Date().toLocaleDateString("fr-FR", {
           day: "2-digit",
           month: "long",
@@ -372,6 +385,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
         values,
         active: [...active],
         titleColor: titleColor || undefined,
+        font,
       });
       await refreshVersions();
       setVersionMsg("Version enregistrée.");
@@ -387,6 +401,7 @@ export default function Composer({ data }: { data: ConstitutionData }) {
     setTitle(v.payload.title ?? data.meta.title);
     setValues(v.payload.values ?? "");
     setTitleColor(v.payload.titleColor ?? "");
+    setFont(v.payload.font ?? "source-serif");
     setVersionMsg(`« ${v.name} » chargée.`);
   };
 
@@ -667,8 +682,21 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           <div className="sticky top-16">{panel}</div>
         </aside>
 
-        {/* Document */}
-        <main className="min-w-0 flex-1">
+        {/* Document — la police choisie surcharge --font-serif/--font-sans
+            pour tout ce qui est dedans (titre, intertitres, corps). */}
+        <main
+          className="min-w-0 flex-1"
+          style={
+            {
+              // .doc-prose lit --font-serif ; les utilitaires font-serif/font-sans
+              // (Tailwind @theme inline) lisent les variables sources next/font.
+              "--font-serif": docFontStack,
+              "--font-sans": docFontStack,
+              "--font-source-serif": docFontStack,
+              "--font-geist-sans": docFontStack,
+            } as CSSProperties
+          }
+        >
         <header className="mb-8 border-b border-slate-200 pb-6">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {data.meta.version}
@@ -684,6 +712,21 @@ export default function Composer({ data }: { data: ConstitutionData }) {
           />
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
             <span>Titre modifiable — donnez un nom à votre Constitution.</span>
+            <span className="flex items-center gap-1.5">
+              Police
+              <select
+                value={font}
+                onChange={(e) => setFont(e.target.value)}
+                aria-label="Police du document"
+                className="rounded border border-slate-200 bg-transparent px-1.5 py-0.5 outline-none focus:border-slate-400"
+              >
+                {FONT_OPTIONS.map((f) => (
+                  <option key={f.key} value={f.key}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </span>
             <span className="flex items-center gap-1.5">
               Couleur
               <input
