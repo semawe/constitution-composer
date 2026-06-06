@@ -167,6 +167,8 @@ export default function Composer({
   const [needsCompany, setNeedsCompany] = useState(false);
   const [company, setCompany] = useState("");
   const [gate, setGate] = useState<null | "modules" | "pdf" | "save">(null);
+  const [email, setEmail] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [versions, setVersions] = useState<SavedComposition[]>([]);
   const [versionMsg, setVersionMsg] = useState<string | null>(null);
   const [versionBusy, setVersionBusy] = useState(false);
@@ -357,6 +359,22 @@ export default function Composer({
       provider: "google",
       options: { redirectTo: window.location.origin + window.location.pathname },
     });
+  };
+
+  // Connexion par lien magique (sans compte Google).
+  const signInOtp = async () => {
+    const addr = email.trim();
+    if (!addr) return;
+    if (!supabase) {
+      signInGoogle();
+      return;
+    }
+    persistComposerState();
+    await supabase.auth.signInWithOtp({
+      email: addr,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+    });
+    setOtpSent(true);
   };
 
   // Onboarding : Google ne fournit pas l'entreprise → on la collecte une fois.
@@ -1126,14 +1144,36 @@ export default function Composer({
                   </svg>
                   Continuer avec Google
                 </button>
-                <button
-                  onClick={signInGoogle}
-                  className="mt-2 w-full rounded-lg px-4 py-2 text-sm text-slate-500 transition hover:text-slate-700"
-                >
-                  J&apos;ai déjà un compte
-                </button>
+                <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-slate-400">
+                  <span className="h-px flex-1 bg-slate-200" />
+                  ou par e-mail
+                  <span className="h-px flex-1 bg-slate-200" />
+                </div>
+                {otpSent ? (
+                  <p className="rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
+                    Lien de connexion envoyé. Ouvrez-le depuis votre boîte mail
+                    pour vous connecter.
+                  </p>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="vous@exemple.fr"
+                      className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
+                    />
+                    <button
+                      onClick={signInOtp}
+                      disabled={!email.trim()}
+                      className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                    >
+                      Recevoir un lien
+                    </button>
+                  </div>
+                )}
                 <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
-                  À la création de compte : nom, prénom, e-mail et entreprise.
+                  Compte gratuit. Avec Google : nom, prénom, e-mail, entreprise.
                 </p>
               </div>
             </motion.div>

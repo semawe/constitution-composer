@@ -70,6 +70,8 @@ export default function Principes({
   const [account, setAccount] = useState(false);
   const [gate, setGate] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -102,6 +104,22 @@ export default function Principes({
         redirectTo: window.location.origin + window.location.pathname,
       },
     });
+  };
+
+  const signInOtp = async () => {
+    const addr = email.trim();
+    if (!addr) return;
+    if (!supabase) {
+      signIn();
+      return;
+    }
+    await supabase.auth.signInWithOtp({
+      email: addr,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname,
+      },
+    });
+    setOtpSent(true);
   };
 
   // Restaure l'état des principes (survit au changement d'onglet et au rechargement).
@@ -589,6 +607,33 @@ export default function Principes({
                 </svg>
                 Continuer avec Google
               </button>
+              <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-slate-400">
+                <span className="h-px flex-1 bg-slate-200" />
+                ou par e-mail
+                <span className="h-px flex-1 bg-slate-200" />
+              </div>
+              {otpSent ? (
+                <p className="rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
+                  Lien de connexion envoyé. Ouvrez-le depuis votre boîte mail.
+                </p>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="vous@exemple.fr"
+                    className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
+                  />
+                  <button
+                    onClick={signInOtp}
+                    disabled={!email.trim()}
+                    className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                  >
+                    Recevoir un lien
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

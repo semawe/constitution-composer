@@ -6,6 +6,8 @@ import Principes, { type PrincipesData } from "@/components/Principes";
 import Glossaire from "@/components/Glossaire";
 import ThemeToggle from "@/components/ThemeToggle";
 import type { ConstitutionData } from "@/lib/constitution";
+import { getSupabase } from "@/lib/supabase";
+import { isAdminEmail } from "@/lib/admin";
 
 const LS_BRANDING = "cc-branding";
 
@@ -25,6 +27,20 @@ export default function App({
   const [view, setView] = useState<
     "constitution" | "principes" | "glossaire"
   >("constitution");
+
+  // Lien admin visible seulement pour les e-mails associés.
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!sb) return;
+    sb.auth
+      .getSession()
+      .then(({ data }) => setIsAdmin(isAdminEmail(data.session?.user?.email)));
+    const { data: sub } = sb.auth.onAuthStateChange((_e, s) =>
+      setIsAdmin(isAdminEmail(s?.user?.email)),
+    );
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   // Clic sur un terme défini dans un document → bascule vers le glossaire et
   // défile jusqu'à l'entrée correspondante.
@@ -98,6 +114,14 @@ export default function App({
         >
           Glossaire
         </button>
+        {isAdmin && (
+          <a
+            href="/admin/"
+            className="rounded-full px-4 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
+          >
+            Admin
+          </a>
+        )}
         <ThemeToggle />
       </nav>
 
