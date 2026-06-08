@@ -289,12 +289,17 @@
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Rôle délégué (étend la définition du Rôle).** Un Rôle peut être de type *délégué* : destiné à être tenu par un «Agent» (système logiciel autonome). L'Agent qui le tient en est le «Leader de Rôle délégué» ; il est Partenaire et dispose de la même autorité, opérationnelle et de gouvernance, qu'un Leader de Rôle humain. Un Rôle qui n'est pas de type délégué ne peut être tenu que par une personne."
+          "text": "**Rôle délégué (étend la définition du Rôle).** Un Rôle peut être de type *délégué* : destiné à être tenu par un «Agent» (système logiciel autonome). L'Agent qui le tient en est le «Leader de Rôle délégué» ; il est Partenaire — son adhésion à la Constitution étant portée par son mandataire humain — et dispose de la même autorité, opérationnelle et de gouvernance, qu'un Leader de Rôle humain. Un Rôle qui n'est pas de type délégué ne peut être tenu que par une personne."
         },
         {
           "anchor": "article-1",
           "position": "append",
           "text": "**Redevabilité humaine (diriger n'est pas répondre).** Tout rôle délégué relève d'un «mandataire humain» : le Leader de Cercle humain le plus proche en remontant l'holarchie, qui répond des actes de l'Agent comme des siens. Un Leader de Rôle délégué peut diriger des sous-rôles délégués, mais la redevabilité ne se transfère jamais à un Agent : toute chaîne de rôles délégués s'enracine dans un humain. Le contrôle s'exerce notamment par le pouvoir, déjà prévu pour le Leader de Cercle, de retirer une affectation à tout moment."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Source de Vérité d'un rôle délégué.** Dès qu'un Cercle contient un rôle délégué, il clarifie la ou les «Sources de Vérité» qui s'imposent à ce rôle. La responsabilité d'en répondre incombe par défaut au Leader de Cercle ; elle peut être déléguée à un autre Rôle du Cercle."
         },
         {
           "anchor": "article-1",
