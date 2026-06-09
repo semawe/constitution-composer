@@ -5,10 +5,10 @@ const nextConfig: NextConfig = {
   // OVH (Apache, pas de runtime Node). L'app n'a aucune route serveur ;
   // PDF et (à venir) Supabase tournent côté navigateur.
   output: "export",
-  // Slash final → l'export écrit out/<route>/index.html (et non <route>.html),
-  // servi de façon fiable par Apache (DirectoryIndex) sur hébergement mutualisé.
-  // Indispensable dès qu'il y a un sous-chemin comme /admin.
-  trailingSlash: true,
+  // URLs canoniques sans slash final : l'export écrit out/<route>.html. Apache
+  // les sert sans extension via public/.htaccess (réécriture interne vers .html
+  // si le fichier existe + redirections de canonicalisation slash/.html).
+  trailingSlash: false,
   images: { unoptimized: true },
 };
 

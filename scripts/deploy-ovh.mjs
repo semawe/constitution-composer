@@ -52,6 +52,26 @@ if (!existsSync(OUT)) {
 const client = new Client(30000);
 client.ftp.verbose = false;
 
+// Purge récursive manuelle. Le removeDir()/clearWorkingDir() de basic-ftp ne
+// vide pas les sous-répertoires sur le FTP mutualisé OVH (dossiers orphelins
+// laissés en place). On recurse nous-mêmes (list parse correctement), en
+// supprimant les fichiers puis les dossiers vides, de bas en haut. Indispensable
+// pour ne pas laisser d'anciens répertoires homonymes de pages (ex. admin/view/)
+// qui déclencheraient des redirections mod_dir parasites.
+async function clearRemote(dir) {
+  const list = await client.list(dir);
+  for (const e of list) {
+    if (e.name === '.' || e.name === '..') continue;
+    const p = `${dir}/${e.name}`;
+    if (e.isDirectory) {
+      await clearRemote(p);
+      await client.removeEmptyDir(p);
+    } else {
+      await client.remove(p);
+    }
+  }
+}
+
 try {
   await client.access({
     host: config.host,
@@ -63,7 +83,8 @@ try {
   });
   console.log(`Connecté à ${config.host} (FTPS=${config.secure}). Upload de out/ vers ${config.remoteDir} …`);
   await client.ensureDir(config.remoteDir);
-  await client.clearWorkingDir();
+  await clearRemote(config.remoteDir);
+  await client.cd(config.remoteDir);
   await client.uploadFromDir(OUT);
   console.log('Déploiement terminé.');
 } catch (err) {

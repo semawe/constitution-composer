@@ -1,0 +1,46 @@
+# constitution-composer.com — hébergement mutualisé OVH (Apache, statique).
+
+# Pas de listing de répertoire, et surtout : ne pas laisser mod_dir ajouter un
+# slash final à /admin (qui existe aussi comme dossier à cause de /admin/...).
+# Sans DirectorySlash Off, mod_dir redirige /admin -> /admin/ avant la réécriture
+# du point 3 et casse les URLs sans slash.
+Options -Indexes
+DirectorySlash Off
+
+RewriteEngine On
+
+# 1. Forcer HTTPS.
+#    Sur le mutualisé OVH la terminaison TLS est faite par un proxy : le backend
+#    voit toujours http, donc on détecte le protocole d'origine via l'en-tête
+#    X-Forwarded-Proto (utiliser %{HTTPS} provoquerait une boucle de redirection).
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. URLs canoniques : sans extension .html ni slash final.
+#    Ces redirections ne se déclenchent que sur la requête réelle du navigateur
+#    (THE_REQUEST), pas sur les réécritures internes du point 3 → pas de boucle.
+
+#    URL absolue avec %{HTTP_HOST} pour éviter un « :443 » parasite dans Location.
+#    /index.html -> /
+RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
+RewriteRule ^ https://%{HTTP_HOST}/ [R=301,L]
+
+#    /chemin.html -> /chemin
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
+RewriteRule ^ https://%{HTTP_HOST}/%1 [R=301,L]
+
+#    /chemin/ -> /chemin (retrait du slash final, racine exceptée)
+RewriteRule ^(.+)/$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# 3. Service des URLs sans extension : si /chemin n'est pas un fichier mais que
+#    /chemin.html existe, on le sert en réécriture interne (l'URL reste propre).
+#    On ne teste PAS !-d à dessein : pour /admin (qui est aussi un répertoire à
+#    cause de /admin/insertions), la page admin.html doit primer sur le dossier.
+#    Réécrire ici neutralise aussi le DirectorySlash de mod_dir (la cible .html
+#    est un fichier, donc pas de redirection /admin -> /admin/).
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.+?)/?$ $1.html [L]
+
+# 4. Page 404 statique générée par Next.
+ErrorDocument 404 /404.html
