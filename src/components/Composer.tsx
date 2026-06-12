@@ -1,6 +1,7 @@
 "use client";
 
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars } from "@/lib/branding";
 import { linkifyTerms } from "@/lib/glossary";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -765,6 +766,7 @@ export default function Composer({
           className="min-w-0 flex-1"
           style={fontVars(font)}
         >
+        <IntroBanner />
         <header className="mb-8 border-b border-slate-200 pb-6">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {data.meta.version}

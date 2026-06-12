@@ -27,9 +27,10 @@ export const metadata: Metadata = {
     description:
       "Composez votre propre Constitution à partir d'un socle, à la carte.",
     locale: "fr_FR",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Composer sa Constitution — Holacracy v6",
     description:
       "Composez votre propre Constitution à partir d'un socle, à la carte.",
@@ -48,13 +49,22 @@ export default function RootLayout({
       className={`${geistSans.variable} ${sourceSerif.variable} dark h-full antialiased`}
     >
       <head>
-        {/* Applique le thème choisi avant le paint (dark par défaut). */}
+        {/* Applique avant le paint le thème choisi (dark par défaut) et le
+            masquage du bandeau d'introduction s'il a été fermé. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('cc-theme')==='light')document.documentElement.classList.remove('dark')}catch(e){}",
+              "try{if(localStorage.getItem('cc-theme')==='light')document.documentElement.classList.remove('dark');if(localStorage.getItem('cc-intro-dismissed')==='1')document.documentElement.classList.add('intro-off')}catch(e){}",
           }}
         />
+        {/* Umami Cloud (mesure sans cookie) — actif seulement si l'id est fourni au build. */}
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <script
+            defer
+            src="https://cloud.umami.is/script.js"
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          />
+        )}
       </head>
       <body className="min-h-full">{children}</body>
     </html>

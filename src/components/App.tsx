@@ -13,7 +13,7 @@ import { isAdminEmail } from "@/lib/admin";
 const LS_BRANDING = "cc-branding";
 
 function tabClass(active: boolean) {
-  return `rounded-full px-4 py-1.5 text-sm font-medium transition ${
+  return `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
     active ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
   }`;
 }
@@ -106,7 +106,7 @@ export default function App({
 
   return (
     <div>
-      <nav className="sticky top-0 z-40 flex h-11 items-center justify-center gap-1 border-b border-slate-200 bg-background/90 backdrop-blur">
+      <nav className="sticky top-0 z-40 flex h-11 items-center justify-start gap-1 overflow-x-auto border-b border-slate-200 bg-background/90 px-2 backdrop-blur sm:justify-center">
         <button
           onClick={() => setView("constitution")}
           className={tabClass(view === "constitution")}

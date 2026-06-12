@@ -52,6 +52,12 @@ body {
   font-family: var(--font-serif), Georgia, serif;
 }
 
+/* Bandeau d'introduction : masqué sans flash quand l'utilisateur l'a fermé
+   (classe posée par le script d'en-tête avant le paint, comme le thème). */
+html.intro-off [data-intro] {
+  display: none;
+}
+
 /* Masquer la scrollbar du panneau latéral tout en gardant le scroll */
 .thin-scroll::-webkit-scrollbar {
   width: 8px;
