@@ -1,6 +1,7 @@
 "use client";
 
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars } from "@/lib/branding";
 import { linkifyTerms } from "@/lib/glossary";
@@ -255,9 +256,10 @@ export default function Composer({
       }
     };
     supabase.auth.getSession().then(({ data }) => apply(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
-      apply(session),
-    );
+    const { data: sub } = supabase.auth.onAuthStateChange((e, session) => {
+      if (e === "SIGNED_IN") track("connexion");
+      apply(session);
+    });
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
 
@@ -285,6 +287,7 @@ export default function Composer({
 
   const doGeneratePdf = async () => {
     setPdfBusy(true);
+    track("pdf_export");
     try {
       const { generateComposedPdfBlob } = await import("@/lib/pdf");
       const blob = await generateComposedPdfBlob(data, active, {
@@ -328,6 +331,7 @@ export default function Composer({
   const handlePdf = () => {
     if (!account) {
       setGate("pdf");
+      track("gate", { contexte: "pdf" });
       return;
     }
     doGeneratePdf();
@@ -406,6 +410,7 @@ export default function Composer({
     // Paliers : activer une Extension ou une App requiert un compte.
     if (!account && activating && mod && isGatedTier(mod.tier)) {
       setGate("modules");
+      track("gate", { contexte: "modules", module: id });
       return;
     }
     setActive(next);
@@ -434,6 +439,7 @@ export default function Composer({
   const handleSaveVersion = async () => {
     if (!account) {
       setGate("save");
+      track("gate", { contexte: "save" });
       return;
     }
     if (versions.length >= MAX_COMPOSITIONS) {
@@ -455,6 +461,7 @@ export default function Composer({
       });
       await refreshVersions();
       setVersionMsg("Version enregistrée.");
+      track("sauvegarde_version");
     } catch {
       setVersionMsg("Échec de l'enregistrement.");
     } finally {
