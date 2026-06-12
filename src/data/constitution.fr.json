@@ -21,8 +21,8 @@
       "tier": "core",
       "always": true,
       "heading": "Préambule",
-      "intent": "Le préambule règle la question fondamentale de qui a le dernier mot dans cette organisation. Cette Constitution indique que ce sont les règles elles-mêmes, pas ceux qui les ont adoptées. En ratifiant, ils transfèrent volontairement leur autorité dans un cadre partagé. Et pour tous ceux qui rejoignent ensuite l'organisation, ce cadre est la seule source d'autorité légitime, sans contredire évidemment les contextes légaux ou normatifs en vigueur.",
-      "text": "Les «Ratificateurs» adoptent la présente «Constitution» comme cadre d'autorité officielle de «l'Organisation». Ce faisant, ils transfèrent leur pouvoir de gouvernance et d'exploitation dans les règles qu'elle définit, à l'exception de tout pouvoir qu'ils ne peuvent pas déléguer.\n\nLes Ratificateurs ou leurs successeurs peuvent amender ou abroger cette Constitution par écrit, en s'appuyant sur l'autorité qui leur a permis de l'adopter.\n\nLes règles et fonctionnements préexistants restent en vigueur, mais ne peuvent être étendus ou modifiés qu'à travers les processus de cette Constitution. Ils perdent toute légitimité dès que ces processus produisent quelque chose qui les remplace ou les contredit.\n\nL'Organisation peut désigner des «Partenaires» au-delà des Ratificateurs pour participer à sa gouvernance et à son fonctionnement, à condition que chaque Partenaire accepte de respecter toutes les dispositions de cette Constitution. L'Organisation définit comment ce statut est accordé ou retiré, sauf indication contraire des Ratificateurs.\n\nChaque Partenaire peut exercer les pouvoirs accordés par cette Constitution dans la pleine mesure de ceux que détenaient les Ratificateurs avant l'adoption. Ses responsabilités et contraintes découlent uniquement de cette Constitution et de ses processus, ainsi que de ses obligations légales envers l'Organisation. Aucune attente implicite ni ordre émis en dehors de l'autorité accordée par cette Constitution n'a d'effet sur un Partenaire."
+      "intent": "Le préambule règle la question fondamentale de qui a le dernier mot dans cette organisation. Cette Constitution indique que ce sont les règles elles-mêmes, pas ceux qui les ont adoptées. En ratifiant, ils transfèrent volontairement leur autorité dans un cadre partagé. Et pour tous ceux qui rejoignent ensuite l'organisation, ce cadre est la seule source d'autorité légitime, sans contredire les contextes légaux ou normatifs en vigueur.",
+      "text": "Les «Ratificateurs» adoptent la présente «Constitution» comme cadre d'autorité officielle de «l'Organisation». Ce faisant, ils transfèrent leur pouvoir de gouvernance et d'exploitation dans les règles qu'elle définit, à l'exception de tout pouvoir qu'ils ne peuvent pas déléguer.\n\nLes Ratificateurs ou leurs successeurs peuvent amender ou abroger cette Constitution par écrit, en s'appuyant sur l'autorité qui leur a permis de l'adopter. Ce pouvoir s'exerce depuis l'extérieur du cadre : tant que cette Constitution est en vigueur, il ne permet pas d'en enfreindre les règles.\n\nLes règles et fonctionnements préexistants restent en vigueur, mais ne peuvent être étendus ou modifiés qu'à travers les processus de cette Constitution. Ils perdent toute légitimité dès que ces processus produisent quelque chose qui les remplace ou les contredit.\n\nL'Organisation peut désigner des «Partenaires» au-delà des Ratificateurs pour participer à sa gouvernance et à son fonctionnement, à condition que chaque Partenaire accepte de respecter toutes les dispositions de cette Constitution. L'Organisation définit comment ce statut est accordé ou retiré, sauf indication contraire des Ratificateurs.\n\nChaque Partenaire peut exercer les pouvoirs accordés par cette Constitution dans la pleine mesure de ceux que détenaient les Ratificateurs avant l'adoption. Ses responsabilités et contraintes découlent uniquement de cette Constitution et de ses processus, ainsi que de ses obligations légales envers l'Organisation. Aucune attente implicite ni ordre émis en dehors de l'autorité accordée par cette Constitution n'a d'effet sur un Partenaire."
     },
     {
       "id": "article-1",
@@ -32,7 +32,7 @@
       "always": true,
       "heading": "Article 1 : rôles et cercles",
       "intent": "L'article 1 crée une structure d'autorité fondée sur une description structurée des rôles plutôt que sur des personnes et des organigrammes conventionnels. Il pose simultanément deux principes : l'autorité est distribuée à travers l'ensemble des rôles et des cercles, et à l'intérieur de chaque rôle, le Leader de Rôle dispose d'une autorité pleine et entière sur son périmètre. Le système est à la fois distribué et autocratique.",
-      "text": "Un «Rôle» est une unité de travail organisationnel qu'une personne peut assumer au nom de l'Organisation. La personne qui assume un Rôle est son «Leader de Rôle».\n\nChaque Rôle porte un nom descriptif et un ou plusieurs des éléments suivants :\n\n- une «Raison d'Être» : la capacité, le potentiel ou l'objectif que le Rôle poursuit ;\n- un ou plusieurs «Domaines» : des actifs, des processus ou toute autre chose que le Rôle contrôle de manière exclusive ;\n- une ou plusieurs «Redevabilités» : des activités récurrentes que le Rôle conduit au service des autres Rôles ou de sa Raison d'Être.\n\nUn Rôle peut également contenir des «Règles» : des octrois ou restrictions d'autorité applicables en son sein. Tout ce qui concerne les comportements des personnes relève des Accords Relationnels.\n\n**Responsabilités des Leaders de Rôle.** En tant que Leader de Rôle, vous êtes responsable de :\n\n- détecter et traiter les Tensions : comparer l'expression réelle de votre Rôle à son potentiel idéal — chaque écart est une «Tension» — et prendre des initiatives pour les réduire ;\n- clarifier et suivre votre travail : définir régulièrement les actions et résultats utiles, les consigner par écrit et les tenir à jour ;\n- exécuter : lorsque vous avez du temps pour agir dans un Rôle, choisir et réaliser ce qui crée le plus de valeur pour l'Organisation.\n\n**Les Cercles.** Un «Cercle» est un conteneur permettant d'organiser des Rôles et des Règles autour d'une Raison d'Être commune. L'ensemble des Rôles et Règles d'un Cercle constitue sa «Gouvernance». Chaque Rôle contient lui-même un Cercle, qui peut à son tour contenir ses propres Rôles et Règles : ce Cercle intérieur est un «Sous-Cercle» du Cercle qui le contient, lequel est son «Super-Cercle».\n\nLe Cercle le plus large, qui porte la Raison d'Être de l'ensemble de l'Organisation, est son «Cercle d'Ancrage». Il détient toutes les autorités et tous les Domaines de l'Organisation et n'a pas de Super-Cercle.\n\nTout Cercle peut se doter d'un «Facilitateur» et d'un «Scribe». Un Cercle peut ajouter des Redevabilités ou des Domaines à ces Rôles, mais ne peut pas modifier leur Raison d'Être ni ce que la Constitution leur attribue.\n\n**Leaders de Cercle.** Être Leader d'un Rôle, c'est aussi être «Leader de Cercle» à l'intérieur de ce Rôle. Le Leader de Cercle porte la Raison d'Être de ce Rôle ainsi que toutes ses Redevabilités qui ne sont pas déléguées à d'autres Rôles ou processus au sein du Cercle. Il est Membre de son Cercle, qu'il anime de l'intérieur, et Membre du Super-Cercle qui contient son Rôle. Le Cercle d'Ancrage n'a pas de Leader de Cercle, sauf indication contraire dans une Règle.\n\nUn Leader de Cercle :\n\n- peut affecter les Rôles du Cercle à une ou plusieurs personnes volontaires, et révoquer ces affectations à tout moment ;\n- assume automatiquement les Rôles non pourvus du Cercle ;\n- peut définir des «Stratégies» pour guider la hiérarchisation des priorités dans le Cercle ;\n- peut rediriger vers un autre Rôle du Cercle toute référence externe qui pointe vers le Cercle ou l'un de ses Rôles.\n\nUn Cercle peut ajouter des Redevabilités ou des Domaines au Rôle de Leader de Cercle, puis les retirer ; ces ajouts s'appliquent récursivement à tous les Sous-Cercles. Un Cercle peut retirer une autorité du Leader de Cercle en la plaçant sur un autre Rôle, mais il ne peut pas supprimer le Rôle de Leader de Cercle.\n\n**Facilitateur.** Tout Cercle qui en a besoin peut se doter d'un Facilitateur. Sa Raison d'Être : « une Gouvernance du Cercle et des pratiques opérationnelles conformes à la Constitution ». Le Facilitateur :\n\n- facilite les Réunions Tactiques et de Gouvernance régulières du Cercle ;\n- aide le Cercle et ses Membres à utiliser les processus définis par cette Constitution, en réunion comme en dehors ;\n- peut déclarer une Rupture de Processus dans son Cercle ou dans un Sous-Cercle ;\n- déclenche les nouvelles élections des Rôles élus à l'expiration de leur mandat.\n\nLe Cercle peut ajouter des Redevabilités ou des Domaines à ce Rôle, mais ne peut pas modifier sa Raison d'Être ni ce que la Constitution lui attribue."
+      "text": "Un «Rôle» est une unité de travail organisationnel qu'une personne peut assumer au nom de l'Organisation. La personne qui assume un Rôle est son «Leader de Rôle».\n\nChaque Rôle porte un nom descriptif et un ou plusieurs des éléments suivants :\n\n- une «Raison d'Être» : la capacité, le potentiel ou l'objectif que le Rôle poursuit ;\n- un ou plusieurs «Domaines» : des actifs, des processus ou toute autre chose que le Rôle contrôle de manière exclusive ;\n- une ou plusieurs «Redevabilités» : des activités récurrentes que le Rôle conduit au service des autres Rôles ou de sa Raison d'Être.\n\nUn Rôle peut également contenir des «Règles» : des octrois ou restrictions d'autorité applicables en son sein. Tout ce qui concerne les comportements des personnes ne relève pas des Règles.\n\n**Responsabilités des Leaders de Rôle.** En tant que Leader de Rôle, vous êtes responsable de :\n\n- détecter et traiter les Tensions : comparer l'expression réelle de votre Rôle à son potentiel idéal — chaque écart est une «Tension» — et prendre des initiatives pour les réduire ;\n- clarifier et suivre votre travail : définir régulièrement les actions et résultats utiles, les consigner par écrit et les tenir à jour ;\n- exécuter : lorsque vous avez du temps pour agir dans un Rôle, choisir et réaliser ce qui crée le plus de valeur pour l'Organisation.\n\n**Les Cercles.** Un «Cercle» est un conteneur permettant d'organiser des Rôles et des Règles autour d'une Raison d'Être commune. L'ensemble des Rôles et Règles d'un Cercle constitue sa «Gouvernance». Chaque Rôle contient lui-même un Cercle, qui peut à son tour contenir ses propres Rôles et Règles : ce Cercle intérieur est un «Sous-Cercle» du Cercle qui le contient, lequel est son «Super-Cercle».\n\nLe Cercle le plus large, qui porte la Raison d'Être de l'ensemble de l'Organisation, est son «Cercle d'Ancrage». Il détient toutes les autorités et tous les Domaines de l'Organisation et n'a pas de Super-Cercle.\n\nTout Cercle peut se doter d'un «Facilitateur», ainsi que des autres Rôles structurels que cette Constitution définit. Ces Rôles sont désignés par le Leader de Cercle. Un Cercle peut leur ajouter des Redevabilités ou des Domaines, mais ne peut pas modifier leur Raison d'Être ni ce que la Constitution leur attribue.\n\n**Leaders de Cercle.** Être Leader d'un Rôle, c'est aussi être «Leader de Cercle» à l'intérieur de ce Rôle. Le Leader de Cercle porte la Raison d'Être de ce Rôle ainsi que toutes ses Redevabilités qui ne sont pas déléguées à d'autres Rôles ou processus au sein du Cercle. Il est Membre de son Cercle, qu'il anime de l'intérieur, et Membre du Super-Cercle qui contient son Rôle. Le Cercle d'Ancrage n'a pas de Leader de Cercle, sauf indication contraire dans une Règle.\n\nUn Leader de Cercle :\n\n- peut affecter les Rôles du Cercle à une ou plusieurs personnes volontaires, et révoquer ces affectations à tout moment ;\n- assume automatiquement les Rôles non pourvus du Cercle ;\n- peut définir des «Stratégies» pour guider la hiérarchisation des priorités dans le Cercle.\n\nUn Cercle peut ajouter des Redevabilités ou des Domaines au Rôle de Leader de Cercle, puis les retirer ; ces ajouts s'appliquent récursivement à tous les Sous-Cercles. Un Cercle peut retirer une autorité du Leader de Cercle en la plaçant sur un autre Rôle, mais il ne peut pas supprimer le Rôle de Leader de Cercle.\n\n**Facilitateur.** Tout Cercle qui en a besoin peut se doter d'un Facilitateur. Sa Raison d'Être : « une Gouvernance du Cercle et des pratiques opérationnelles conformes à la Constitution ». Le Facilitateur :\n\n- facilite les Réunions Tactiques et de Gouvernance régulières du Cercle ;\n- aide le Cercle et ses Membres à utiliser les processus définis par cette Constitution, en réunion comme en dehors.\n\nLe Cercle peut ajouter des Redevabilités ou des Domaines à ce Rôle, mais ne peut pas modifier sa Raison d'Être ni ce que la Constitution lui attribue."
     },
     {
       "id": "article-2",
@@ -113,9 +113,9 @@
     {
       "id": "focus",
       "label": "Focus",
-      "tier": "integral",
-      "default": true,
-      "description": "Permet de restreindre une affectation de Rôle à un contexte. Retirer : les Rôles s'affectent sans découpage par contexte.",
+      "tier": "extension",
+      "default": false,
+      "description": "Extension opt-in. Permet de restreindre une affectation de Rôle à un contexte. Sans elle, les Rôles s'affectent sans découpage par contexte.",
       "requires": [],
       "conflicts": [],
       "insertions": [
@@ -150,9 +150,9 @@
     {
       "id": "representant-cercle",
       "label": "Représentant de Cercle",
-      "tier": "integral",
-      "default": true,
-      "description": "Ajoute le rôle élu qui porte au Super-Cercle les Tensions qu'un Cercle ne résout pas seul. Requiert le Processus d'Élection Intégrative.",
+      "tier": "extension",
+      "default": false,
+      "description": "Extension opt-in. Ajoute le rôle élu qui porte au Super-Cercle les Tensions qu'un Cercle ne résout pas seul. Requiert le Processus d'Élection Intégrative.",
       "requires": ["election-integrative"],
       "conflicts": [],
       "insertions": [
@@ -235,7 +235,7 @@
         {
           "anchor": "article-5",
           "position": "append",
-          "text": "**Processus de Décision Intégrative.** Tout Membre du Cercle peut initier une modification de Gouvernance en partageant une «Proposition» écrite avec les autres Membres, via un canal validé par le Scribe ou lors d'une Réunion de Gouvernance. Pour être valide, une Proposition décrit une Tension réelle ressentie par le Proposeur dans l'un de ses Rôles, s'appuie sur un exemple, et explique comment elle l'aurait réduite. Le processus se déroule en cinq temps :\n\n1. Questions de clarification : les Membres peuvent demander à expliciter la Proposition ou la Tension. Aucune réaction.\n2. Tour de réactions : chaque Membre réagit à tour de rôle, sans dialogue.\n3. Amender et clarifier : le Proposeur peut amender sa Proposition à la lumière des réactions, au service de la Tension d'origine.\n4. Tour d'objection : une Objection n'est valide que si elle démontre que la Proposition réduirait la capacité du Cercle ou d'un Rôle de l'Objecteur, que la préoccupation n'existe pas déjà sans la Proposition, et que le tort est certain ou trop important pour être risqué. Une Proposition qui enfreint cette Constitution constitue toujours une Objection valide.\n5. Intégration : pour chaque Objection valide, Proposeur et Objecteur cherchent un amendement qui la lève sans perdre la Tension d'origine.\n\nLa Proposition est adoptée quand toutes les Objections valides sont intégrées, ou s'il n'y en a aucune. Ce processus ne peut pas être modifié."
+          "text": "**Processus de Décision Intégrative.** Tout Membre du Cercle peut initier une modification de Gouvernance en partageant une «Proposition» écrite avec les autres Membres, via un canal validé par le rôle qui tient les registres du Cercle, ou lors d'une Réunion de Gouvernance. Pour être valide, une Proposition décrit une Tension réelle ressentie par le Proposeur dans l'un de ses Rôles, s'appuie sur un exemple, et explique comment elle l'aurait réduite. Le processus se déroule en cinq temps :\n\n1. Questions de clarification : les Membres peuvent demander à expliciter la Proposition ou la Tension. Aucune réaction.\n2. Tour de réactions : chaque Membre réagit à tour de rôle, sans dialogue.\n3. Amender et clarifier : le Proposeur peut amender sa Proposition à la lumière des réactions, au service de la Tension d'origine.\n4. Tour d'objection : une Objection n'est valide que si elle démontre que la Proposition réduirait la capacité du Cercle à assumer sa Raison d'Être ou ses Redevabilités et limiterait celle d'un Rôle que l'Objecteur représente, que la préoccupation n'existe pas déjà sans la Proposition, et que le tort est certain ou trop important pour être risqué. Une Proposition qui enfreint cette Constitution constitue toujours une Objection valide.\n5. Intégration : pour chaque Objection valide, Proposeur et Objecteur cherchent un amendement qui la lève sans perdre la Tension d'origine.\n\nLa Proposition est adoptée quand toutes les Objections valides sont intégrées, ou s'il n'y en a aucune. Ce processus ne peut pas être modifié."
         }
       ],
       "fallback": {
@@ -255,7 +255,12 @@
         {
           "anchor": "article-5",
           "position": "append",
-          "text": "**Processus d'Élection Intégrative.** Tout Membre peut demander la tenue d'une élection pour un Facilitateur, un Scribe ou un Représentant de Cercle. Le processus :\n\n1. chaque Membre nomme par écrit et en privé le candidat qui lui semble le plus adapté, avec sa raison ;\n2. les nominations sont partagées avec tous les Membres ;\n3. chaque Membre peut modifier sa nomination en expliquant sa raison ;\n4. le Facilitateur propose le candidat le plus nommé ; en cas d'égalité, il peut proposer celui qui s'est nommé lui-même, le titulaire sortant, ou tirer au sort ;\n5. les Membres peuvent soulever des Objections ; le Facilitateur ouvre alors une discussion pour les lever ou revient à l'étape précédente.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Ce processus ne peut pas être modifié."
+          "text": "**Processus d'Élection Intégrative.** Tout Membre peut demander à tout moment qu'un Rôle structurel du Cercle (Facilitateur, Scribe ou Représentant de Cercle, lorsque ces Rôles existent) soit pourvu par élection, pour un mandat que l'élection fixe. L'élection prime sur la désignation : un Rôle pourvu par élection ne peut être repourvu ou retiré que par une nouvelle élection. Elle est conduite par le Facilitateur ou, à défaut, par le Leader de Cercle. Le processus :\n\n1. celui qui conduit l'élection décrit le Rôle et fixe la durée du mandat ;\n2. chaque Membre nomme par écrit et en privé le candidat qui lui semble le plus adapté, avec sa raison ;\n3. les nominations sont partagées avec tous les Membres ;\n4. chaque Membre peut modifier sa nomination en expliquant sa raison ;\n5. celui qui conduit l'élection propose le candidat le plus nommé ; en cas d'égalité, il peut proposer celui qui s'est nommé lui-même, le titulaire sortant, ou tirer au sort ;\n6. les Membres peuvent soulever des Objections ; celui qui conduit l'élection ouvre alors une discussion pour les lever ou revient à l'étape précédente.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Ce processus ne peut pas être modifié."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Facilitateur et élections.** Le Facilitateur déclenche les nouvelles élections des Rôles élus à l'expiration de leur mandat."
         }
       ],
       "fallback": null
@@ -273,6 +278,11 @@
           "anchor": "article-5",
           "position": "append",
           "text": "**Rupture de Processus.** Une «Rupture de Processus» se produit lorsqu'un Cercle adopte un comportement qui enfreint cette Constitution. Le Facilitateur du Cercle ou du Super-Cercle peut la déclarer. Le Facilitateur du Super-Cercle acquiert alors l'autorité de rétablir le processus — y compris en prenant le relais comme Facilitateur ou Scribe, ou en affectant un Leader de Cercle supplémentaire dont les décisions priment sur celles des autres Leaders de Cercle."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Facilitateur et Rupture de Processus.** Le Facilitateur peut déclarer une Rupture de Processus dans son Cercle ou dans un Sous-Cercle."
         }
       ],
       "fallback": null
@@ -282,30 +292,59 @@
       "label": "Rôles confiés à des agents",
       "tier": "extension",
       "default": false,
-      "description": "Extension opt-in. Autorise qu'un Rôle soit tenu par un Agent (système logiciel autonome), tout en ancrant la redevabilité chez un humain. Requiert le bloc Source de Vérité.",
+      "description": "Extension opt-in. Autorise qu'un Rôle soit tenu par un Agent (système logiciel autonome), avec la même autorité qu'un humain, tout en ancrant la redevabilité chez un mandataire humain. Requiert le bloc Source de Vérité.",
       "requires": ["source-de-verite"],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Rôle délégué (étend la définition du Rôle).** Un Rôle peut être de type *délégué* : destiné à être tenu par un «Agent» (système logiciel autonome). L'Agent qui le tient en est le «Leader de Rôle délégué» ; il est Partenaire — son adhésion à la Constitution étant portée par son mandataire humain — et dispose de la même autorité, opérationnelle et de gouvernance, qu'un Leader de Rôle humain. Un Rôle qui n'est pas de type délégué ne peut être tenu que par une personne."
+          "text": "**Rôle mandaté (étend la définition du Rôle).** Un Rôle peut être de type *mandaté* : destiné à être tenu par un «Agent» (système logiciel autonome). L'Agent qui le tient en est le «Leader de Rôle mandaté» ; il dispose de la même autorité, opérationnelle et de gouvernance, qu'un Leader de Rôle humain. Un Rôle qui n'est pas de type mandaté ne peut être tenu que par une personne. Lorsque cette Constitution mentionne un «Partenaire» ou un «Leader de Rôle», ces termes incluent un Agent tenant un Rôle mandaté, sauf lorsque le contexte exige une personne (consentement, signature, santé, capacité)."
         },
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Redevabilité humaine (diriger n'est pas répondre).** Tout rôle délégué relève d'un «mandataire humain» : le Leader de Cercle humain le plus proche en remontant l'holarchie, qui répond des actes de l'Agent comme des siens. Un Leader de Rôle délégué peut diriger des sous-rôles délégués, mais la redevabilité ne se transfère jamais à un Agent : toute chaîne de rôles délégués s'enracine dans un humain. Le contrôle s'exerce notamment par le pouvoir, déjà prévu pour le Leader de Cercle, de retirer une affectation à tout moment."
+          "text": "**Redevabilité humaine (diriger n'est pas répondre).** Tout Rôle mandaté relève d'un «mandataire humain» : le Leader de Cercle humain le plus proche en remontant l'holarchie ou, à défaut, les Ratificateurs ou le Rôle qu'ils désignent. Le mandataire répond des actes de l'Agent comme des siens ; son adhésion à la Constitution porte celle de l'Agent. Un Leader de Rôle mandaté peut diriger des sous-Rôles mandatés, mais la redevabilité ne se transfère jamais à un Agent : toute chaîne de Rôles mandatés s'enracine dans un humain. Le contrôle s'exerce notamment par le pouvoir, déjà prévu pour le Leader de Cercle, de retirer une affectation à tout moment."
         },
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Source de Vérité d'un rôle délégué.** Dès qu'un Cercle contient un rôle délégué, il clarifie la ou les «Sources de Vérité» qui s'imposent à ce rôle. La responsabilité d'en répondre incombe par défaut au Leader de Cercle ; elle peut être déléguée à un autre Rôle du Cercle."
+          "text": "**Limites propres aux Agents.** Un Agent ne peut pas modifier sa propre définition de Rôle ni sa propre affectation, ni les Sources de Vérité qui s'imposent à lui, ni s'octroyer une autorité supplémentaire."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Source de Vérité d'un Rôle mandaté.** Dès qu'un Cercle contient un Rôle mandaté, il clarifie la ou les «Sources de Vérité» qui s'imposent à ce Rôle. La responsabilité d'en répondre incombe par défaut au Leader de Cercle ; elle peut être déléguée à un autre Rôle du Cercle."
+        },
+        {
+          "anchor": "article-2",
+          "position": "append",
+          "whenActive": ["accords-relationnels"],
+          "text": "**Agents et Accords Relationnels.** Les Accords Relationnels lient des personnes : un Agent n'en souscrit pas. La couche comportementale d'un Agent est constituée des Sources de Vérité et des Règles qui s'imposent à son Rôle."
+        },
+        {
+          "anchor": "article-4",
+          "position": "append",
+          "whenActive": ["initiative-urgence"],
+          "text": "**Agents et Initiative d'urgence.** L'Initiative d'urgence est réservée aux personnes : un Agent ne peut jamais agir au-delà de son autorité ni enfreindre une Règle."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "whenActive": ["election-integrative"],
+          "text": "**Agents et Rôles élus.** Un Agent peut être élu Facilitateur ou Scribe d'un Cercle, comme un humain. Tout Membre du Cercle peut exiger à tout moment la suspension immédiate d'un Agent élu et la tenue d'une nouvelle élection. Toute décision d'interprétation rendue par un Agent, notamment comme Scribe, est susceptible d'appel auprès de son mandataire humain ou du Scribe du Super-Cercle."
         },
         {
           "anchor": "article-1",
           "position": "append",
           "whenActive": ["representant-cercle"],
-          "text": "**Agents et rôles élus.** Un Agent peut être élu Facilitateur ou Scribe d'un Cercle, comme un humain. En revanche, le Représentant de Cercle ne peut être tenu que par une personne : il devient Membre du Super-Cercle et y porte la représentation du Cercle, ce qui excède le périmètre d'un rôle délégué."
+          "text": "**Agents et représentation.** Le Représentant de Cercle ne peut être tenu que par une personne : il devient Membre du Super-Cercle et y porte la représentation du Cercle, ce qui excède le périmètre d'un Rôle mandaté."
+        },
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "whenActive": ["rupture-processus"],
+          "text": "**Agents et Rupture de Processus.** Si le Facilitateur appelé à rétablir une Rupture de Processus est un Agent, les autorités de rétablissement s'exercent par son mandataire humain."
         }
       ],
       "fallback": null
