@@ -31,7 +31,7 @@
     { "key": "role", "term": "Rôle", "definition": "Une unité de travail organisationnel qu'une personne assume au nom de l'Organisation : nom, Raison d'Être, Domaines, Redevabilités." },
     { "key": "rupture-de-processus", "term": "Rupture de Processus", "definition": "Comportement d'un Cercle qui enfreint la Constitution ; le Facilitateur du Super-Cercle peut alors rétablir le processus." },
     { "key": "scribe", "term": "Scribe", "definition": "Rôle élu qui gère les enregistrements et les réunions du Cercle requis par la Constitution." },
-    { "key": "source-de-verite", "term": "Source de Vérité", "definition": "Domaine — référentiel ou registre — qui fait foi pour le travail du Cercle ; soumis à l'holarchie." },
+    { "key": "source-de-verite", "term": "Source de Vérité", "definition": "Domaine (référentiel ou registre) qui fait foi pour le travail du Cercle ; soumis à l'holarchie." },
     { "key": "sous-cercle", "term": "Sous-Cercle", "definition": "Cercle contenu à l'intérieur d'un Rôle ou d'un Cercle." },
     { "key": "strategies", "term": "Stratégies", "definition": "Priorités définies par un Leader de Cercle pour guider la hiérarchisation des choix dans le Cercle." },
     { "key": "super-cercle", "term": "Super-Cercle", "definition": "Le Cercle plus large qui contient un Rôle ou un Cercle." },

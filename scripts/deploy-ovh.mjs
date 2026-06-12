@@ -65,9 +65,15 @@ async function clearRemote(dir) {
     const p = `${dir}/${e.name}`;
     if (e.isDirectory) {
       await clearRemote(p);
-      await client.removeEmptyDir(p);
+      await client.removeEmptyDir(p).catch((err) => {
+        if (!String(err).includes('550')) throw err;
+      });
     } else {
-      await client.remove(p);
+      // Le FTP OVH liste parfois des entrées déjà disparues : un 550 à la
+      // suppression n'est pas une erreur (le fichier n'est plus là).
+      await client.remove(p).catch((err) => {
+        if (!String(err).includes('550')) throw err;
+      });
     }
   }
 }

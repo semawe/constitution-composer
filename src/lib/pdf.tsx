@@ -249,7 +249,7 @@ function ComposedDoc({
           }
           const color = it.warning ? COLOR.warning : COLOR[it.tier];
           const tag = it.warning
-            ? `Règle par défaut — « ${it.moduleLabel} » non activé`
+            ? `Règle par défaut : « ${it.moduleLabel} » non activé`
             : it.tier === "retirable"
               ? `${it.moduleLabel}`
               : `+ ${it.moduleLabel}`;
