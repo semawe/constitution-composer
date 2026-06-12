@@ -47,7 +47,7 @@ const TIER_UI: Record<
     tint: "",
     chip: "hover:border-slate-400 hover:text-slate-700",
   },
-  integral: {
+  retirable: {
     dot: "bg-teal-500",
     bar: "border-teal-400",
     tag: "bg-teal-50 text-teal-700 ring-teal-200",
@@ -526,35 +526,35 @@ export default function Composer({
 
   const availableChips = (anchor: string) =>
     modulesForAnchor(data, anchor).filter(
-      (m) => !active.has(m.id) && m.tier !== "integral",
+      (m) => !active.has(m.id) && m.tier !== "retirable",
     );
 
-  // Blocs retirables (tier integral) retirés, ancrés ici → marqueur de réinsertion.
+  // Blocs retirables (tier retirable) retirés, ancrés ici → marqueur de réinsertion.
   const removedRetirables = (anchor: string) =>
     data.modules.filter(
       (m) =>
-        m.tier === "integral" &&
+        m.tier === "retirable" &&
         !active.has(m.id) &&
         m.insertions.some((ins) => ins.anchor === anchor),
     );
 
-  // Lite = blocs retirables (tier integral, cochés par défaut).
+  // Lite = blocs retirables (tier retirable, cochés par défaut).
   // Au-delà = modules additifs (extension / app, off par défaut).
-  const integralMods = useMemo(
-    () => data.modules.filter((m) => m.tier === "integral"),
+  const retirableMods = useMemo(
+    () => data.modules.filter((m) => m.tier === "retirable"),
     [data.modules],
   );
-  const removed = integralMods.filter((m) => !active.has(m.id)).length;
+  const removed = retirableMods.filter((m) => !active.has(m.id)).length;
   const addonsOn = data.modules.filter(
-    (m) => m.tier !== "integral" && active.has(m.id),
+    (m) => m.tier !== "retirable" && active.has(m.id),
   ).length;
 
   const countLabel =
     removed === 0 && addonsOn === 0
       ? "Lite complète"
       : removed > 0 && addonsOn === 0
-        ? `${integralMods.length - removed}/${integralMods.length} blocs retirables`
-        : `${integralMods.length - removed}/${integralMods.length} blocs · ${addonsOn} ajout${addonsOn > 1 ? "s" : ""}`;
+        ? `${retirableMods.length - removed}/${retirableMods.length} blocs retirables`
+        : `${retirableMods.length - removed}/${retirableMods.length} blocs · ${addonsOn} ajout${addonsOn > 1 ? "s" : ""}`;
 
   const pct = data.modules.length ? active.size / data.modules.length : 0;
   const versionLabel =
@@ -703,7 +703,7 @@ export default function Composer({
         )}
       </div>
 
-      {(["integral", "extension", "app"] as Tier[]).map((tier) => (
+      {(["retirable", "extension", "app"] as Tier[]).map((tier) => (
         <div key={tier} className="mt-6">
           <div className="flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${TIER_UI[tier].dot}`} />
@@ -971,7 +971,7 @@ export default function Composer({
                         <span
                           className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${insUi.tag}`}
                         >
-                          {ins.mod.tier === "integral" ? "" : "+ "}
+                          {ins.mod.tier === "retirable" ? "" : "+ "}
                           {ins.mod.label}
                         </span>
                         <div className="text-[0.98rem]">
@@ -1539,7 +1539,7 @@ function PreambleValues({
 function Legend({ tierLabel }: { tierLabel: Record<string, string> }) {
   const rows: { key: Tier | "warning"; label: string }[] = [
     { key: "core", label: tierLabel.core ?? "Cœur" },
-    { key: "integral", label: tierLabel.integral ?? "Intégrale" },
+    { key: "retirable", label: tierLabel.retirable ?? "Retirable" },
     { key: "extension", label: tierLabel.extension ?? "Extension constitutionnelle" },
     { key: "app", label: tierLabel.app ?? "App" },
     { key: "warning", label: "Règle par défaut" },

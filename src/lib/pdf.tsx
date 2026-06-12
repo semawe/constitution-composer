@@ -48,7 +48,7 @@ function ensureFonts() {
 
 const COLOR: Record<Tier | "warning" | "ink" | "muted" | "rule" | "title", string> = {
   core: "#334155",
-  integral: "#0d9488",
+  retirable: "#0d9488",
   extension: "#7c3aed",
   app: "#be123c",
   warning: "#b45309",
@@ -250,7 +250,7 @@ function ComposedDoc({
           const color = it.warning ? COLOR.warning : COLOR[it.tier];
           const tag = it.warning
             ? `Règle par défaut — « ${it.moduleLabel} » non activé`
-            : it.tier === "integral"
+            : it.tier === "retirable"
               ? `${it.moduleLabel}`
               : `+ ${it.moduleLabel}`;
           return (

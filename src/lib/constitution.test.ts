@@ -38,7 +38,7 @@ const data: ConstitutionData = {
     // Bloc retirable de la Lite : coché par défaut, avec remplacement obligatoire.
     mod({
       id: "lite",
-      tier: "integral",
+      tier: "retirable",
       default: true,
       insertions: [{ anchor: "a1", position: "after", text: "ins-lite" }],
       fallback: { anchor: "a1", text: "fb-lite" },

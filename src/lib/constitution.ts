@@ -1,7 +1,7 @@
 // Moteur de composition. Consomme le modèle de données du fond
 // (source de vérité : holacracy-constitution/composer/SCHEMA.md).
 
-export type Tier = "core" | "integral" | "extension" | "app";
+export type Tier = "core" | "retirable" | "extension" | "app";
 
 export interface TierDef {
   id: Tier;
@@ -37,7 +37,7 @@ export interface Module {
   id: string;
   label: string;
   tier: Tier;
-  /** Coché au départ ? true = bloc retirable de la Lite (tier `integral`) ;
+  /** Coché au départ ? true = bloc retirable de la Lite (tier `retirable`) ;
    *  false/absent = module additif off par défaut (extension/app). */
   default?: boolean;
   description: string;
