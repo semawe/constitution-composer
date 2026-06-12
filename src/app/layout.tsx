@@ -13,9 +13,27 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://constitution-composer.com"),
   title: "Composer sa Constitution — Holacracy v6",
   description:
     "Composez votre propre Constitution à partir d'un socle, à la carte.",
+  // "./" : canonical résolue par page (la racine -> /, /admin -> /admin).
+  alternates: { canonical: "./" },
+  openGraph: {
+    type: "website",
+    url: "./",
+    siteName: "Constitution Composer",
+    title: "Composer sa Constitution — Holacracy v6",
+    description:
+      "Composez votre propre Constitution à partir d'un socle, à la carte.",
+    locale: "fr_FR",
+  },
+  twitter: {
+    card: "summary",
+    title: "Composer sa Constitution — Holacracy v6",
+    description:
+      "Composez votre propre Constitution à partir d'un socle, à la carte.",
+  },
 };
 
 export default function RootLayout({

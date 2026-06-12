@@ -9,6 +9,10 @@ DirectorySlash Off
 
 RewriteEngine On
 
+# 0. Hôte canonique : www -> apex (gère aussi http+www en une seule redirection).
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
 # 1. Forcer HTTPS.
 #    Sur le mutualisé OVH la terminaison TLS est faite par un proxy : le backend
 #    voit toujours http, donc on détecte le protocole d'origine via l'en-tête
@@ -44,3 +48,18 @@ RewriteRule ^(.+?)/?$ $1.html [L]
 
 # 4. Page 404 statique générée par Next.
 ErrorDocument 404 /404.html
+
+# 5. En-têtes de sécurité et cache.
+<IfModule mod_headers.c>
+  # HSTS uniquement quand la requête d'origine est en HTTPS (proxy TLS OVH).
+  SetEnvIf X-Forwarded-Proto https HTTPS_ON
+  Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS_ON
+
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # Assets Next hashés : cache long immuable.
+  SetEnvIf Request_URI ^/_next/static/ NEXT_STATIC
+  Header set Cache-Control "public, max-age=31536000, immutable" env=NEXT_STATIC
+</IfModule>
