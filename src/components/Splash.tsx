@@ -16,22 +16,34 @@ const fadeUp: Variants = {
 const VALUES = [
   {
     title: "Modules à la carte",
-    body: "Un socle incompressible, des blocs activables ou retirables au fil du texte.",
+    body: "Un socle incompressible pose le cadre commun. Autour de lui, chaque bloc se conserve ou se retire selon ce que vit votre organisation.",
   },
   {
     title: "Composition en direct",
-    body: "Le texte de la Constitution se recompose à mesure que vous cochez.",
+    body: "La Constitution se réécrit sous vos yeux à chaque choix, sans jamais quitter le fil du texte.",
   },
   {
-    title: "Export PDF signable",
-    body: "Constitution et Déclaration de Principes exportées, prêtes à ratifier.",
+    title: "Export prêt à ratifier",
+    body: "La Constitution et la Déclaration de Principes s'exportent en PDF, à l'identité de votre organisation.",
   },
 ];
 
 const STEPS = [
-  { n: "1", t: "Partez du socle", d: "Le cœur commun à toute adoption d'Holacracy." },
-  { n: "2", t: "Activez vos modules", d: "Extensions, applications, principes propres à votre organisation." },
-  { n: "3", t: "Exportez", d: "Un PDF complet, et une Déclaration de Principes signable." },
+  {
+    n: "1",
+    t: "Partez du socle",
+    d: "Le cœur commun à toute adoption d'Holacracy tient en quelques articles.",
+  },
+  {
+    n: "2",
+    t: "Activez vos modules",
+    d: "Extensions, applications et principes propres à votre organisation s'ajoutent au fil de la lecture.",
+  },
+  {
+    n: "3",
+    t: "Exportez",
+    d: "La Constitution complète et une Déclaration de Principes signable vous attendent en PDF.",
+  },
 ];
 
 export default function Splash() {
@@ -82,9 +94,9 @@ export default function Splash() {
             custom={2}
             className="mt-4 max-w-xl text-lg leading-relaxed text-slate-600"
           >
-            Partez d&apos;un socle éprouvé, activez les modules qui vous
-            ressemblent, voyez le texte se composer en direct, exportez-le en
-            PDF.
+            Le texte part d&apos;un socle éprouvé. Vous activez les modules qui
+            correspondent à votre organisation, la Constitution se compose à
+            mesure que vous décidez, puis s&apos;exporte en PDF prêt à ratifier.
           </motion.p>
           <motion.div
             variants={fadeUp}
@@ -165,8 +177,9 @@ export default function Splash() {
               Prêt à composer ?
             </h2>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600">
-              Cœur et modèle Lite sont libres. Créez un compte pour les
-              extensions, les applications et l&apos;export PDF.
+              Le cœur et le modèle Lite restent en accès libre. La création
+              d&apos;un compte ouvre les extensions, les applications et
+              l&apos;export PDF.
             </p>
           </div>
           <Link
