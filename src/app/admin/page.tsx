@@ -130,7 +130,7 @@ export default function AdminPage() {
             Config des insertions
           </Link>
           <Link
-            href="/"
+            href="/composer"
             className="text-slate-500 underline transition hover:text-slate-800"
           >
             ← Composeur

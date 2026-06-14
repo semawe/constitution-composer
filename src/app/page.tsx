@@ -1,12 +1,7 @@
-import App from "@/components/App";
-import type { ConstitutionData } from "@/lib/constitution";
-import type { PrincipesData } from "@/components/Principes";
-import constitutionRaw from "@/data/constitution.fr.json";
-import principesRaw from "@/data/principes.fr.json";
+import Splash from "@/components/Splash";
 
-const constitution = constitutionRaw as ConstitutionData;
-const principes = principesRaw as PrincipesData;
-
+// Page d'accueil = splash marketing. Le composer vit désormais sur /composer.
+// Les métadonnées par défaut (titre, description, OG) sont portées par le layout.
 export default function Home() {
-  return <App constitution={constitution} principes={principes} />;
+  return <Splash />;
 }
