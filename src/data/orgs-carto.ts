@@ -1,0 +1,82 @@
+// Source : export Notion "La carte des organisations en Holacratie" (2026-06-15).
+// 67 organisations. Ne pas éditer à la main : régénérer depuis le CSV.
+
+export interface Org {
+  nom: string;
+  gouvernance: string[];
+  typeOrg: string[];
+  effectif: number | null;
+  ville: string;
+  pays: string;
+  site: string | null;
+}
+
+export const ORGS: Org[] = [
+  { nom: "8Squad", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 50, ville: "Melbourne", pays: "Australie", site: "http://www.8squad.com.au/" },
+  { nom: "@Tension", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: null, ville: "La Haye", pays: "Pays-Bas", site: "https://www.a-tension.nl/" },
+  { nom: "Agence Aix les Bains Riviera des Alpes", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 49, ville: "", pays: "France", site: "https://agence.aixlesbains-rivieradesalpes.com/" },
+  { nom: "Ahimsagram", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 10, ville: "Rajasthan", pays: "Inde", site: "https://www.shamminanda.com/" },
+  { nom: "AID 64", gouvernance: ["Holacracy 5.0"], typeOrg: ["Association"], effectif: 140, ville: "", pays: "France", site: "https://aid64.fr/" },
+  { nom: "ALQVIMIA", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: null, ville: "", pays: "Espagne", site: "http://www.alqvimia.com/" },
+  { nom: "Alter SI", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 22, ville: "Île-de-France", pays: "France", site: "https://alter-si.fr/" },
+  { nom: "Ambiance Bois", gouvernance: ["Gouvernance partagée"], typeOrg: ["Entreprise"], effectif: null, ville: "Nouvelle-Aquitaine", pays: "France", site: "https://www.ambiance-bois.com/" },
+  { nom: "Arcadie", gouvernance: ["Holacracy 4.1"], typeOrg: ["Entreprise"], effectif: 130, ville: "", pays: "France", site: "https://www.arcadie.fr/" },
+  { nom: "Ardelaine", gouvernance: ["Gouvernance partagée"], typeOrg: ["Coopérative", "Entreprise"], effectif: 60, ville: "", pays: "France", site: "https://www.ardelaine.fr/" },
+  { nom: "Armée Suisse CLA-G", gouvernance: ["Holacracy 5.0"], typeOrg: ["Armée"], effectif: 600, ville: "", pays: "Suisse", site: "https://www.vtg.admin.ch/fr/base-logistique-de-larmee" },
+  { nom: "Balanceology", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 26, ville: "Angleterre", pays: "Royaume-Uni", site: "https://www.balanceology.uk/" },
+  { nom: "Beezup", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 13, ville: "", pays: "France", site: "https://www.beezup.com/" },
+  { nom: "Bewusste Unternehmen", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 2, ville: "Berlin", pays: "Allemagne", site: "https://www.bewusstes-unternehmen.com/" },
+  { nom: "BikeSolutions", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 11, ville: "", pays: "France", site: "https://www.bikesolutions.fr/" },
+  { nom: "Boldare", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 250, ville: "Woj. Śląskie", pays: "Pologne", site: "https://www.boldare.com/" },
+  { nom: "Cognizant Netcentric", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 500, ville: "Zurich", pays: "Suisse", site: "https://www.netcentric.biz/" },
+  { nom: "cubic solutions GmbH", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 10, ville: "", pays: "Allemagne", site: "https://cubicsolutions.de/" },
+  { nom: "Diverty Events", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 13, ville: "", pays: "France", site: "https://www.divertyevents.fr/" },
+  { nom: "Eco-Compteur", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 150, ville: "", pays: "France", site: "https://www.eco-compteur.com/" },
+  { nom: "Elmy", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 160, ville: "", pays: "France", site: "fbonjour@aixlesbains-rivieradesalpes.com" },
+  { nom: "Enercoop Midi-Pyrénées", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 20, ville: "", pays: "France", site: "https://www.enercoop.fr/nos-cooperatives/midi-pyrenees" },
+  { nom: "Energized.org", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 5, ville: "Utrecht", pays: "Pays-Bas", site: "https://energized.org/" },
+  { nom: "Germe", gouvernance: ["Holacracy 5.0"], typeOrg: ["Association"], effectif: 40, ville: "", pays: "France", site: "https://www.germe.com/" },
+  { nom: "GLHD", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: null, ville: "Nouvelle-Aquitaine", pays: "France", site: "https://glhd.fr/" },
+  { nom: "Grenoble Alpes Métropole", gouvernance: ["Holacracy 5.0"], typeOrg: ["Collectivité"], effectif: null, ville: "", pays: "France", site: "https://www.grenoblealpesmetropole.fr/" },
+  { nom: "Groundfog GmbH", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 25, ville: "Saxe", pays: "Allemagne", site: "https://groundfog.cloud/" },
+  { nom: "Happy Work", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 3, ville: "Île-de-France", pays: "France", site: "https://www.happywork.pro/" },
+  { nom: "HolacracyOne", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 2, ville: "", pays: "", site: "https://www.holacracy.org/" },
+  { nom: "ICEDD", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 44, ville: "", pays: "Belgique", site: "https://www.icedd.be/" },
+  { nom: "In Excelsis", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 3, ville: "", pays: "France", site: "https://www.inxl.fr/" },
+  { nom: "Innowide", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 8, ville: "", pays: "France", site: "https://www.innowide.fr/" },
+  { nom: "Karibati", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 8, ville: "", pays: "France", site: "https://www.karibati.fr/" },
+  { nom: "Koteos", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 14, ville: "Pue", pays: "Mexique", site: "https://koteosgroup.com/" },
+  { nom: "Laëtis", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 20, ville: "Occitanie", pays: "France", site: "https://www.laetis.fr/" },
+  { nom: "Le Messageur", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 15, ville: "", pays: "France", site: "https://www.lemessageur.com/" },
+  { nom: "Les Coqs en pâte", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 25, ville: "", pays: "France", site: "https://coqsenpate.com/" },
+  { nom: "Maison de l’initiative", gouvernance: ["Gouvernance partagée"], typeOrg: [], effectif: 100, ville: "", pays: "", site: null },
+  { nom: "Natura Vélo", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 16, ville: "", pays: "France", site: "https://naturavelo.com/" },
+  { nom: "Netika", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 21, ville: "", pays: "Belgique", site: "https://its.netika.com/" },
+  { nom: "Norsys", gouvernance: ["Gouvernance partagée"], typeOrg: ["Entreprise"], effectif: 750, ville: "", pays: "France", site: "https://www.norsys.fr/" },
+  { nom: "Our Neighborhood Child Development Center", gouvernance: ["Holacracy 5.0"], typeOrg: ["Association"], effectif: 30, ville: "VA", pays: "États-Unis", site: "http://www.ourneighborhood.community/" },
+  { nom: "Pariveda Solutions", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 500, ville: "TX", pays: "États-Unis", site: "https://www.parivedasolutions.com/" },
+  { nom: "Praxys", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 8, ville: "", pays: "France", site: "https://praxys-paysage.fr/fr" },
+  { nom: "PURCOOP", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 30, ville: "", pays: "France", site: "https://www.purcoop.org/" },
+  { nom: "QoQa", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 280, ville: "", pays: "Suisse", site: "https://www.qoqa.ch/fr" },
+  { nom: "RELATIONS Inc.", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 3, ville: "", pays: "", site: "https://www.relations.net/" },
+  { nom: "SINA (Social Innovation Academy)", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 100, ville: "Mpigi", pays: "Ouganda", site: "https://www.socialinnovationacademy.org/" },
+  { nom: "Sogilis", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 50, ville: "", pays: "France", site: "https://sogilis.com/" },
+  { nom: "Solenciel", gouvernance: ["Holacracy 5.0"], typeOrg: ["Association"], effectif: 55, ville: "", pays: "France", site: "https://www.solenciel.fr/" },
+  { nom: "SQALogic", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 10, ville: "QC", pays: "Canada", site: "https://sqalogic.com/" },
+  { nom: "straight solutions GmbH", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 25, ville: "Bavière", pays: "Allemagne", site: "https://straight-solutions.com/" },
+  { nom: "Suricats consulting", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 60, ville: "", pays: "France", site: "https://www.suricats-consulting.com/" },
+  { nom: "Sémawé", gouvernance: ["Holacracy 5.0"], typeOrg: ["Coopérative", "Entreprise"], effectif: 7, ville: "", pays: "France", site: "https://semawe.fr" },
+  { nom: "Tebicom", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 90, ville: "", pays: "Suisse", site: "https://tebicom.ch/" },
+  { nom: "Terre de Liens, la Fondation", gouvernance: ["Holacracy 5.0"], typeOrg: ["Association"], effectif: 30, ville: "", pays: "France", site: "https://terredeliens.org/" },
+  { nom: "The Centre for Collaboration, Motivation and Innovation Society (CCMI)", gouvernance: ["Holacracy 4.1"], typeOrg: ["Association"], effectif: 10, ville: "BC", pays: "Canada", site: "https://centrecmi.ca/" },
+  { nom: "The Rookie Minds", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 6, ville: "Utrecht", pays: "Pays-Bas", site: "https://www.therookieminds.com/en/" },
+  { nom: "The Understory Initiative", gouvernance: ["Holacracy 5.0"], typeOrg: ["Association"], effectif: 10, ville: "OR", pays: "États-Unis", site: "https://understoryinitiative.org/" },
+  { nom: "Toovalu", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 40, ville: "", pays: "France", site: "https://toovalu.com/" },
+  { nom: "Transfaire", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 120, ville: "Saint-Pétersbourg", pays: "Russie", site: "https://transfaire.ru/" },
+  { nom: "Unic", gouvernance: ["Holacracy 4.1"], typeOrg: ["Entreprise"], effectif: 500, ville: "Berne", pays: "Suisse", site: "https://www.unic.com/" },
+  { nom: "Ville de Grenoble", gouvernance: ["Holacracy 5.0"], typeOrg: ["Collectivité"], effectif: null, ville: "", pays: "France", site: "https://www.grenoble.fr/" },
+  { nom: "Voys", gouvernance: [], typeOrg: [], effectif: null, ville: "", pays: "Belgique", site: "https://voys.be" },
+  { nom: "Voys South Africa", gouvernance: [], typeOrg: [], effectif: 150, ville: "Le Cap", pays: "Afrique du Sud", site: "www.voys.co.za" },
+  { nom: "Yamaneco", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 7, ville: "", pays: "", site: "https://www.yamaneco.co.jp/" },
+  { nom: "Yemanja", gouvernance: ["Holacracy 5.0"], typeOrg: ["Entreprise"], effectif: 19, ville: "", pays: "France", site: "https://yemanja.io/" },
+];
