@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import type { ConstitutionData, Module, Tier } from "@/lib/constitution";
+import { getAppMeta } from "@/data/apps-meta";
 
 const TIER_BADGE: Partial<Record<Tier, { label: string; cls: string }>> = {
   extension: {
@@ -46,7 +48,7 @@ export default function Marketplace({
           return (
             <div
               key={m.id}
-              className="flex flex-col rounded-xl border border-slate-200 bg-white p-5"
+              className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
             >
               <div className="flex items-start justify-between gap-3">
                 <h2 className="font-serif text-lg font-semibold text-slate-900">
@@ -60,6 +62,11 @@ export default function Marketplace({
                   </span>
                 )}
               </div>
+              {getAppMeta(m.id) && (
+                <p className="mt-1 text-xs italic text-slate-400">
+                  {getAppMeta(m.id)!.tagline}
+                </p>
+              )}
               <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
                 {m.description}
               </p>
@@ -68,12 +75,20 @@ export default function Marketplace({
                   Nécessite : {m.requires.map(labelOf).join(", ")}
                 </p>
               )}
-              <button
-                onClick={() => onOpen(anchor)}
-                className="mt-4 inline-flex items-center justify-center gap-1.5 self-start rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-              >
-                Ouvrir dans le composeur
-              </button>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href={`/apps/${m.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                >
+                  Découvrir
+                </Link>
+                <button
+                  onClick={() => onOpen(anchor)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+                >
+                  Activer →
+                </button>
+              </div>
             </div>
           );
         })}

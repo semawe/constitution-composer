@@ -176,7 +176,6 @@ export default function Composer({
     defaultActive(data),
   );
   const [showIntent, setShowIntent] = useState(true);
-  const [showSummary, setShowSummary] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [title, setTitle] = useState(data.meta.title);
   const [values, setValues] = useState("");
@@ -605,13 +604,20 @@ export default function Composer({
             <button
               key={b.id}
               onClick={() => goTo(b.id)}
-              className={`block w-full border-l-2 py-1 pl-3 text-left text-[0.82rem] leading-snug transition ${
+              className={`block w-full border-l-2 py-1 pl-3 text-left leading-snug transition ${
                 on
-                  ? "border-slate-900 font-medium text-slate-900"
-                  : "border-slate-200 text-slate-500 hover:border-slate-400 hover:text-slate-700"
+                  ? "border-slate-900"
+                  : "border-slate-200 hover:border-slate-400"
               }`}
             >
-              {b.heading}
+              <span className={`block text-[0.82rem] ${on ? "font-medium text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
+                {b.heading}
+              </span>
+              {b.summary && (
+                <span className="mt-0.5 block text-[0.73rem] leading-snug text-slate-400">
+                  {b.summary}
+                </span>
+              )}
             </button>
           );
         })}
@@ -926,15 +932,6 @@ export default function Composer({
               <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
                 <input
                   type="checkbox"
-                  checked={showSummary}
-                  onChange={(e) => setShowSummary(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-slate-500"
-                />
-                Afficher le sommaire
-              </label>
-              <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
-                <input
-                  type="checkbox"
                   checked={showIntent}
                   onChange={(e) => setShowIntent(e.target.checked)}
                   className="h-3.5 w-3.5 accent-slate-500"
@@ -962,37 +959,6 @@ export default function Composer({
         </header>
 
         <article className="doc-prose text-[1.05rem] text-slate-800">
-          {/* Sommaire : résumé d'un article par ligne, généré depuis les champs summary */}
-          <AnimatePresence initial={false}>
-            {showSummary && data.blocks.some((b) => b.summary) && (
-              <motion.section
-                key="sommaire"
-                id="sommaire"
-                className="mb-10 scroll-mt-24"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h2 className="mb-3 font-serif text-2xl font-semibold text-slate-900">
-                  Sommaire
-                </h2>
-                <ul className="space-y-2 text-[0.97rem] text-slate-600">
-                  {data.blocks
-                    .filter((b) => b.summary)
-                    .map((b) => (
-                      <li key={b.id} className="flex gap-2">
-                        <span className="shrink-0 font-semibold text-slate-800">
-                          {b.heading}.
-                        </span>
-                        <span>{b.summary}</span>
-                      </li>
-                    ))}
-                </ul>
-              </motion.section>
-            )}
-          </AnimatePresence>
-
           {data.blocks.map((block) => {
             return (
               <motion.section
@@ -1100,24 +1066,24 @@ export default function Composer({
 
                 {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
                 {inactiveAdvanced(block.anchor).length > 0 && (
-                  <div className="mt-5 rounded-lg border border-violet-100 bg-violet-50/60 px-4 py-3 text-[0.85rem] text-violet-700">
+                  <div className="mt-5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-[0.85rem] text-violet-900">
                     <span className="font-semibold">Ce tier ne couvre pas :</span>{" "}
                     {inactiveAdvanced(block.anchor).map((m, i, arr) => (
                       <span key={m.id}>
                         <button
                           onClick={() => toggle(m.id)}
-                          className="underline decoration-dotted underline-offset-2 hover:text-violet-900"
+                          className="underline decoration-dotted underline-offset-2 hover:text-violet-700"
                           title={m.description}
                         >
                           {m.label}
                         </button>
-                        <span className="ml-1 text-[0.75rem] text-violet-400">
+                        <span className="ml-1 text-[0.75rem] text-violet-600">
                           [{m.tier === "extension" ? "Extension" : "App"}]
                         </span>
                         {i < arr.length - 1 && <span className="mr-1">,</span>}
                       </span>
                     ))}{" "}
-                    <span className="text-violet-400">
+                    <span className="text-violet-600">
                       Activez-les pour voir ce contenu.
                     </span>
                   </div>
