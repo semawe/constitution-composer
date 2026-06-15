@@ -18,7 +18,13 @@ export const metadata: Metadata = {
   description:
     "Composez votre propre Constitution à partir d'un socle, à la carte.",
   // "./" : canonical résolue par page (la racine -> /, /admin -> /admin).
-  alternates: { canonical: "./" },
+  alternates: {
+    canonical: "./",
+    languages: {
+      fr: "https://constitution-composer.com",
+      en: "https://constitution-composer.com/en",
+    },
+  },
   openGraph: {
     type: "website",
     url: "./",

@@ -1,19 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import { type Locale, getLocaleFromPath, toOtherLocale, UI } from "@/lib/i18n";
 
-const NAV = [
-  { href: "/composer", label: "Composer" },
-  { href: "/cartographie", label: "Cartographie" },
-  { href: "/comprendre", label: "Comprendre" },
-];
+function navHref(base: string, locale: Locale) {
+  return locale === "en" ? `/en${base}` : base;
+}
 
-export function SiteNav() {
+export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
+  const pathname = usePathname();
+  const locale = localeProp ?? getLocaleFromPath(pathname);
+  const t = UI[locale].nav;
+  const otherLocale = locale === "fr" ? "en" : "fr";
+  const otherPath = toOtherLocale(pathname);
+
+  const NAV = [
+    { href: navHref("/composer", locale), label: t.composer },
+    { href: navHref("/cartographie", locale), label: t.cartographie },
+    { href: navHref("/comprendre", locale), label: t.comprendre },
+  ];
+
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-background/85 backdrop-blur">
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={locale === "en" ? "/en" : "/"} className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-600 text-sm text-white">
             ⬡
           </span>
@@ -32,10 +44,18 @@ export function SiteNav() {
             </Link>
           ))}
           <Link
-            href="/composer"
+            href={navHref("/composer", locale)}
             className="rounded-lg border border-teal-600 px-3 py-1.5 text-teal-700 transition hover:bg-teal-50"
           >
-            Se connecter
+            {t.login}
+          </Link>
+          {/* Language switcher */}
+          <Link
+            href={otherPath}
+            className="rounded-full px-2 py-1 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            title={otherLocale === "en" ? "English version" : "Version française"}
+          >
+            {otherLocale.toUpperCase()}
           </Link>
           <ThemeToggle />
         </div>
@@ -44,20 +64,24 @@ export function SiteNav() {
   );
 }
 
-export function SiteFooter() {
+export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
+  const pathname = usePathname();
+  const locale = localeProp ?? getLocaleFromPath(pathname);
+  const t = UI[locale].footer;
+
   return (
     <footer className="border-t border-slate-200 bg-background">
       <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-        <span>Constitution Composer, un outil Sémawé.</span>
+        <span>{t.tagline}</span>
         <div className="flex gap-4">
-          <Link href="/comprendre" className="transition hover:text-slate-800">
-            Comprendre
+          <Link href={navHref("/comprendre", locale)} className="transition hover:text-slate-800">
+            {UI[locale].nav.comprendre}
           </Link>
-          <Link href="/cartographie" className="transition hover:text-slate-800">
-            Cartographie
+          <Link href={navHref("/cartographie", locale)} className="transition hover:text-slate-800">
+            {UI[locale].nav.cartographie}
           </Link>
-          <Link href="/composer" className="transition hover:text-slate-800">
-            Composer
+          <Link href={navHref("/composer", locale)} className="transition hover:text-slate-800">
+            {UI[locale].nav.composer}
           </Link>
         </div>
       </div>
