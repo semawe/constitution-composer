@@ -110,7 +110,7 @@
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Source de Vérité.** Un Domaine peut être une «Source de Vérité» : un référentiel, un registre ou un ensemble d'informations qui fait foi pour le travail du Cercle. Le contrôler, c'est avoir l'autorité de décider quelle référence fait foi, non de décréter ce qui est vrai. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
+          "text": "Un Domaine peut être une «Source de Vérité» : un référentiel, un registre ou un ensemble d'informations qui fait foi pour le travail du Cercle. Le contrôler, c'est avoir l'autorité de décider quelle référence fait foi, non de décréter ce qui est vrai. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut pas faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
         }
       ],
       "fallback": null
@@ -127,7 +127,7 @@
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Délégation d'un Domaine à un Rôle.** Un Cercle peut déléguer l'un de ses Domaines à l'un de ses Rôles. Le Leader de ce Rôle peut alors contrôler ce Domaine au nom du Cercle et créer des Règles pour le régir. Le Cercle conserve le droit de définir ses propres Règles sur ce Domaine, lesquelles priment en cas de conflit. Déléguer un Domaine ne délègue pas l'autorité de dépenser de l'argent ou des actifs, sauf mention explicite."
+          "text": "Un Cercle peut déléguer l'un de ses Domaines à l'un de ses Rôles. Le Leader de ce Rôle peut alors contrôler ce Domaine au nom du Cercle et créer des Règles pour le régir. Le Cercle conserve toutefois le droit de définir ses propres Règles sur ce même Domaine, lesquelles priment en cas de conflit. Déléguer un Domaine ne délègue pas l'autorité de dépenser de l'argent ou des actifs, sauf mention explicite."
         }
       ],
       "fallback": null
@@ -161,7 +161,7 @@
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Scribe.** Tout Cercle qui en a besoin peut se doter d'un «Scribe». Sa Raison d'Être : « gérer les enregistrements et les réunions du Cercle requis par la Constitution ». Le Scribe programme les Réunions Tactiques et de Gouvernance régulières, saisit et publie leurs résultats ainsi que les décisions de Gouvernance prises en asynchrone, tient à jour les registres officiels du Cercle (Rôles, Règles, Stratégies) et contrôle ce Domaine, tranche à la demande les conflits d'interprétation de cette Constitution, et peut radier une décision de Gouvernance qui l'enfreint. Le Cercle peut lui ajouter des Redevabilités ou des Domaines, mais ne peut pas modifier sa Raison d'Être ni ce que la Constitution lui attribue."
+          "text": "*Posture : le Scribe a la charge des registres du Cercle et veille à ce qu'ils soient à jour. Il n'a pas à connaître toute la Constitution par cœur, ni à juger ce qui se décide. Lorsqu'un conflit d'interprétation surgit, il a l'autorité de trancher pour que le Cercle puisse continuer.*\n\nRaison d'Être : « gérer les enregistrements et les réunions du Cercle requis par la Constitution ».\n\nLe Scribe :\n\n- programme les Réunions Tactiques et de Gouvernance régulières du Cercle ;\n- saisit et publie les résultats de ces réunions, ainsi que les décisions de Gouvernance prises en asynchrone ;\n- tient à jour les registres officiels du Cercle (Rôles, Règles, Stratégies) et contrôle ce Domaine ;\n- tranche, à la demande, les conflits d'interprétation de cette Constitution ;\n- peut radier une décision de Gouvernance qui enfreint cette Constitution.\n\nLe Cercle peut ajouter des Redevabilités ou des Domaines à ce Rôle, mais ne peut pas modifier sa Raison d'Être ni ce que la Constitution lui attribue."
         }
       ],
       "fallback": {
@@ -205,7 +205,7 @@
         {
           "anchor": "article-2",
           "position": "append",
-          "text": "**Accords Relationnels.** En tant que Partenaire, vous pouvez passer des «Accords Relationnels» pour réguler la manière dont vous travaillez ensemble. Les **accords contraignants**, c'est-à-dire tout engagement écrit avec l'Organisation sans sortie unilatérale (contrat de travail, règlement intérieur, lettre de mission signée), restent pleinement opposables et prévalent sur les autres dispositions de cet article. Les **accords comportementaux** (modes de communication, pratiques de coopération, engagements mutuels) sont volontaires : nul ne peut être contraint d'en souscrire un, ils ne peuvent pas contredire les devoirs ci-dessus, et chaque partie peut y mettre fin à tout moment en informant l'autre."
+          "text": "En tant que Partenaire, vous pouvez passer des «Accords Relationnels» avec d'autres Partenaires pour réguler la manière dont vous travaillez ensemble.\n\n**Accords contraignants.** Tout engagement que vous avez contracté par écrit avec l'Organisation, et dont les termes ne prévoient pas de sortie unilatérale (contrat de travail, règlement intérieur, lettre de mission signée), reste pleinement opposable dans le cadre de cette Constitution. Vous avez le devoir de le respecter. Ces accords prévalent sur les autres dispositions de cet article en cas de conflit.\n\n**Accords comportementaux.** Vous pouvez également conclure avec un autre Partenaire des accords sur vos comportements au travail : modes de communication, pratiques de coopération, engagements mutuels sur des actes concrets. Nul ne peut être contraint d'en souscrire un. Ces accords ne peuvent pas contredire les devoirs définis dans cet article. Chaque partie peut y mettre fin à tout moment en informant l'autre. Toute personne facilitant une réunion peut faire respecter ces accords dans ce cadre, s'ils n'entrent pas en conflit avec cette Constitution."
         }
       ],
       "fallback": null
@@ -222,7 +222,7 @@
         {
           "anchor": "article-3",
           "position": "append",
-          "text": "**Réunion Tactique.** Tout Partenaire peut organiser une «Réunion Tactique» pour coordonner le travail et s'engager mutuellement dans ses responsabilités. Le Scribe de chaque Cercle programme des réunions régulières ; le Facilitateur les facilite. Sauf Règle contraire du Cercle, le processus est le suivant :\n\n1. Inclusion : un tour rapide pour se rendre disponible. Aucune réaction.\n2. Synchronisation : chacun partage ce qu'il juge utile sur son travail en cours. Aucune discussion.\n3. Triage des points : on établit un ordre du jour à l'aide d'étiquettes courtes, puis chaque point est traité un par un, le porteur faisant des demandes concrètes aux présents. Le Facilitateur gère le temps.\n4. Clôture : chacun partage brièvement une réflexion de fin de réunion. Aucune réaction.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Chaque Cercle peut adopter le sien par une Règle."
+          "text": "Vous pouvez organiser une «Réunion Tactique» pour coordonner le travail et s'engager mutuellement dans ses responsabilités. Un cercle n'est pas nécessaire pour organiser une réunion tactique. Le Scribe de chaque Cercle est responsable de programmer des Réunions Tactiques régulières pour son Cercle.\n\nLe Facilitateur du Cercle facilite les réunions régulières. Pour toute réunion convoquée par un autre Partenaire, celui-ci facilite ou délègue la facilitation.\n\nSauf indication contraire d'une Règle d'un Cercle, le processus est le suivant :\n\n1. **Inclusion.** Un tour rapide pour se rendre disponible pour la réunion. Aucune réaction.\n2. **Synchronisation.** Chaque participant partage ce qu'il juge utile sur son travail en cours. Aucune discussion, aucune réaction.\n3. **Triage des points.** Les participants établissent un ordre du jour à l'aide d'une étiquette courte pour chaque point, puis chaque point est traité un par un : le porteur fait des demandes concrètes aux autres Partenaires présents. Le Facilitateur gère le temps et doit tenter de traiter tous les points dans le temps prévu, il a le droit de raccourcir le temps d'un point pour cela.\n4. **Clôture.** Chaque participant partage brièvement une réflexion de fin de réunion. Aucune réaction.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Chaque Cercle peut décider de son propre processus en écrivant une Règle."
         }
       ],
       "fallback": {
@@ -242,7 +242,7 @@
         {
           "anchor": "article-4",
           "position": "append",
-          "text": "**Initiative d'urgence.** Vous pouvez agir au-delà de votre autorité ou enfreindre des Règles si toutes les conditions suivantes sont réunies :\n\n1. vous agissez de bonne foi au service d'un Rôle ;\n2. vous pensez que l'action résoudra plus de Tensions qu'elle n'en crée ;\n3. elle n'engage pas de dépenses non autorisées ;\n4. attendre serait significativement plus coûteux que d'agir.\n\nVous devez alors en informer immédiatement les Leaders de Rôle impactés, prendre les mesures correctives demandées, et ne pas réitérer si on vous le demande."
+          "text": "Vous pouvez agir au-delà de votre autorité ou enfreindre des Règles si toutes les conditions suivantes sont réunies :\n\n1. vous agissez de bonne foi au service d'un Rôle,\n2. vous pensez que l'action résoudra plus de Tensions qu'elle n'en crée,\n3. elle n'engage pas de dépenses non autorisées,\n4. attendre serait significativement plus coûteux que d'agir.\n\nDans ce cas, vous devez en informer immédiatement les Leaders de Rôle impactés, prendre les mesures correctives demandées, et ne pas réitérer si on vous le demande."
         }
       ],
       "fallback": null
@@ -259,7 +259,7 @@
         {
           "anchor": "article-5",
           "position": "append",
-          "text": "**Processus de Décision Intégrative.** Tout Membre du Cercle peut initier une modification de Gouvernance en partageant une «Proposition» écrite avec les autres Membres, via un canal validé par le rôle qui tient les registres du Cercle, ou lors d'une Réunion de Gouvernance. Pour être valide, une Proposition décrit une Tension réelle ressentie par le Proposeur dans l'un de ses Rôles, s'appuie sur un exemple, et explique comment elle l'aurait réduite. Le processus se déroule en cinq temps :\n\n1. Questions de clarification : les Membres peuvent demander à expliciter la Proposition ou la Tension. Aucune réaction.\n2. Tour de réactions : chaque Membre réagit à tour de rôle, sans dialogue.\n3. Amender et clarifier : le Proposeur peut amender sa Proposition à la lumière des réactions, au service de la Tension d'origine.\n4. Tour d'objection : une Objection n'est valide que si elle démontre que la Proposition réduirait la capacité du Cercle à assumer sa Raison d'Être ou ses Redevabilités et limiterait celle d'un Rôle que l'Objecteur représente, que la préoccupation n'existe pas déjà sans la Proposition, et que le tort est certain ou trop important pour être risqué. Une Proposition qui enfreint cette Constitution constitue toujours une Objection valide.\n5. Intégration : pour chaque Objection valide, Proposeur et Objecteur cherchent un amendement qui la lève sans perdre la Tension d'origine.\n\nLa Proposition est adoptée quand toutes les Objections valides sont intégrées, ou s'il n'y en a aucune. Ce processus ne peut pas être modifié."
+          "text": "Tout Membre du Cercle peut initier une modification de Gouvernance en partageant une «Proposition» par écrit avec tous les autres Membres, via un canal validé par le Scribe, ou lors d'une Réunion de Gouvernance organisée par le Scribe.\n\nPour être valide, une Proposition doit : décrire une Tension ressentie par le Proposeur dans l'un de ses Rôles, s'appuyer sur un exemple réel, et expliquer comment elle aurait réduit cette Tension.\n\nLe processus se déroule en cinq temps successifs :\n\n1. **Questions de clarification.** Les autres Membres peuvent demander au Proposeur d'expliciter la Proposition ou la Tension. Aucune réaction n'est autorisée.\n2. **Tour de réactions.** Chaque Membre peut partager sa réaction à la Proposition, à tour de rôle, sans dialogue ni réaction aux réactions.\n3. **Amender et clarifier.** Le Proposeur peut amender sa propre Proposition à la lumière des réactions, ou en clarifier l'intention. Tout amendement doit rester au service de la Tension d'origine et non répondre aux Tensions des autres Membres.\n4. **Tour d'Objection.** Chaque Membre indique s'il a une Objection à la Proposition sous sa forme amendée. Une Objection n'est valide que si : elle démontre que la Proposition réduirait la capacité du Cercle à assumer sa Raison d'Être ou ses Redevabilités ; elle démontre que la Proposition limiterait la capacité de l'Objecteur à assumer un Rôle qu'il représente dans le Cercle ; la préoccupation soulevée n'existe pas déjà en l'absence de la Proposition ; le tort identifié est certain de survenir, ou s'il est seulement anticipé, il est trop important pour qu'on prenne le risque d'essayer la Proposition. Une Proposition qui enfreint cette Constitution constitue toujours une Objection valide.\n5. **Intégration.** Pour chaque Objection valide, le Proposeur et l'Objecteur cherchent ensemble un amendement qui lève l'Objection sans perdre la Tension d'origine, avec l'aide des autres Membres si besoin.\n\nLorsque toutes les Objections valides sont intégrées, ou s'il n'y a aucune Objection, la Proposition est adoptée.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Ce processus ne peut pas être modifié."
         }
       ],
       "fallback": {
@@ -279,12 +279,12 @@
         {
           "anchor": "article-5",
           "position": "append",
-          "text": "**Processus d'Élection Intégrative.** Tout Membre peut demander à tout moment qu'un Rôle structurel du Cercle (Facilitateur, Scribe ou Représentant de Cercle, lorsque ces Rôles existent) soit pourvu par élection, pour un mandat que l'élection fixe. L'élection prime sur la désignation : un Rôle pourvu par élection ne peut être repourvu ou retiré que par une nouvelle élection. Elle est conduite par le Facilitateur ou, à défaut, par le Leader de Cercle. Le processus :\n\n1. celui qui conduit l'élection décrit le Rôle et fixe la durée du mandat ;\n2. chaque Membre nomme par écrit et en privé le candidat qui lui semble le plus adapté, avec sa raison ;\n3. les nominations sont partagées avec tous les Membres ;\n4. chaque Membre peut modifier sa nomination en expliquant sa raison ;\n5. celui qui conduit l'élection propose le candidat le plus nommé ; en cas d'égalité, il peut proposer celui qui s'est nommé lui-même, le titulaire sortant, ou tirer au sort ;\n6. les Membres peuvent soulever des Objections ; celui qui conduit l'élection ouvre alors une discussion pour les lever ou revient à l'étape précédente.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Ce processus ne peut pas être modifié."
+          "text": "Tout Membre peut demander à tout moment la tenue d'une élection pour élire un Facilitateur ou un Scribe. L'élection est conduite par le Facilitateur ou, à défaut, par le Leader de Cercle. Le processus est le suivant :\n\n1. celui qui conduit l'élection décrit le Rôle et fixe la durée du mandat ;\n2. chaque Membre nomme par écrit et en privé le candidat qui lui semble le plus adapté, en indiquant son nom et sa raison ;\n3. les nominations sont partagées avec tous les Membres ;\n4. chaque Membre peut modifier sa nomination en expliquant sa raison ;\n5. celui qui conduit l'élection propose le candidat ayant le plus de nominations. En cas d'égalité, il peut proposer le candidat qui s'est lui-même nommé, le titulaire sortant, ou tirer au sort ;\n6. les Membres peuvent soulever des Objections. Dans ce cas, celui qui conduit l'élection ouvre une discussion pour les lever, ou revient à l'étape précédente du processus pour proposer un autre candidat.\n\nUne fiche officielle de facilitation décrit ce processus en détail. Ce processus ne peut pas être modifié."
         },
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Facilitateur et élections.** Le Facilitateur déclenche les nouvelles élections des Rôles élus à l'expiration de leur mandat."
+          "text": "Le Facilitateur déclenche les nouvelles élections des Rôles élus à l'expiration de leur mandat."
         }
       ],
       "fallback": null
@@ -301,12 +301,12 @@
         {
           "anchor": "article-5",
           "position": "append",
-          "text": "**Rupture de Processus.** Une «Rupture de Processus» se produit lorsqu'un Cercle adopte un comportement qui enfreint cette Constitution. Le Facilitateur du Cercle ou du Super-Cercle peut la déclarer. Le Facilitateur du Super-Cercle acquiert alors l'autorité de rétablir le processus, y compris en prenant le relais comme Facilitateur ou Scribe, ou en affectant un Leader de Cercle supplémentaire dont les décisions priment sur celles des autres Leaders de Cercle."
+          "text": "Une «Rupture de Processus» se produit lorsqu'un Cercle adopte un comportement qui enfreint cette Constitution. Le Facilitateur du Cercle ou du Super-Cercle peut la déclarer. Le Facilitateur du Super-Cercle acquiert alors l'autorité de rétablir le processus, y compris en prenant le relais comme Facilitateur ou Scribe, ou en affectant un Leader de Cercle supplémentaire dont les décisions priment sur celles des autres Leaders de Cercle."
         },
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "**Facilitateur et Rupture de Processus.** Le Facilitateur peut déclarer une Rupture de Processus dans son Cercle ou dans un Sous-Cercle."
+          "text": "Le Facilitateur peut déclarer une Rupture de Processus dans son Cercle ou dans un Sous-Cercle."
         }
       ],
       "fallback": null
