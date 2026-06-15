@@ -49,6 +49,7 @@ function ensureFonts() {
 const COLOR: Record<Tier | "warning" | "ink" | "muted" | "rule" | "title", string> = {
   core: "#334155",
   retirable: "#0d9488",
+  pedagogique: "#d97706",
   extension: "#7c3aed",
   app: "#be123c",
   warning: "#b45309",

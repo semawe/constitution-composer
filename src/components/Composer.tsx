@@ -61,6 +61,13 @@ const TIER_UI: Record<
     tint: "bg-violet-50/50",
     chip: "hover:border-violet-400 hover:text-violet-700",
   },
+  pedagogique: {
+    dot: "bg-amber-400",
+    bar: "border-amber-300",
+    tag: "bg-amber-50 text-amber-700 ring-amber-200",
+    tint: "bg-amber-50/40",
+    chip: "hover:border-amber-400 hover:text-amber-700",
+  },
   app: {
     dot: "bg-rose-500",
     bar: "border-rose-400",
@@ -564,7 +571,8 @@ export default function Composer({
   );
   const removed = retirableMods.filter((m) => !active.has(m.id)).length;
   const addonsOn = data.modules.filter(
-    (m) => m.tier !== "retirable" && active.has(m.id),
+    (m) =>
+      m.tier !== "retirable" && m.tier !== "pedagogique" && active.has(m.id),
   ).length;
 
   const countLabel =
@@ -721,7 +729,7 @@ export default function Composer({
         )}
       </div>
 
-      {(["retirable", "extension", "app"] as Tier[]).map((tier) => (
+      {(["retirable", "pedagogique", "extension", "app"] as Tier[]).map((tier) => (
         <div key={tier} className="mt-6">
           <div className="flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${TIER_UI[tier].dot}`} />
@@ -1624,6 +1632,7 @@ function Legend({ tierLabel }: { tierLabel: Record<string, string> }) {
   const rows: { key: Tier | "warning"; label: string }[] = [
     { key: "core", label: tierLabel.core ?? "Cœur" },
     { key: "retirable", label: tierLabel.retirable ?? "Retirable" },
+    { key: "pedagogique", label: tierLabel.pedagogique ?? "Piste pedagogique" },
     { key: "extension", label: tierLabel.extension ?? "Extension constitutionnelle" },
     { key: "app", label: tierLabel.app ?? "App" },
     { key: "warning", label: "Règle par défaut" },

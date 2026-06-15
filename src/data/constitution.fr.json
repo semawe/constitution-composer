@@ -19,6 +19,11 @@
       "hint": "Présent par défaut (version Lite complète) ; décochable pour alléger."
     },
     {
+      "id": "pedagogique",
+      "label": "Piste pedagogique",
+      "hint": "Suggestion de mise en oeuvre ou point de vigilance, sans valeur constitutionnelle."
+    },
+    {
       "id": "extension",
       "label": "Extension constitutionnelle",
       "hint": "Du texte constitutionnel au-delà de la Lite (ex. Agents)."
@@ -422,7 +427,7 @@
     {
       "id": "piste-article-1",
       "label": "Piste : article 1",
-      "tier": "retirable",
+      "tier": "pedagogique",
       "default": true,
       "description": "Piste de réflexion de l'article 1 : une invitation à adapter la pratique au contexte de l'organisation.",
       "requires": [],
@@ -439,7 +444,7 @@
     {
       "id": "piste-article-2",
       "label": "Piste : article 2",
-      "tier": "retirable",
+      "tier": "pedagogique",
       "default": true,
       "description": "Piste de réflexion de l'article 2 : une invitation à adapter la pratique au contexte de l'organisation.",
       "requires": [],
@@ -456,7 +461,7 @@
     {
       "id": "piste-article-3",
       "label": "Piste : article 3",
-      "tier": "retirable",
+      "tier": "pedagogique",
       "default": true,
       "description": "Piste de réflexion de l'article 3 : une invitation à adapter la pratique au contexte de l'organisation.",
       "requires": [],
@@ -473,7 +478,7 @@
     {
       "id": "piste-article-4",
       "label": "Piste : article 4",
-      "tier": "retirable",
+      "tier": "pedagogique",
       "default": true,
       "description": "Piste de réflexion de l'article 4 : une invitation à adapter la pratique au contexte de l'organisation.",
       "requires": [],
@@ -490,7 +495,7 @@
     {
       "id": "piste-article-5",
       "label": "Piste : article 5",
-      "tier": "retirable",
+      "tier": "pedagogique",
       "default": true,
       "description": "Piste de réflexion de l'article 5 : une invitation à adapter la pratique au contexte de l'organisation.",
       "requires": [],
