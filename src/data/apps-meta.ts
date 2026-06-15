@@ -2,6 +2,13 @@
 // Indépendant du schéma constitution.fr.json : contenu de vulgarisation, exemples,
 // provenance :à maintenir ici, pas dans le JSON de fond.
 
+export interface ProcessStep {
+  title: string;
+  duration?: string;
+  description: string;
+  questions?: string[];
+}
+
 export interface AppMeta {
   id: string;
   tagline: string;
@@ -12,6 +19,8 @@ export interface AppMeta {
   examples: string[];
   certified: boolean;
   certifier?: string;
+  steps?: ProcessStep[];
+  preparationQuestions?: string[];
 }
 
 const META: AppMeta[] = [
@@ -71,21 +80,86 @@ const META: AppMeta[] = [
   },
   {
     id: "revue-appreciative",
-    tagline: "Instaurer une pratique régulière de reconnaissance et de feedback entre Partenaires.",
+    tagline: "Un processus de feedback lucide et structuré, par et avec ses pairs.",
     longDescription:
-      "La Revue appréciative est une App constitutionnelle qui ajoute à la gouvernance du Cercle un processus structuré de feedback positif et constructif entre Partenaires. À intervalles réguliers, chaque Partenaire reçoit des retours sur ce qu'il apporte au Cercle et sur ce qui pourrait être amplifié. Ce n'est pas une évaluation de performance au sens RH : c'est un espace de reconnaissance mutuelle, ancré dans les Rôles réels tenus, qui renforce la cohésion sans court-circuiter les Tensions de Gouvernance.",
+      "La Revue appréciative est une App constitutionnelle qui ancre dans la Constitution un processus de révision personnelle et collective. Ce n'est pas une évaluation de performance au sens RH : c'est un espace de vérité partagée, facilité, où chaque Partenaire présente son auto-observation, reçoit les questions de ses pairs, puis leurs reflets. La revue peut porter sur une période (6 mois, 1 an) ou sur un thème spécifique (un projet, un rôle). Elle dure 60 minutes et se tient en 7 étapes sans interruption.",
     origin:
-      "Développée à partir des pratiques de reconnaissance issues du coaching d'équipe et adaptées à la structure holacratique. Inspirée des travaux sur la psychologie positive appliquée aux organisations.",
+      "Développée par Sémawé à partir des pratiques de coaching d'équipe et d'évaluation par les pairs, adaptées au cadre holacratique. Le processus s'inscrit dans une posture de lucidité bienveillante : l'amour y prend la forme de la clarté.",
     creator: "Sémawé",
-    organizations: [
-      "Sémawé",
-      "Cabinets de conseil en développement organisationnel",
-    ],
+    organizations: ["Sémawé"],
     examples: [
-      "Chaque trimestre, les Partenaires du Cercle se réunissent 45 minutes : chacun reçoit 2-3 retours appréciatifsancrés dans ses Rôles.",
-      "Un Partenaire qui tient le Rôle «Facilitateur» reçoit un retour sur l'impact de ses facilitations sur la qualité des décisions collectives.",
+      "Un Cercle de 5 Partenaires organise une revue annuelle : chacun passe 60 minutes à partager son auto-observation et recevoir les reflets des autres.",
+      "Un Partenaire demande une revue centrée sur son Rôle de Facilitateur après 6 mois de pratique intensive.",
     ],
     certified: false,
+    preparationQuestions: [
+      "Où en suis-je par rapport au point où je pensais être ?",
+      "Où ai-je apporté à mon organisation durant cette période ?",
+      "Qu'est-ce qui s'est vraiment bien passé et mériterait d'être célébré ?",
+      "Qu'est-ce qui ne s'est pas bien passé ou aurait pu se passer différemment ?",
+      "Que puis-je faire de plus utile pour mon organisation ?",
+      "Qu'est-ce que je n'ai pas envie de dire... mais qui serait juste que je dise ?",
+    ],
+    steps: [
+      {
+        title: "Tour d'inclusion",
+        duration: "5 min",
+        description: "Chacun s'exprime à son tour.",
+        questions: [
+          "Comment est-ce que j'arrive dans ce processus, en un mot ?",
+          "Quel est mon niveau de disponibilité à dire et entendre la vérité aujourd'hui (de 1 à 10) ?",
+        ],
+      },
+      {
+        title: "Partage de la contribution",
+        duration: "10 min",
+        description: "Le demandeur partage seul son auto-observation.",
+        questions: [
+          "Qu'est-ce qui me donne de l'énergie ? Où est-ce que je me désengage ?",
+          "Quelles émotions me traversent quand je regarde ma contribution ?",
+        ],
+      },
+      {
+        title: "Questions par le groupe",
+        duration: "10 min",
+        description: "Chaque participant pose une ou plusieurs questions au demandeur, qui n'intervient pas. Posez aussi les questions que vous hésitez à poser.",
+        questions: [
+          "Qu'est-ce que tu fais très bien... mais qui empêche d'autres de prendre leur place ?",
+          "Qu'est-ce qui, chez toi, agace ou insécurise les autres ?",
+          "Quelle peur anime ta manière de contribuer ?",
+        ],
+      },
+      {
+        title: "Intégration par le demandeur",
+        duration: "5 min",
+        description: "Le demandeur laisse venir ce qui bouge intérieurement, sans chercher à se justifier ni à tout comprendre.",
+      },
+      {
+        title: "Reflets par le groupe",
+        duration: "15 min",
+        description: "Chacun s'exprime une seule fois. Le demandeur n'intervient pas.",
+        questions: [
+          "Qu'est-ce que travailler avec toi m'apporte de plus précieux ?",
+          "Quelle est la piste dans laquelle je perçois que tu pourrais grandir ?",
+          "Ce que je n'ose pas te dire mais qui serait bon que tu entendes.",
+        ],
+      },
+      {
+        title: "Intégration finale",
+        duration: "5 min",
+        description: "Le demandeur s'exprime seul.",
+        questions: [
+          "Quelle vérité ai-je entendu aujourd'hui que j'ai du mal à accueillir ?",
+          "De quoi ai-je besoin venant de vous pour avancer ?",
+        ],
+      },
+      {
+        title: "Conclusion",
+        duration: "5 min",
+        description: "Chacun s'exprime à son tour.",
+        questions: ["Quels sont les bienfaits de cette rencontre sur moi aujourd'hui ?"],
+      },
+    ],
   },
   {
     id: "decision-remunerations",

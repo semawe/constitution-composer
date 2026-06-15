@@ -104,6 +104,60 @@ export default async function AppDetailPage({
           </p>
         </section>
 
+        {/* Questions de préparation */}
+        {meta.preparationQuestions && meta.preparationQuestions.length > 0 && (
+          <section className="mt-8">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Préparation (auto-observation)
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {meta.preparationQuestions.map((q, i) => (
+                <li key={i} className="flex gap-3 text-slate-700">
+                  <span className="mt-1 shrink-0 text-[0.7rem] font-mono text-slate-400">{i + 1}.</span>
+                  <span className="leading-relaxed italic">{q}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Étapes du processus */}
+        {meta.steps && meta.steps.length > 0 && (
+          <section className="mt-8">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Déroulé du processus — 60 minutes
+            </h2>
+            <ol className="mt-4 space-y-4">
+              {meta.steps.map((step, i) => (
+                <li key={i} className="rounded-lg border border-slate-100 bg-white p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-medium text-slate-800">
+                      <span className="mr-2 font-mono text-sm text-slate-400">{i + 1}.</span>
+                      {step.title}
+                    </h3>
+                    {step.duration && (
+                      <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+                        {step.duration}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{step.description}</p>
+                  {step.questions && step.questions.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {step.questions.map((q, j) => (
+                        <li key={j} className="flex gap-2 text-sm text-slate-500">
+                          <span className="shrink-0 text-teal-400">›</span>
+                          <span className="italic">{q}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
         {/* Exemples */}
         {meta.examples.length > 0 && (
           <section className="mt-8">
