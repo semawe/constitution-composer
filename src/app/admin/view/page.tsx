@@ -234,7 +234,7 @@ export default function AdminViewPage() {
             >
               {it.kind !== "block" && it.moduleLabel && (
                 <p className="mb-1 text-[0.7rem] uppercase tracking-wide text-slate-400">
-                  {it.warning ? `Règle par défaut — ${it.moduleLabel}` : it.moduleLabel}
+                  {it.warning ? `Règle par défaut : ${it.moduleLabel}` : it.moduleLabel}
                 </p>
               )}
               {prose(it.text, it.key)}

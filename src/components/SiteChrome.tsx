@@ -48,7 +48,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-slate-200 bg-background">
       <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-        <span>Constitution Composer — un outil Sémawé.</span>
+        <span>Constitution Composer, un outil Sémawé.</span>
         <div className="flex gap-4">
           <Link href="/comprendre" className="transition hover:text-slate-800">
             Comprendre

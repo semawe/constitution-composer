@@ -35,7 +35,7 @@ export default function Marketplace({
         </h1>
         <p className="mt-2 text-sm text-slate-500">
           Des extensions constitutionnelles et des apps à brancher sur votre
-          Constitution. Catalogue en construction — d&apos;autres arrivent.
+          Constitution. Catalogue en construction, d&apos;autres arrivent.
         </p>
       </header>
 

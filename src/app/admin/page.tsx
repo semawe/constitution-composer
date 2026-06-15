@@ -120,7 +120,7 @@ export default function AdminPage() {
     <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-serif text-2xl font-semibold text-slate-900">
-          Admin — leads &amp; compositions
+          Admin : leads &amp; compositions
         </h1>
         <div className="flex items-center gap-4 text-sm">
           <Link
@@ -183,14 +183,14 @@ export default function AdminPage() {
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <span className="font-medium text-slate-900">
-                        {p.full_name || "—"}
+                        {p.full_name || "(vide)"}
                       </span>
                       <span className="text-xs text-slate-400">
                         inscrit le {fmtDate(p.created_at)}
                       </span>
                     </div>
                     <p className="text-sm text-slate-600">
-                      {p.email || "—"}
+                      {p.email || "(vide)"}
                       {p.company ? ` · ${p.company}` : ""}
                     </p>
                     {comps.length > 0 && (

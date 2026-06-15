@@ -14,7 +14,7 @@ const sourceSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://constitution-composer.com"),
-  title: "Composer sa Constitution — Holacracy v6",
+  title: "Composer sa Constitution : Holacracy v6",
   description:
     "Composez votre propre Constitution à partir d'un socle, à la carte.",
   // "./" : canonical résolue par page (la racine -> /, /admin -> /admin).
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "./",
     siteName: "Constitution Composer",
-    title: "Composer sa Constitution — Holacracy v6",
+    title: "Composer sa Constitution : Holacracy v6",
     description:
       "Composez votre propre Constitution à partir d'un socle, à la carte.",
     locale: "fr_FR",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Composer sa Constitution — Holacracy v6",
+    title: "Composer sa Constitution : Holacracy v6",
     description:
       "Composez votre propre Constitution à partir d'un socle, à la carte.",
   },
@@ -57,7 +57,7 @@ export default function RootLayout({
               "try{if(localStorage.getItem('cc-theme')==='light')document.documentElement.classList.remove('dark');if(localStorage.getItem('cc-intro-dismissed')==='1')document.documentElement.classList.add('intro-off')}catch(e){}",
           }}
         />
-        {/* Umami Cloud (mesure sans cookie) — actif seulement si l'id est fourni au build. */}
+        {/* Umami Cloud (mesure sans cookie) : actif seulement si l'id est fourni au build. */}
         {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <script
             defer

@@ -10,7 +10,7 @@ const principes = principesRaw as PrincipesData;
 
 // L'outil lui-même : pas du contenu indexable. La splash (/) porte le SEO.
 export const metadata: Metadata = {
-  title: "Composer — Constitution Holacracy v6",
+  title: "Composer : Constitution Holacracy v6",
   robots: { index: false, follow: true },
 };
 

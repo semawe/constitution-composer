@@ -17,6 +17,7 @@ export interface Block {
   always: boolean;
   heading: string;
   intent?: string;
+  summary?: string;
   text: string;
 }
 
@@ -54,7 +55,7 @@ export interface ConstitutionData {
   modules: Module[];
 }
 
-/** Type visuel d'un élément rendu — `warning` = insertion obligatoire de remplacement. */
+/** Type visuel d'un élément rendu : `warning` = insertion obligatoire de remplacement. */
 export type RenderKind = "block" | "insertion" | "fallback";
 
 export interface RenderedItem {

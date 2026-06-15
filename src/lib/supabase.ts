@@ -1,4 +1,4 @@
-// Client Supabase — auth (Google OAuth) + collecte de leads.
+// Client Supabase : auth (Google OAuth) + collecte de leads.
 // Graceful : tant que les variables d'env ne sont pas définies, getSupabase()
 // renvoie null et l'app reste sur le compte simulé (stub Lot 2). Dès que
 // NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY sont fournies (au

@@ -421,7 +421,7 @@ export default function Principes({
               value={raisonEtre}
               onChange={(e) => setRaisonEtre(e.target.value)}
               rows={2}
-              placeholder="La raison d'être que ces principes servent — quelques lignes."
+              placeholder="La raison d'être que ces principes servent : quelques lignes."
               className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-transparent p-2.5 text-[0.98rem] leading-relaxed outline-none transition focus:border-slate-400"
             />
           </div>
@@ -454,7 +454,7 @@ export default function Principes({
                 key={id}
                 className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-slate-200 px-3 py-2 text-sm text-slate-400"
               >
-                <span>Principe retiré — « {p.title} »</span>
+                <span>Principe retiré : « {p.title} »</span>
                 <button
                   onClick={() => restore(id)}
                   className="shrink-0 underline transition hover:text-slate-600"
@@ -719,7 +719,7 @@ export default function Principes({
               </h2>
               <p className="mt-2 text-sm text-white/90">
                 Le PDF signable de votre Déclaration de Principes est réservé aux
-                membres — la création de compte est gratuite.
+                membres, la création de compte est gratuite.
               </p>
             </div>
             <div className="px-6 py-6">

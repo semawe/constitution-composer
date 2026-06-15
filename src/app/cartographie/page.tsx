@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 
 export const metadata: Metadata = {
-  title: "Cartographie — Constitution Holacracy v6",
+  title: "Cartographie : Constitution Holacracy v6",
   description:
     "La cartographie de la Constitution Holacracy v6 : structure, modules et articulations.",
 };

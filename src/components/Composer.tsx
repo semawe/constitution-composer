@@ -30,7 +30,7 @@ import type { Session, User } from "@supabase/supabase-js";
 // Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
 const isGatedTier = (tier: Tier) => tier === "extension" || tier === "app";
 
-// Coachs — pages de réservation Google Agenda (créneaux 30 min de découverte).
+// Coachs : pages de réservation Google Agenda (créneaux 30 min de découverte).
 const COACHES = [
   { name: "Coach 1", url: "https://calendar.example.com/booking" },
   { name: "Coach 2", url: "https://calendar.example.com/booking" },
@@ -80,17 +80,25 @@ const TIER_UI: Record<
 type TermClick = (key: string) => void;
 
 function renderInline(s: string, keyBase: string, onTermClick: TermClick) {
-  return s.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={`${keyBase}-${i}`} className="font-semibold text-slate-900">
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
+  return s.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return (
+        <strong key={`${keyBase}-${i}`} className="font-semibold text-slate-900">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2)
+      return (
+        <em key={`${keyBase}-${i}`} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    return (
       <span key={`${keyBase}-${i}`}>
         {linkifyTerms(part, onTermClick, `${keyBase}-${i}`)}
       </span>
-    ),
-  );
+    );
+  });
 }
 
 function Prose({
@@ -161,6 +169,7 @@ export default function Composer({
     defaultActive(data),
   );
   const [showIntent, setShowIntent] = useState(true);
+  const [showSummary, setShowSummary] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [title, setTitle] = useState(data.meta.title);
   const [values, setValues] = useState("");
@@ -444,7 +453,7 @@ export default function Composer({
     }
     if (versions.length >= MAX_COMPOSITIONS) {
       setVersionMsg(
-        `Limite de ${MAX_COMPOSITIONS} versions atteinte — supprimez-en une pour enregistrer.`,
+        `Limite de ${MAX_COMPOSITIONS} versions atteinte : supprimez-en une pour enregistrer.`,
       );
       return;
     }
@@ -538,6 +547,15 @@ export default function Composer({
         m.insertions.some((ins) => ins.anchor === anchor),
     );
 
+  // Modules extension/app inactifs ancrés ici : ce que ce tier ne couvre pas.
+  const inactiveAdvanced = (anchor: string) =>
+    data.modules.filter(
+      (m) =>
+        (m.tier === "extension" || m.tier === "app") &&
+        !active.has(m.id) &&
+        m.insertions.some((ins) => ins.anchor === anchor),
+    );
+
   // Lite = blocs retirables (tier retirable, cochés par défaut).
   // Au-delà = modules additifs (extension / app, off par défaut).
   const retirableMods = useMemo(
@@ -559,11 +577,11 @@ export default function Composer({
   const pct = data.modules.length ? active.size / data.modules.length : 0;
   const versionLabel =
     removed === 0 && addonsOn === 0
-      ? "Version Lite — complète"
+      ? "Version Lite, complète"
       : active.size === data.modules.length
         ? "Version intégrale"
         : removed > 0 && addonsOn === 0
-          ? `Version allégée — ${removed} bloc${removed > 1 ? "s" : ""} retiré${removed > 1 ? "s" : ""}`
+          ? `Version allégée, ${removed} bloc${removed > 1 ? "s" : ""} retiré${removed > 1 ? "s" : ""}`
           : "Version sur-mesure";
 
   // Sommaire + composer, partagés entre la sidebar (desktop) et le tiroir (mobile).
@@ -767,7 +785,7 @@ export default function Composer({
           <div className="sticky top-16">{panel}</div>
         </aside>
 
-        {/* Document — la police choisie surcharge --font-serif/--font-sans
+        {/* Document : la police choisie surcharge --font-serif/--font-sans
             pour tout ce qui est dedans (titre, intertitres, corps). */}
         <main
           className="min-w-0 flex-1"
@@ -796,7 +814,7 @@ export default function Composer({
             className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-3xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
           />
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-            <span>Titre modifiable — donnez un nom à votre Constitution.</span>
+            <span>Titre modifiable : donnez un nom à votre Constitution.</span>
             <span className="flex items-center gap-1.5">
               Police
               <select
@@ -896,15 +914,26 @@ export default function Composer({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
-              <input
-                type="checkbox"
-                checked={showIntent}
-                onChange={(e) => setShowIntent(e.target.checked)}
-                className="h-3.5 w-3.5 accent-slate-500"
-              />
-              Afficher les notes d&apos;intention
-            </label>
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
+                <input
+                  type="checkbox"
+                  checked={showSummary}
+                  onChange={(e) => setShowSummary(e.target.checked)}
+                  className="h-3.5 w-3.5 accent-slate-500"
+                />
+                Afficher le sommaire
+              </label>
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
+                <input
+                  type="checkbox"
+                  checked={showIntent}
+                  onChange={(e) => setShowIntent(e.target.checked)}
+                  className="h-3.5 w-3.5 accent-slate-500"
+                />
+                Afficher les notes d&apos;intention
+              </label>
+            </div>
             <button
               onClick={handlePdf}
               disabled={pdfBusy}
@@ -925,6 +954,37 @@ export default function Composer({
         </header>
 
         <article className="doc-prose text-[1.05rem] text-slate-800">
+          {/* Sommaire : résumé d'un article par ligne, généré depuis les champs summary */}
+          <AnimatePresence initial={false}>
+            {showSummary && data.blocks.some((b) => b.summary) && (
+              <motion.section
+                key="sommaire"
+                id="sommaire"
+                className="mb-10 scroll-mt-24"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h2 className="mb-3 font-serif text-2xl font-semibold text-slate-900">
+                  Sommaire
+                </h2>
+                <ul className="space-y-2 text-[0.97rem] text-slate-600">
+                  {data.blocks
+                    .filter((b) => b.summary)
+                    .map((b) => (
+                      <li key={b.id} className="flex gap-2">
+                        <span className="shrink-0 font-semibold text-slate-800">
+                          {b.heading}.
+                        </span>
+                        <span>{b.summary}</span>
+                      </li>
+                    ))}
+                </ul>
+              </motion.section>
+            )}
+          </AnimatePresence>
+
           {data.blocks.map((block) => {
             return (
               <motion.section
@@ -994,7 +1054,7 @@ export default function Composer({
                       <span
                         className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${TIER_UI.warning.tag}`}
                       >
-                        ⚠ Règle par défaut — « {m.label} » non activé
+                        ⚠ Règle par défaut : « {m.label} » non activé
                       </span>
                       <div className="text-[0.98rem]">
                         <Prose text={m.fallback!.text} onTermClick={onTermClick} />
@@ -1029,6 +1089,31 @@ export default function Composer({
                   modules={availableChips(block.anchor)}
                   onActivate={toggle}
                 />
+
+                {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
+                {inactiveAdvanced(block.anchor).length > 0 && (
+                  <div className="mt-5 rounded-lg border border-violet-100 bg-violet-50/60 px-4 py-3 text-[0.85rem] text-violet-700">
+                    <span className="font-semibold">Ce tier ne couvre pas :</span>{" "}
+                    {inactiveAdvanced(block.anchor).map((m, i, arr) => (
+                      <span key={m.id}>
+                        <button
+                          onClick={() => toggle(m.id)}
+                          className="underline decoration-dotted underline-offset-2 hover:text-violet-900"
+                          title={m.description}
+                        >
+                          {m.label}
+                        </button>
+                        <span className="ml-1 text-[0.75rem] text-violet-400">
+                          [{m.tier === "extension" ? "Extension" : "App"}]
+                        </span>
+                        {i < arr.length - 1 && <span className="mr-1">,</span>}
+                      </span>
+                    ))}{" "}
+                    <span className="text-violet-400">
+                      Activez-les pour voir ce contenu.
+                    </span>
+                  </div>
+                )}
               </motion.section>
             );
           })}
@@ -1113,7 +1198,7 @@ export default function Composer({
           </motion.div>
         )}
 
-      {/* Mur freemium — création de compte (rendu conditionnel simple) */}
+      {/* Mur freemium : création de compte (rendu conditionnel simple) */}
       {gate && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -1152,7 +1237,7 @@ export default function Composer({
                 </h2>
                 <p className="mt-2 text-sm text-white/90">
                   {gate === "pdf"
-                    ? "Le PDF de votre Constitution composée est réservé aux membres — la création de compte est gratuite."
+                    ? "Le PDF de votre Constitution composée est réservé aux membres, la création de compte est gratuite."
                     : gate === "save"
                       ? "Enregistrez jusqu'à cinq versions de votre Constitution et retrouvez-les à chaque visite. La création de compte est gratuite."
                       : "Les Extensions constitutionnelles et les Apps sont réservées aux membres. La création de compte est gratuite."}
@@ -1306,8 +1391,7 @@ export default function Composer({
                 30 minutes avec un coach Holacracy
               </h2>
               <p className="mt-2 text-sm text-white/90">
-                Choisissez votre coach et réservez un créneau de 30 minutes —
-                offert.
+                Choisissez votre coach et réservez un créneau de 30 minutes, offert.
               </p>
             </div>
             <div className="px-6 py-6">

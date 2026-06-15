@@ -152,7 +152,7 @@ describe("requiredByActive / modulesForAnchor", () => {
 // Intégrité du JSON réel : toute référence pointe vers quelque chose qui existe.
 // ---------------------------------------------------------------------------
 
-describe("constitution.fr.json — intégrité", () => {
+describe("constitution.fr.json : intégrité", () => {
   const d = real as unknown as ConstitutionData;
   const moduleIds = new Set(d.modules.map((m) => m.id));
   const anchors = new Set(d.blocks.map((b) => b.anchor));
