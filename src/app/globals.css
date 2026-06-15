@@ -112,11 +112,15 @@ html.intro-off [data-intro] {
 .dark .bg-amber-50 { background-color: rgb(217 119 6 / 0.18); }
 .dark .bg-amber-50\/60 { background-color: rgb(217 119 6 / 0.18); }
 .dark .text-teal-700 { color: #5eead4; }
+.dark .text-violet-900 { color: #ddd6fe; }
 .dark .text-violet-700 { color: #c4b5fd; }
+.dark .text-violet-600 { color: #a78bfa; }
+.dark .text-violet-400 { color: #7c6fcd; }
 .dark .text-rose-700 { color: #fda4af; }
 .dark .text-amber-700 { color: #fcd34d; }
 .dark .text-amber-600 { color: #fbbf24; }
 .dark .text-teal-900 { color: #99f6e4; }
+.dark .border-violet-200 { border-color: rgb(124 58 237 / 0.35); }
 
 /* Carte coach : dégradé clair → teinte sombre */
 .dark .from-teal-50 { --tw-gradient-from: rgb(13 148 136 / 0.16); }
