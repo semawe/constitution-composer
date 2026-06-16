@@ -1,0 +1,36 @@
+                    GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2024–2026 Sémawé (https://semawe.fr)
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published
+ by the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+---
+
+CONTENT LICENSE
+
+The Holacracy® Constitution text and related content files located in
+`src/data/` and `holacracy-constitution/` are licensed under the
+Creative Commons Attribution-ShareAlike 4.0 International License (CC BY SA 4.0).
+
+To view a copy of this license, visit:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+The Holacracy® Constitution is originally authored by HolacracyOne, LLC.
+This implementation was created by Sémawé (https://semawe.fr).
+"Holacracy" is a registered trademark of HolacracyOne, LLC.
+
+---
+
+Full text of the AGPL v3: https://www.gnu.org/licenses/agpl-3.0.txt
