@@ -36,6 +36,7 @@ yarn-error.log*
 # internal dev context — not relevant for contributors
 CLAUDE.md
 AGENTS.md
+.claude/
 
 # vercel
 .vercel
