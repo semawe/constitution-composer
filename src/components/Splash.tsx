@@ -121,7 +121,7 @@ export default function Splash() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200 bg-white/40">
+      <section className="border-t border-slate-200 bg-slate-50/60 dark:bg-slate-800/20">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-14 sm:grid-cols-3">
           {VALUES.map((v, i) => (
             <motion.div
@@ -132,8 +132,8 @@ export default function Splash() {
               viewport={{ once: true, margin: "-80px" }}
               custom={i}
             >
-              <h2 className="text-base font-medium text-slate-900">{v.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              <h2 className="text-base font-medium text-slate-900 dark:text-slate-100">{v.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {v.body}
               </p>
             </motion.div>
@@ -154,15 +154,15 @@ export default function Splash() {
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
               custom={i}
-              className="rounded-xl border border-slate-200 bg-white p-6"
+              className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800/40"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-medium text-teal-700">
                 {s.n}
               </span>
-              <h3 className="mt-4 text-base font-medium text-slate-900">
+              <h3 className="mt-4 text-base font-medium text-slate-900 dark:text-slate-100">
                 {s.t}
               </h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600">
+              <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {s.d}
               </p>
             </motion.div>

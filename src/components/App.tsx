@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Composer from "@/components/Composer";
 import Principes, { type PrincipesData } from "@/components/Principes";
 import Glossaire from "@/components/Glossaire";
@@ -9,6 +10,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import type { ConstitutionData } from "@/lib/constitution";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminEmail } from "@/lib/admin";
+import { APP_UI, type Locale } from "@/lib/i18n";
 
 const LS_BRANDING = "cc-branding";
 
@@ -21,15 +23,17 @@ function tabClass(active: boolean) {
 export default function App({
   constitution,
   principes,
+  locale = "fr",
 }: {
   constitution: ConstitutionData;
   principes: PrincipesData;
+  locale?: Locale;
 }) {
+  const t = APP_UI[locale];
   const [view, setView] = useState<
     "constitution" | "principes" | "glossaire" | "appstore"
   >("constitution");
 
-  // Depuis l'App Store : ouvrir le composeur à l'ancre de l'app choisie.
   const openInComposer = (anchor: string) => {
     setView("constitution");
     setTimeout(() => {
@@ -39,7 +43,6 @@ export default function App({
     }, 60);
   };
 
-  // Lien admin visible seulement pour les e-mails associés.
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     const sb = getSupabase();
@@ -53,8 +56,6 @@ export default function App({
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Clic sur un terme défini dans un document → bascule vers le glossaire et
-  // défile jusqu'à l'entrée correspondante.
   const goToTerm = (key: string) => {
     setView("glossaire");
     setTimeout(() => {
@@ -64,9 +65,6 @@ export default function App({
     }, 60);
   };
 
-  // Identité visuelle partagée par les deux documents (logo / police / couleur
-  // de titre). Persistée localement ; les versions sauvegardées la mémorisent
-  // aussi côté Constitution.
   const [logo, setLogo] = useState("");
   const [font, setFont] = useState("source-serif");
   const [titleColor, setTitleColor] = useState("");
@@ -104,51 +102,74 @@ export default function App({
     setTitleColor,
   };
 
+  const homeHref = locale === "en" ? "/en" : "/";
+  const otherLangHref = locale === "en" ? "/composer" : "/en/composer";
+
   return (
     <div>
-      <nav className="sticky top-0 z-40 flex h-11 items-center justify-start gap-1 overflow-x-auto border-b border-slate-200 bg-background/90 px-2 backdrop-blur sm:justify-center">
-        <button
-          onClick={() => setView("constitution")}
-          className={tabClass(view === "constitution")}
+      <nav className="sticky top-0 z-40 flex h-11 items-center border-b border-slate-200 bg-background/90 px-2 backdrop-blur">
+        <Link
+          href={homeHref}
+          className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
         >
-          Constitution
-        </button>
-        <button
-          onClick={() => setView("principes")}
-          className={tabClass(view === "principes")}
-        >
-          Déclaration de Principes
-        </button>
-        <button
-          onClick={() => setView("glossaire")}
-          className={tabClass(view === "glossaire")}
-        >
-          Glossaire
-        </button>
-        <button
-          onClick={() => setView("appstore")}
-          className={tabClass(view === "appstore")}
-        >
-          App Store
-        </button>
-        {isAdmin && (
-          <a
-            href="/admin/"
-            className="rounded-full px-4 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
+          ← {t.home}
+        </Link>
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto">
+          <button
+            onClick={() => setView("constitution")}
+            className={tabClass(view === "constitution")}
           >
-            Admin
-          </a>
-        )}
-        <ThemeToggle />
+            {t.tabs.constitution}
+          </button>
+          <button
+            onClick={() => setView("principes")}
+            className={tabClass(view === "principes")}
+          >
+            {t.tabs.principes}
+          </button>
+          <button
+            onClick={() => setView("glossaire")}
+            className={tabClass(view === "glossaire")}
+          >
+            {t.tabs.glossaire}
+          </button>
+          <button
+            onClick={() => setView("appstore")}
+            className={tabClass(view === "appstore")}
+          >
+            {t.tabs.appstore}
+          </button>
+          {isAdmin && (
+            <a
+              href="/admin/"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
+            >
+              Admin
+            </a>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1 pl-1">
+          <Link
+            href={otherLangHref}
+            title={locale === "en" ? "Passer en français" : "Switch to English"}
+            className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
+          >
+            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
+              <circle cx="8" cy="8" r="6.5" />
+              <path d="M8 1.5C8 1.5 5.5 4 5.5 8s2.5 6.5 2.5 6.5M8 1.5C8 1.5 10.5 4 10.5 8S8 14.5 8 14.5M1.5 8h13" strokeLinecap="round"/>
+            </svg>
+            {t.switchLang}
+          </Link>
+          <ThemeToggle />
+        </div>
       </nav>
 
-      {/* Les deux vues restent montées (masquage CSS) : changer d'onglet ne
-          perd plus la saisie en cours de l'autre vue. */}
       <div className={view === "constitution" ? "" : "hidden"}>
         <Composer
           data={constitution}
           branding={branding}
           onTermClick={goToTerm}
+          locale={locale}
         />
       </div>
       <div className={view === "principes" ? "" : "hidden"}>
@@ -161,10 +182,10 @@ export default function App({
         />
       </div>
       <div className={view === "glossaire" ? "" : "hidden"}>
-        <Glossaire font={font} />
+        <Glossaire font={font} locale={locale} />
       </div>
       <div className={view === "appstore" ? "" : "hidden"}>
-        <Marketplace data={constitution} onOpen={openInComposer} />
+        <Marketplace data={constitution} onOpen={openInComposer} locale={locale} />
       </div>
     </div>
   );

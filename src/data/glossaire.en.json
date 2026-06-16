@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "title": "Glossary",
+    "intro": "Terms defined by the Constitution. In the document they are underlined with a dotted line: hover for a short definition, click to come here."
+  },
+  "terms": [
+    { "key": "accords-relationnels", "term": "Relational Agreements", "definition": "Agreements on how Partners maintain their relationships or carry out their functions within the Organization." },
+    { "key": "cercle", "term": "Circle", "definition": "A container that organizes Roles and Policies around a shared Purpose." },
+    { "key": "cercle-ancrage", "term": "Anchor Circle", "definition": "The broadest Circle, which holds the Purpose of the entire Organization and has no Super-Circle." },
+    { "key": "constitution", "term": "Constitution", "definition": "The rules governing the Organization's official authority structure." },
+    { "key": "domaines", "term": "Domains", "definition": "Assets, processes, or other things a Role controls exclusively in service of its Purpose." },
+    { "key": "facilitateur", "term": "Facilitator", "definition": "An elected Role charged with facilitating Governance and operational practices in accordance with the Constitution." },
+    { "key": "focus", "term": "Focus", "definition": "A specific context to which a Role assignment is limited; it then counts as a distinct Role for that context." },
+    { "key": "gouvernance", "term": "Governance", "definition": "The set of Roles and Policies within a Circle." },
+    { "key": "initiative-urgence", "term": "Emergency Initiative", "definition": "Action by a Role Lead that exceeds their authority or breaches a Policy under strict conditions when waiting would be too costly." },
+    { "key": "leader-de-cercle", "term": "Circle Lead", "definition": "The person filling the Circle Lead Role: holds the Circle's Purpose and undelegated Accountabilities, and assigns Roles." },
+    { "key": "leader-de-role", "term": "Role Lead", "definition": "The person filling a Role." },
+    { "key": "membres-du-cercle", "term": "Circle Members", "definition": "Partners who are Lead of a Role in the Circle; they alone participate in its Governance Process." },
+    { "key": "objection", "term": "Objection", "definition": "A valid concern about a Proposal: it must demonstrate a reduction in capacity, not pre-exist the Proposal, and represent a certain or unacceptably risky harm." },
+    { "key": "organisation", "term": "Organization", "definition": "A formal or informal grouping of several people working toward a common purpose." },
+    { "key": "partenaires", "term": "Partners", "definition": "Persons who agree to respect all applicable provisions of the Constitution." },
+    { "key": "processus-decision-integrative", "term": "Integrative Decision-Making Process", "definition": "A five-step Governance amendment method: clarifications, reactions, amendment, objections, integration." },
+    { "key": "processus-election-integrative", "term": "Integrative Election Process", "definition": "A method for designating elected Roles (Facilitator, Secretary, Circle Rep) through argued nominations." },
+    { "key": "proposition", "term": "Proposal", "definition": "The starting point of a Governance change: describes a real Tension, an example, and how it reduces that Tension." },
+    { "key": "raison-detre", "term": "Purpose", "definition": "A capacity, potential, or goal that a Role or Circle pursues or expresses." },
+    { "key": "ratificateurs", "term": "Ratifiers", "definition": "Persons who adopt the Constitution and transfer their authority into the rules it defines." },
+    { "key": "redevabilites", "term": "Accountabilities", "definition": "Ongoing activities a Role performs in service of other Roles or its Purpose." },
+    { "key": "regles", "term": "Policies", "definition": "Grants, restrictions of authority, or special provisions applying within a Role or Circle." },
+    { "key": "representant-de-cercle", "term": "Circle Rep", "definition": "An elected Role that brings to the Super-Circle Tensions a Circle could not resolve through its own Governance." },
+    { "key": "reunion-tactique", "term": "Tactical Meeting", "definition": "A work coordination meeting open to all Partners, where each makes concrete requests of others." },
+    { "key": "role", "term": "Role", "definition": "An organizational work unit filled by a person on behalf of the Organization: name, Purpose, Domains, Accountabilities." },
+    { "key": "rupture-de-processus", "term": "Process Breakdown", "definition": "Behavior by a Circle that violates the Constitution; the Super-Circle's Facilitator may then restore the process." },
+    { "key": "scribe", "term": "Secretary", "definition": "An elected Role that manages the Circle's records and meetings as required by the Constitution." },
+    { "key": "source-de-verite", "term": "Source of Truth", "definition": "A Domain (repository or register) that governs the Circle's work; subject to the holarchy." },
+    { "key": "sous-cercle", "term": "Sub-Circle", "definition": "A Circle contained within a Role or Circle." },
+    { "key": "strategies", "term": "Strategies", "definition": "Priorities set by a Circle Lead to guide prioritization of choices within the Circle." },
+    { "key": "super-cercle", "term": "Super-Circle", "definition": "The broader Circle that contains a Role or Circle." },
+    { "key": "tension", "term": "Tension", "definition": "A gap between the actual expression of a Role and its ideal potential as perceived by its Role Lead." }
+  ]
+}

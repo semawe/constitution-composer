@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ConstitutionData, Module, Tier } from "@/lib/constitution";
 import { getAppMeta } from "@/data/apps-meta";
+import { MARKETPLACE, type Locale } from "@/lib/i18n";
 
 const TIER_BADGE: Partial<Record<Tier, { label: string; cls: string }>> = {
   extension: {
@@ -15,11 +16,13 @@ const TIER_BADGE: Partial<Record<Tier, { label: string; cls: string }>> = {
 export default function Marketplace({
   data,
   onOpen,
+  locale = "fr",
 }: {
   data: ConstitutionData;
-  // Ouvre le composeur à l'ancre où l'app s'insère.
   onOpen: (anchor: string) => void;
+  locale?: Locale;
 }) {
+  const t = MARKETPLACE[locale];
   const apps = data.modules.filter(
     (m) => m.tier === "extension" || m.tier === "app",
   );
@@ -30,14 +33,13 @@ export default function Marketplace({
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8 border-b border-slate-200 pb-6">
         <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-          Au-delà de la Lite
+          {t.beyond}
         </p>
         <h1 className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl">
-          App Store
+          {t.title}
         </h1>
         <p className="mt-2 text-sm text-slate-500">
-          Des extensions constitutionnelles et des apps à brancher sur votre
-          Constitution. Catalogue en construction, d&apos;autres arrivent.
+          {t.subtitle}
         </p>
       </header>
 
@@ -72,7 +74,7 @@ export default function Marketplace({
               </p>
               {m.requires.length > 0 && (
                 <p className="mt-2 text-xs text-slate-400">
-                  Nécessite : {m.requires.map(labelOf).join(", ")}
+                  {t.requires} {m.requires.map(labelOf).join(", ")}
                 </p>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
@@ -80,13 +82,13 @@ export default function Marketplace({
                   href={`/apps/${m.id}`}
                   className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
                 >
-                  Découvrir
+                  {t.discover}
                 </Link>
                 <button
                   onClick={() => onOpen(anchor)}
                   className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
                 >
-                  Activer →
+                  {t.activate}
                 </button>
               </div>
             </div>

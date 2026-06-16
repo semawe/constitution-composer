@@ -16,12 +16,21 @@
 // doit jamais toucher le disque (lien secret OVH à usage unique, mémoire seule).
 
 import { Client } from 'basic-ftp';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '..', 'out');
+
+// Charge .env.deploy si présent (gitignore, jamais committé)
+const envDeployPath = resolve(__dirname, '..', '.env.deploy');
+if (existsSync(envDeployPath)) {
+  for (const line of readFileSync(envDeployPath, 'utf8').split('\n')) {
+    const m = line.match(/^([A-Z_]+)=(.*)$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+}
 
 const config = {
   host: process.env.FTP_HOST,
@@ -49,7 +58,7 @@ if (!existsSync(OUT)) {
   process.exit(1);
 }
 
-const client = new Client(30000);
+const client = new Client(120000);
 client.ftp.verbose = false;
 
 // Purge récursive manuelle. Le removeDir()/clearWorkingDir() de basic-ftp ne

@@ -1,9 +1,29 @@
 "use client";
 
 import { fontVars } from "@/lib/branding";
-import { GLOSSARY, GLOSSARY_META } from "@/lib/glossary";
+import type { Locale } from "@/lib/i18n";
+import { GLOSSAIRE_UI } from "@/lib/i18n";
+import glossaireFr from "@/data/glossaire.fr.json";
+import glossaireEn from "@/data/glossaire.en.json";
 
-export default function Glossaire({ font }: { font: string }) {
+interface GlossaryTerm {
+  key: string;
+  term: string;
+  definition: string;
+}
+
+export default function Glossaire({
+  font,
+  locale = "fr",
+}: {
+  font: string;
+  locale?: Locale;
+}) {
+  const data = locale === "en" ? glossaireEn : glossaireFr;
+  const terms = data.terms as GlossaryTerm[];
+  const meta = data.meta as { title: string; intro: string };
+  const ui = GLOSSAIRE_UI[locale];
+
   return (
     <div
       className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
@@ -11,16 +31,16 @@ export default function Glossaire({ font }: { font: string }) {
     >
       <header className="mb-8 border-b border-slate-200 pb-6">
         <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-          Termes définis
+          {ui.definedTerms}
         </p>
         <h1 className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl">
-          {GLOSSARY_META.title}
+          {meta.title}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">{GLOSSARY_META.intro}</p>
+        <p className="mt-2 text-sm text-slate-500">{meta.intro}</p>
       </header>
 
       <dl className="doc-prose space-y-5 text-[1.05rem] text-slate-800">
-        {GLOSSARY.map((t) => (
+        {terms.map((t) => (
           <div
             key={t.key}
             id={`glossaire-${t.key}`}

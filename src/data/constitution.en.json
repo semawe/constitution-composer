@@ -1,9 +1,11 @@
 {
   "meta": {
     "lang": "en",
-    "version": "5.0",
-    "title": "Holacracy Constitution 5.0",
-    "notice": "Official text. Holacracy® is a trademark of HolacracyOne LLC."
+    "version": "v6-alpha",
+    "title": "Holacracy Constitution v6 [Alpha]",
+    "source": "v6-alpha/en/HC-v6-lite.md (core base + retirable blocks, checked by default)",
+    "license": "CC BY-SA 4.0",
+    "notice": "Alpha version. Holacracy® is a trademark of HolacracyOne LLC."
   },
   "tiers": [
     {
@@ -14,17 +16,17 @@
     {
       "id": "retirable",
       "label": "Retirable block",
-      "hint": "Included by default (full Lite version); can be unchecked to simplify."
+      "hint": "Present by default (full Lite version); unchecked to lighten."
     },
     {
       "id": "pedagogique",
       "label": "Pedagogical note",
-      "hint": "Implementation suggestion or point of attention, without constitutional weight."
+      "hint": "Implementation suggestion or point of attention, with no constitutional value."
     },
     {
       "id": "extension",
       "label": "Constitutional extension",
-      "hint": "Constitutional text beyond the Lite (e.g. Circle Reps)."
+      "hint": "Constitutional text beyond the Lite (e.g. Agents)."
     },
     {
       "id": "app",
@@ -40,8 +42,9 @@
       "tier": "core",
       "always": true,
       "heading": "Preamble",
-      "text": "The \"Ratifiers\" hereby adopt this \"Constitution\" as the formal authority structure of the specified \"Organization\". In so doing, the Ratifiers cede their power to govern and run the Organization into the rules and processes herein, except for any powers that the Ratifiers lack the authority to delegate. The Ratifiers or their successors may amend this Constitution or repeal it using whatever authority they relied upon to adopt it, provided that any amendments are made in writing.\n\nAny existing policies and systems the Organization had in effect before adopting this Constitution continue in full force after adoption, however they may not be expanded upon or modified except by the authorities and processes defined herein. These legacy policies and systems further lose all weight and authority as soon as this Constitution's processes create something that replaces or contradicts them.\n\nThe Organization may designate other \"Partners\" in addition to the Ratifiers to assist with its governance and operations, provided any such Partners have also agreed to abide by all relevant terms of this Constitution. Within that constraint, the Organization may define how it grants or removes Partner status, unless otherwise specified by the Ratifiers, and the Ratifiers may specify the initial Partners for the Organization.\n\nEach Partner may rely upon the authorities granted by this Constitution to the full extent that the Ratifiers held such authorities before adopting it. All of the responsibilities and constraints on a Partner come from this Constitution and the outputs of its processes, and from any legal duties the Partner has to the Organization and while acting on its behalf. No implicit expectations or constraints have any power over a Partner, and nor do any dictates issued outside the authority granted by this Constitution.",
-      "summary": "The source of authority: Ratifiers transfer their power into the rules themselves, which become the Organization's sole source of legitimate authority."
+      "intent": "The preamble settles the fundamental question of who has the final say in this organization. This Constitution answers that it is the rules themselves, not those who adopted them. In ratifying, they voluntarily transfer their authority into a shared framework. And for all who later join the organization, that framework is the only legitimate source of authority, without overriding the legal and regulatory frameworks that apply.",
+      "text": "The **\"Ratifiers\"** hereby adopt this **\"Constitution\"** as the formal authority structure of the **\"Organization\"**. In so doing, they cede their power to govern and run the Organization into the rules it defines, except for any powers they lack the authority to delegate.\n\nThe Ratifiers or their successors may amend or repeal this Constitution in writing, relying on whatever authority allowed them to adopt it. That power operates from outside the framework: as long as this Constitution is in force, it does not permit breaking its rules.\n\nAny pre-existing rules and systems remain in full force, but may not be expanded or modified except through the processes of this Constitution. They lose all legitimacy as soon as those processes produce something that replaces or contradicts them.\n\nThe Organization may designate **\"Partners\"** beyond the Ratifiers to take part in its governance and operations, provided each Partner agrees to abide by all the provisions of this Constitution. The Organization defines how this status is granted or removed, unless the Ratifiers specify otherwise.\n\nEach Partner may rely on the authorities granted by this Constitution to the full extent that the Ratifiers held them before adoption. Their responsibilities and constraints arise solely from this Constitution and the outputs of its processes, and from any legal duties they owe the Organization. No implicit expectation, and no dictate issued outside the authority granted by this Constitution, has any power over a Partner.",
+      "summary": "Where authority comes from: the Ratifiers transfer their power into the rules themselves, which become the Organization's source of authority."
     },
     {
       "id": "article-1",
@@ -49,9 +52,10 @@
       "anchor": "article-1",
       "tier": "core",
       "always": true,
-      "heading": "Article 1: Organizational Structure",
-      "text": "A \"Role\" is an organizational construct that a person can fill and then energize on behalf of the Organization. Whoever fills a Role is a \"Role Lead\" for that Role.\n\nA Role definition consists of a descriptive name and one or more of the following:\n\n- **(a)** a \"Purpose\", which is a capacity, potential, or goal that the Role will pursue or express.\n- **(b)** one or more \"Domains\", which are assets, processes, or other things the Role may exclusively control and regulate as its property, for its Purpose.\n- **(c)** one or more \"Accountabilities\", which are ongoing activities the Role will manage and enact in service of other Roles or to support its Purpose.\n\nA Role may also hold \"Policies\", which are grants or constraints of authority, or special rules that apply within that Role.\n\n**Responsibilities of Role Leads.** As a Role Lead, you have the following responsibilities:\n\n- Processing Tensions: You are responsible for comparing the actual expression of your Role's Purpose and Accountabilities to your vision of their ideal potential, to identify gaps between the two (each gap is a \"Tension\"). You are then responsible for trying to enact your vision by taking steps to reduce or resolve those Tensions.\n- Processing Purpose and Accountabilities: You are responsible for regularly considering how to enact your Role's Purpose and each Accountability, by defining \"Next-Actions\" (useful actions that you could take immediately) and \"Projects\" (specific outcomes that would be useful to work towards).\n- Executing Next-Actions: Whenever you have time available to act in a Role, you are responsible for considering the Next-Actions you could take, and executing whichever would add the most value to the Organization.\n\n**Circles.** A \"Circle\" is a container for organizing Roles and Policies around a common Purpose. The Roles and Policies within a Circle make up its acting \"Governance\".\n\nThe inside of every Role is a Circle. This Circle can hold its own Roles and Policies to break down and organize its work. A Role's internal Circle is considered a \"Sub-Circle\" of the broader Circle that holds the Role, while that broader Circle is its \"Super-Circle\".\n\nWhen a Circle grants a Domain to one of its Roles, any Role Lead for that Role may control that Domain on behalf of the Circle. The Circle retains the right to define its own Policies governing that Domain as well, which supersede those defined by the Role in the event of a conflict. Granting a Domain to a Role does not delegate any rights the Circle has to control spending of money or assets, unless explicitly specified.\n\nThe broadest Circle that holds the Purpose of the whole Organization is its \"Anchor Circle\". The Anchor Circle holds all authorities and Domains that the Organization itself controls, and has no Super-Circle.\n\n**Circle Leads.** Serving as a Role Lead also means serving as a \"Circle Lead\" within that Role's internal Circle, and thus filling the \"Circle Lead Role\" within. The Circle Lead Role holds the overall Purpose of that broader Role, and all Accountabilities on that Role to the extent they are not covered by other Roles or processes within the Circle.\n\nThe Anchor Circle has no Circle Leads, unless a Policy of the Circle says otherwise.\n\nA Circle Lead controls the Circle's Role assignments and may assign any Role within the Circle to anyone willing to fill it, including to multiple people at the same time. A Circle Lead may also revoke an assignment to any Role within the Circle at any time.\n\nA Circle Lead may judge the relative value of potential Circle efforts to resolve priority conflicts across Roles. A Circle Lead may also define a \"Strategy\" for the Circle, or many Strategies, which are heuristics that guide prioritization in the Circle.\n\nA Circle may add Accountabilities or Domains to the Circle Lead Role, and later remove these additions. However, any additions automatically apply to every Sub-Circle's Circle Lead Role as well, recursively. A Circle may not modify the Purpose of its Circle Lead Role, nor remove the Role.\n\n**Facilitator and Secretary Roles.** Any Circle may appoint someone as the Circle's \"Facilitator\". The selected Facilitator fills a \"Facilitator Role\" in the Circle, with a Purpose of \"Circle governance and operational practices aligned with the Constitution\".\n\nAny Circle may appoint someone as the Circle's \"Secretary\". The selected Secretary fills a \"Secretary Role\" in the Circle, with a Purpose of \"Stabilize the Circle's constitutionally-required records and meetings\".\n\nA Circle may add Accountabilities or Domains to its own Facilitator or Secretary Role, as well as amend or remove those additions. No Circle may amend or remove the Purpose of either Role, nor any Accountabilities or Domains placed on those Roles by this Constitution.",
-      "summary": "The authority structure is built on described Roles rather than people and org charts. Authority is distributed through Circles, and full within each Role."
+      "heading": "Article 1: Roles and Circles",
+      "intent": "Article 1 builds an authority structure based on a structured description of roles rather than on people and conventional org charts. It sets out two principles at once: authority is distributed across all roles and circles, and within each role the Role Lead holds full and complete authority over it. The system is at once distributed and autocratic.",
+      "text": "A **\"Role\"** is a unit of organizational work that a person can fill and then energize on behalf of the Organization. Whoever fills a Role is its **\"Role Lead\"**.\n\nEach Role has a descriptive name and one or more of the following:\n\n- A **\"Purpose\"**: a capacity, potential, or goal that the Role will pursue or express.\n- One or more **\"Domains\"**: assets, processes, or other things the Role controls exclusively as its property.\n- One or more **\"Accountabilities\"**: ongoing activities the Role carries out in service of other Roles or to support its Purpose.\n\nA Role may also hold **\"Policies\"**: grants or constraints of authority, or special rules that apply within that Role. Anything concerning people's behavior falls under Relational Agreements (section 2.4).\n\n**Responsibilities of Role Leads.** As a Role Lead, you are responsible for:\n\n- sensing and processing Tensions: comparing the actual expression of your Role to its ideal potential (each gap is a **\"Tension\"**) and taking initiative to reduce them;\n- clarifying and tracking your work: regularly defining the actions and outcomes worth pursuing in your Role, capturing them in writing, and keeping them up to date;\n- executing: whenever you have time to act in a Role, choosing and carrying out whatever adds the most value to the Organization.\n\n**Circles.** A **\"Circle\"** is a container for organizing Roles and Policies around a common Purpose. The Roles and Policies within a Circle make up its **\"Governance\"**. The inside of every Role is itself a Circle, which may in turn hold its own Roles and Policies. This inner Circle is a **\"Sub-Circle\"** of the Circle that holds it, and that broader Circle is its **\"Super-Circle\"**.\n\nThe broadest Circle, which holds the Purpose of the whole Organization, is its **\"Anchor Circle\"**. It holds all the authorities and Domains of the Organization and has no Super-Circle.\n\nAny Circle may appoint a **\"Facilitator\"** and other structural Roles defined by this Constitution. These Roles are designated by the Circle Lead. A Circle may add Accountabilities or Domains to them, but may not amend their Purpose nor what the Constitution assigns them.\n\n**Circle Leads.** Serving as a Role Lead also means serving as the **\"Circle Lead\"** within that Role's internal Circle. The Circle Lead carries the Purpose of that Role, along with all of its Accountabilities that are not delegated to other Roles or processes within the Circle. They are a Member of their own Circle, which they run from within, and a Member of the Super-Circle that holds their Role. The Anchor Circle has no Circle Lead, unless a Policy says otherwise.\n\nA Circle Lead may:\n\n- assign the Circle's Roles to one or more willing people, and revoke those assignments at any time;\n- automatically cover the Circle's unfilled Roles;\n- define **\"Strategies\"** to guide prioritization in the Circle.\n\nA Circle may add Accountabilities or Domains to the Circle Lead Role and later remove them. Such additions automatically apply, recursively, to every Sub-Circle. A Circle may also remove an authority or responsibility from the Circle Lead by placing it on another Role; but it may not remove the Circle Lead Role itself.\n\n**Facilitator.** Any Circle that needs one may appoint a Facilitator. Purpose: \"Circle governance and operational practices aligned with the Constitution\". The Facilitator:\n\n- facilitates the Circle's regular Tactical and Governance Meetings;\n- helps the Circle and its Members use the processes defined by this Constitution in day-to-day operation, outside meetings as well as during them.\n\nA Circle may add Accountabilities or Domains to this Role, but may not amend its Purpose nor what the Constitution assigns it.",
+      "summary": "The authority structure rests on described roles rather than on people and org charts. Authority is distributed across circles and full within each role."
     },
     {
       "id": "article-2",
@@ -60,8 +64,9 @@
       "tier": "core",
       "always": true,
       "heading": "Article 2: Rules of Cooperation",
-      "text": "**Duty of Transparency.** As a Partner, you have the duty to provide transparency to Role Leads in the Organization upon their request, as follows:\n\n- **(a) Projects and Next-Actions:** You must share any Projects and Next-Actions you are tracking for the Organization.\n- **(b) Relative Priority:** You must share your judgment of the relative priority of any of your Projects or Next-Actions vs. anything else competing for your attention.\n- **(c) Projections:** You must provide a projection of when you expect to complete any of your Projects or Next-Actions. A rough estimate is enough, considering your current context and priorities. Detailed analysis or planning is not required, and this projection is not a commitment in any way.\n- **(d) Checklist Items:** You must verify completion of any recurring actions that you perform for your Roles or as a Partner of the Organization.\n- **(e) Metrics:** You must share any metrics you collect in your Roles or as a Partner of the Organization.\n- **(f) Progress Updates:** You must share a summary of progress you've made in your Roles or towards any of your Projects since the last update you shared.\n- **(g) Other Information:** You must share any other information that's readily available to you and won't cause harm to share.\n\n**Duty of Processing.** As a Partner, you have the duty to promptly process messages and requests from Role Leads in the Organization, as follows:\n\n- **(a) Requests to Clarify:** Others may ask you to clarify the next steps for any of your Projects or for any Accountability of your Roles. You must then determine and communicate a Next-Action to move it forward, if there are any you could take. If there are not, you must instead share what you're waiting for before you can take a Next-Action.\n- **(b) Requests for Projects and Next-Actions:** Others may ask you to take on a specific Next-Action or Project. You must accept and track it if you believe it would make sense to work towards in one of your Roles or as a Partner of the Organization, at least in the absence of competing priorities. If you don't, then you must either explain your reasoning, or suggest something else you believe will meet the requester's goal instead.\n- **(c) Requests to Impact Domain:** Others may ask to impact a Domain controlled by one of your Roles. You must allow the impact if you see no reason it will reduce your capacity to enact your Role's Purpose or Accountabilities. If you do see such a reason, you must explain it to the requester.\n\n**Duty of Prioritization.** As a Partner, you have a duty to prioritize your attention in alignment with the following:\n\n- **(a) Processing:** You must generally prioritize processing inbound messages to your Roles from other Role Leads over executing your own Next-Actions. However, you may delay processing messages until you can batch process at a convenient time, as long as your processing is still prompt.\n- **(b) Meetings:** You must prioritize attending any meeting defined in this Constitution over executing your own Next-Actions, but only when another Partner explicitly requests this prioritization for a specific meeting. You may still decline the request if you already have plans scheduled over the meeting time.\n- **(c) Circle Priorities:** When choosing what to work on in a Role, you must consider any official Strategies or relative prioritizations of that Role, of any Circle holding that Role, and of any Super-Circle thereof. You must then treat these official priorities as more important to the Organization than your own individual priorities or your own judgment of the Organization's priorities.\n- **(d) Deadlines:** If the Governance or any official Strategy or prioritization of a Circle includes a deadline specifying when something must be done by, no one may interpret that as a mandate to meet that deadline regardless of the impact of doing so. Instead, you must interpret that as an official prioritization of any actions needed to hit that deadline over any other actions for that Circle, and act accordingly.",
-      "summary": "The duties that make distributed authority workable: transparency, processing requests, prioritization, and relational agreements."
+      "intent": "Article 2 defines the concrete obligations that make the system work: being transparent about your work, processing others' requests, and prioritizing according to the shared rules rather than your own judgment. Without these duties, the distributed authority of Article 1 becomes unmanageable. One principle runs through the whole article: these are obligations of effort, not of outcome. To estimate is not to commit. To process a request is not to grant it. To prioritize is not to guarantee.",
+      "text": "**Duty of Transparency.** You must share, upon request from any Role Lead:\n\n- the status of your current work: what you are pursuing, your relative priorities, and an estimate of when you expect to deliver. An estimate reflects your current context; it is not a promise;\n- the metrics you track in your Roles;\n- any other information that is readily available and would cause no harm to share.\n\n**Duty of Processing.** You must promptly process requests from other Role Leads:\n\n- if asked for an update on your work, you must at least define and communicate a next step, or explain what you are waiting for before you can move forward;\n- if asked to take on some work, you must accept it if it makes sense for one of your Roles, or explain your refusal, or offer an alternative that meets the requester's intent;\n- if asked for permission to impact a Domain you control, you must allow it unless it would reduce your capacity to fulfill your Role, in which case you must explain why.\n\n**Duty of Prioritization.** You must prioritize your attention according to these principles:\n\n- process inbound requests before executing your own work. You may batch your responses at a convenient time of day, as long as you remain prompt;\n- attend Tactical and Governance Meetings, ahead of executing your own work, when explicitly asked to for a specific meeting, unless you already have plans scheduled at that time;\n- honor the official Strategies and priorities of your Circles, treating them as more important than your own judgment of what matters;\n- read any deadline as a prioritization signal, not as an absolute obligation to deliver regardless of the consequences.",
+      "summary": "The duties that make distributed authority workable: transparency, processing requests, prioritization, and relational agreements (binding or behavioral)."
     },
     {
       "id": "article-3",
@@ -70,8 +75,9 @@
       "tier": "core",
       "always": true,
       "heading": "Article 3: Tactical Meetings",
-      "text": "Any Partner may convene a \"Tactical Meeting\" to assist Partners in engaging each other in their responsibilities and duties. In addition, the Secretary of each Circle is accountable for scheduling regular Tactical Meetings for the Circle.\n\n**Attendance.** For regular Tactical Meetings convened by a Circle's Secretary, all of the Circle's Roles are invited unless a Policy says otherwise. For other Tactical Meetings, the Partner convening the meeting must specify the Roles invited to that meeting. All Partners serving as Role Leads of those Roles are then invited to attend and represent those Roles, unless the convener narrows the invitation to include only a subset of Role Leads for a Role.\n\n**Meeting Process.** The Facilitator of a Circle is accountable for facilitating the Circle's regular Tactical Meetings, and its Secretary is accountable for capturing and publishing Tactical Meeting outputs. For Tactical Meetings convened by someone other than a Circle's Secretary, the Partner convening a Tactical Meeting must facilitate it and capture its outputs, or appoint another volunteer or appropriate Role to do so.\n\nUnless a Policy says otherwise, the person facilitating the meeting must use the following process:\n\n- **(a) Check-in Round:** Each participant in turn shares their current state, or offers another opening comment for the meeting. Responses are not allowed.\n- **(b) Checklist Review:** Each participant verifies completion of any recurring actions that they are regularly reporting on for their Roles in the meeting.\n- **(c) Metrics Review:** Each participant shares any metrics that they are regularly reporting on for their Roles in the meeting.\n- **(d) Progress Updates:** Each participant highlights progress in any Project or other initiative that they are regularly reporting on for their Roles in the meeting. Participants may only share progress made since a prior report, and not the general status of any work.\n- **(e) Build Agenda:** Participants build an agenda of items to process within the meeting. Each participant may add as many agenda items as desired by providing a short label for each, with no explanation or discussion allowed.\n- **(f) Triage Items:** To process each agenda item, the agenda item owner may make requests of another participant, either in that participant's general capacity as a Partner, or to a Role that participant represents in the meeting. The person facilitating the meeting manages the time allowed for each agenda item to allow space for the entire agenda, and may cut off processing any item after its due share of meeting time.\n- **(g) Closing Round:** Each participant in turn shares a closing reflection on the meeting. Responses are not allowed.\n\nA Policy of a Circle may specify an alternate process or amend this default process for Tactical Meetings called by any of the Circle's Roles.",
-      "summary": "Operational coordination: a structured meeting process held by the Facilitator, agenda built by each participant, all co-responsible for advancing work."
+      "intent": "Article 3 organizes day-to-day operational coordination. A Tactical Meeting differs from a conventional management meeting on one structural point: neither the process nor the content belongs to a single person. The process is set by the rules of the game and held by the Facilitator. The content comes from each participant, who brings their own items and their own requests. All are jointly responsible for moving the work forward. The meeting serves to unblock that work, not to supervise it. It may be held in person or remotely.",
+      "text": "The Circle coordinates its work day to day and its Members engage one another in their responsibilities. The form this coordination takes is defined below.",
+      "summary": "Day-to-day operational coordination: a process held by the Facilitator, content owned by each participant, all jointly responsible for moving the work forward."
     },
     {
       "id": "article-4",
@@ -80,8 +86,9 @@
       "tier": "core",
       "always": true,
       "heading": "Article 4: Distributed Authority",
-      "text": "As a Role Lead, you have the authority to take any action or make any decision to enact your Role's Purpose or Accountabilities, as long as you don't break a rule defined in this Constitution. When prioritizing and choosing among your potential actions, you may use your own reasonable judgment of the relative value to the Organization of each.\n\n**Constraints on Authority.** As a Role Lead, you must honor the following constraints on your authority.\n\nWhile acting in a Role, you may not violate any Policies of the Role itself or of any Circle containing the Role.\n\nIn service of your Role, you have the authority to impact and control your Role's Domains. You may also impact any Domain held by a Circle containing your Role and not further delegated, or any Domain such a Circle itself may impact. But if you believe your impact will be substantially difficult or expensive to undo, you need to get permission.\n\nYou may not exert control or cause a material impact on a Domain delegated to a Role or Circle that doesn't contain your Role, unless you get permission. When you need permission to impact a Domain, you may get it from whomever controls that Domain. You may also get permission by announcing your intent to take a specific action, and inviting anyone with a relevant Domain to object. You must then wait a reasonable time to allow responses. If no one objects in that time, you then have permission to impact any Domains owned by any Role in the Organization that your announcement reached.\n\nYou may not spend any money or other assets unless you first get authorized to do so. This authorization must come from a Role that already has control of those resources for spending purposes. To get authorized to spend, you must announce your intent to spend in writing to the Role you're seeking authorization from. Your statement must include the reason for the spending, and the Role you'll spend from. You must then wait a reasonable time to allow consideration and responses. Once a reasonable time has passed and no escalations stand, your Role gains control of those resources. You may spend them for your stated purpose, or further authorize others to.\n\nA Policy may change this process in any way, or directly authorize a Role to control spending of the Circle's resources.\n\n**Interpretation Authority.** As a Partner, you may use your reasonable judgment to interpret this Constitution and anything under its authority. You may further interpret how these apply within any specific situation you face, and act based on your interpretations. However, you must interpret all Governance in the context of the Purpose and Accountabilities of the Circle containing it, and within any official interpretation rulings of that Circle or any Super-Circle thereof.\n\nAs a Partner, your interpretation of this Constitution and the Organization's Governance may sometimes conflict with another Partner's. When that happens, either party may ask the Secretary of any affected Circle to rule on which interpretation to use, and the Secretary is accountable for interpreting the Constitution and anything under its authority upon request. After a Secretary responds, everyone must align with that Secretary's ruling until the relevant text or context changes.\n\nAny Partner may ask a Circle's Secretary to rule on the validity of any Governance within that Circle or any Sub-Circle thereof. If the Secretary concludes it violates the rules of this Constitution, the Secretary must strike it from the Circle's records.",
-      "summary": "What a Role Lead may do without asking permission, and the constraints on that freedom: Policies, others' Domains, and spending, with Individual Initiative as an emergency valve."
+      "intent": "Article 4 defines what a Role Lead may do without asking permission. This is the operational heart of the system: everyone acts within their own boundaries without answering to a hierarchy. But this freedom has clear limits: the Policies, others' Domains, and money. The article also provides for the emergency case, where acting fast takes precedence over honoring the framework, provided you take responsibility for the consequences.",
+      "text": "As a Role Lead, you have the authority to take any action or make any decision to enact your Role's Purpose and Accountabilities, as long as you don't break a Policy of this Constitution or of any Circle that contains it.\n\n**Policies and Domains.** You may not break the Policies of your Role or of any Circle that contains it. You may act freely on your own Domains. To impact a Domain you don't control, you must get permission from whoever controls it, either directly, or by announcing your intent and allowing a reasonable time for anyone to object. No objection within that time counts as permission for that specific action.\n\n**Spending resources.** You may not spend the Organization's money, nor materially use or commit any of its assets (equipment, data, rights, reputation, or time), without prior authorization from the Role that controls those resources. To get this authorization, announce your intent in writing and allow a reasonable time: if nothing blocks it within that time, you are authorized to spend within the stated terms. The Circle or Role that controls the money may set another method for organizing and controlling resource spending by writing a dedicated policy.",
+      "summary": "What a Role Lead may do without asking permission, and the three limits of that freedom: Policies, others' Domains, money, with Individual Initiative as the safety valve."
     },
     {
       "id": "article-5",
@@ -90,77 +97,59 @@
       "tier": "core",
       "always": true,
       "heading": "Article 5: Governance Process",
-      "text": "Changing a Circle's Governance requires using the \"Governance Process\" defined herein.\n\n**Governance Participants.** Each Circle has a group of \"Circle Members\" who may represent its Roles in its Governance Process. A Circle's Circle Members are those Partners filling its Circle Lead Role, as well as each Partner serving as Role Lead for a Role in the Circle. If a Role has multiple Role Leads, a Circle may adopt a Policy to limit how many of them represent that Role as Circle Members in its Governance Process.\n\n**Scope of Governance.** Within a Circle's Governance Process, its Circle Members may:\n\n- **(a)** define, amend, or remove the Circle's Roles; and\n- **(b)** define, amend, or remove the Circle's Policies; and\n- **(c)** move the Circle's own Roles or Policies into a Sub-Circle or any Sub-Circle thereof, but only if they enact the Purpose or Accountabilities of that Sub-Circle; and\n- **(d)** move Roles or Policies from within a Sub-Circle out into the Circle, but only if they are no longer relevant to enacting the Purpose or Accountabilities of that Sub-Circle; and\n- **(e)** hold elections for any elected Role within the Circle.\n\n**Scope of Policy.** A Policy may only be one or more of the following: a constraint on the authority of one or more of the Circle's contained Roles; a grant of an authority the Circle or Circle Lead holds to one or more Roles; a grant of authority that allows people or Roles not otherwise authorized to control or impact one of the Circle's Domains; or a rule that changes a default rule or process in this Constitution, if that change is explicitly allowed.\n\nA Policy that grants or constrains authority applies in all Sub-Circles as well, recursively, unless otherwise stated.\n\n**Changing Governance.** Any Circle Member of a Circle may initiate its Governance Process by proposing a change to its Governance. To do so, the \"Proposer\" must first share a \"Proposal\" in writing with all other Circle Members. Those other Circle Members may then ask clarifying questions, share reactions, and raise concerns about adopting the Proposal. Each concern is an \"Objection\" if it meets the criteria herein, and the person who raised it is the \"Objector\".\n\nOnce each Circle Member confirms they have no Objections to a Proposal, it is adopted and amends the Circle's Governance. If Objections are raised, the Proposer and each Objector must find a way to address the Objections before the Circle adopts the Proposal.\n\nFor a Proposal to be valid, the Proposer must be able to: describe a Tension that the Proposal would address for one of the Proposer's Roles; share an example of an actual past or present situation illustrating that Tension; and give a reasonable explanation of how the Proposal would have reduced the Tension in that example.\n\nA concern about adopting a Proposal only counts as an Objection if the Objector can provide a reasonable argument for why: the Proposal would reduce the capacity of the Circle to enact its Purpose or Accountabilities; the Proposal would limit the Objector's capacity to enact the Purpose or an Accountability of a Role the Objector represents; the concern does not already exist even in the absence of the Proposal; and the Proposal would necessarily cause the impact, or the Circle wouldn't have an adequate opportunity to adapt before significant harm could result.\n\nRegardless of the above criteria, a concern always counts as an Objection if adopting the Proposal would violate a rule in this Constitution.\n\n**Governance Meetings.** In addition to processing Proposals made asynchronously outside of meetings, each Circle will also hold regular \"Governance Meetings\" to enact the Circle's Governance Process in real time. The Circle's Secretary is accountable for scheduling its Governance Meetings.\n\nAll Circle Members of a Circle may participate in its Governance Meetings. The acting Facilitator and Secretary may also participate even if they are not Circle Members of the Circle.\n\nThe Facilitator must use the following process for Governance Meetings:\n\n- **(a) Check-in Round:** Each participant in turn shares their current state, or offers another opening comment for the meeting. Responses are not allowed.\n- **(b) Agenda Building and Processing:** The Facilitator builds an agenda of Tensions to process, then processes each agenda item in turn.\n- **(c) Closing Round:** Each participant in turn shares a closing reflection on the meeting. Responses are not allowed.\n\n**Process Breakdown.** A \"Process Breakdown\" occurs when a Circle shows a pattern of behavior or output that violates the rules of this Constitution. The Facilitator or Secretary of a Circle may declare a Process Breakdown in their own Circle or any Sub-Circle. Whenever an authorized party declares a Process Breakdown within a Circle: the Facilitator gains the authority to judge the logic and relevance of any arguments made to validate Proposals or Objections; the Facilitator of the Super-Circle gains a Project to restore due-process within the Circle; the Facilitator of the Super-Circle gains the authority to take over as Facilitator or Secretary of the Circle; and the Facilitator of the Super-Circle may assign an additional Circle Lead to the Circle for the duration of the Process Breakdown. These authorities end as soon as due process is restored in the Circle.",
-      "summary": "How structure evolves: the integrative decision-making process integrates valid objections without blocking action, and the integrative election process selects structural roles without candidacy campaigns."
+      "intent": "Article 5 defines how the structure evolves. Any change to Governance (creating a Role, amending a Policy, electing a Facilitator or Secretary) goes through a single process: integrative decision-making. This process is neither consensus nor majority vote. It seeks to integrate every valid objection without blocking action. The process is held asynchronously or in a governance meeting.",
+      "text": "To change a Circle's Governance (creating, amending, or removing a Role or a Policy, or holding an election), you must use the processes defined in this article.\n\n**Circle Members.** Only the **\"Circle Members\"** take part in its Governance Process: the Partners who serve as Role Lead for a Role within it.\n\n**Policies.** A Policy may only apply to the Circle's Roles, to grant or constrain an authority, or to regulate access to a Domain. It applies only to the Circle that decides it, unless it explicitly states that it also applies to Sub-Circles. A Policy may also change a default rule of this Constitution, only where the Constitution explicitly allows it, and in that case it is recursive in the Sub-Circles.",
+      "summary": "How the structure evolves: integrative decision-making, which integrates valid objections without blocking action, and the integrative election of structural roles."
     }
   ],
   "modules": [
     {
       "id": "source-de-verite",
-      "label": "Trusted Source",
+      "label": "Source of Truth",
       "tier": "retirable",
       "default": true,
-      "description": "Allows a Domain to serve as an authoritative reference for the Circle's work. Removing it: no Domain serves as an authoritative reference.",
+      "description": "Allows a Domain to serve as the authoritative reference for the Circle's work (registry, repository). Removed: no Domain holds authority as a reference.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-1",
-          "position": "end",
-          "text": "You are responsible for capturing and tracking all Projects and Next-Actions for your Role in written lists. You must also track Tensions you intend to resolve, at least until you process them into Projects or Next-Actions. You are also responsible for regularly reviewing and updating these lists, to maintain them as a trusted source of the Role's potential work."
+          "position": "append",
+          "text": "A Domain may be a **\"Source of Truth\"**: a repository, registry, or body of information that is authoritative for the Circle's work. Controlling it means having the authority to decide which reference holds, not to decree what is true. Like any Domain, a Source of Truth is subject to the holarchy: that of a Sub-Circle cannot prevail against that of a Super-Circle, which takes precedence in the event of a conflict."
         }
       ],
       "fallback": null
     },
     {
-      "id": "accords-relationnels",
-      "label": "Relational Agreements",
+      "id": "delegation-domaine",
+      "label": "Domain Delegation",
       "tier": "retirable",
       "default": true,
-      "description": "Enables Partners to make explicit agreements about how they work together. Removing it: cooperation rests solely on the three core duties.",
+      "description": "Allows a Circle to entrust one of its Domains to a Role. Removed: Domains remain controlled at the Circle level.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
-          "anchor": "article-2",
-          "position": "end",
-          "text": "**Relational Agreements.** As a Partner, you may have \"Relational Agreements\" with other Partners. These are agreements about how you will relate together while working in the Organization, or about how you will fulfill your general functions as Partners of the Organization. They may add to or clarify the duties in this Article, but they may not conflict with them.\n\nRelational Agreements must remain focused on shaping behaviors that generally underpin work; they may not set expectations of work to do in a Role, nor expectations about how a Partner will prioritize across different Roles. Further, they may only specify concrete acts to do or behavioral constraints to honor; they may not include promises to achieve specific outcomes or embody abstract qualities.\n\nAs a Partner, you may request a Relational Agreement of another Partner for your own personal preferences or to serve a Role you fill. That Partner may accept or reject the requested Relational Agreement based on their own personal preferences. Unless otherwise agreed, either party may later terminate the Relational Agreement by notifying the other party.\n\nAs a Partner, you have a duty to align your behavior with any written Relational Agreements you have made. Anyone facilitating a meeting or process for the Organization may also enforce these Relational Agreements during that meeting or process, as long as they don't conflict with anything defined in this Constitution."
+          "anchor": "article-1",
+          "position": "append",
+          "text": "A Circle may delegate one of its Domains to one of its Roles. The Role Lead may then control that Domain on behalf of the Circle and create Policies to govern it. The Circle, however, keeps the right to define its own Policies over that same Domain, and those prevail in the event of a conflict. Delegating a Domain does not delegate any authority to spend money or assets, unless explicitly stated."
         }
       ],
       "fallback": null
     },
     {
-      "id": "initiative-urgence",
-      "label": "Individual Initiative",
-      "tier": "retirable",
+      "id": "focus",
+      "label": "Focus",
+      "tier": "extension",
       "default": false,
-      "description": "Authorizes acting beyond Role authority in urgent situations, under strict conditions. Removing it: no emergency exception to distributed authority.",
+      "description": "Opt-in extension. Allows restricting a Role assignment to a specific context. Without it, Roles are assigned without context-based scoping.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
-          "anchor": "article-4",
-          "position": "end",
-          "text": "**Individual Initiative.** As a Partner, in some cases you are authorized to take \"Individual Initiative\" by acting beyond the authority of your Roles or by breaking rules in this Constitution. You may only take Individual Initiative when all of the following are true:\n\n- **(a)** You are acting in good faith to serve the Purpose or express the Accountabilities of some Role within the Organization.\n- **(b)** You believe your action would resolve or prevent more Tension for the Organization than it would likely create.\n- **(c)** Your action would not commit the Organization to any spending beyond what you're already authorized to spend.\n- **(d)** If your action would violate any Policies or Domains, you believe much value would be lost from delaying to get permission or change Governance.\n\nUpon taking Individual Initiative, you must explain your action to any Role Leads who you believe may be significantly impacted. Upon request of any such Role Lead, you must take further actions to help resolve any Tensions created by your Individual Initiative. You must also refrain from taking similar Individual Initiative upon request of any such Role Lead."
-        }
-      ],
-      "fallback": null
-    },
-    {
-      "id": "representant-cercle",
-      "label": "Circle Rep",
-      "tier": "retirable",
-      "default": false,
-      "description": "Adds the elected role that carries unresolved Tensions from a Circle into the broader Circle. Requires the Integrative Election Process.",
-      "requires": [
-        "election-integrative"
-      ],
-      "conflicts": [],
-      "insertions": [
-        {
-          "anchor": "article-5",
-          "position": "end",
-          "text": "**Circle Reps.** Any Circle Member of a Circle may request an election at any time to select or replace someone as the Circle's \"Circle Rep\" to help represent that Circle within any broader Circle containing it. The selected Circle Rep fills a \"Circle Rep Role\" in the Circle, with a Purpose of \"Tensions relevant to process in a broader Circle channeled out and resolved\", and the following Accountabilities:\n\n- **(a)** Seeking to understand Tensions conveyed by Role Leads within the Circle\n- **(b)** Discerning Tensions appropriate to process within a broader Circle that holds the Circle\n- **(c)** Processing Tensions within a broader Circle to remove constraints on the Circle\n\nThe Circle must use the Integrative Election Process defined herein to select a Circle Rep. Only a Circle's Circle Members are eligible to serve as its Circle Rep. Anyone serving as a Circle Lead for the Circle may not also serve as its Circle Rep. No more than one person may serve as a Circle's Circle Rep at a time, unless a Policy of a containing Circle allows it.\n\nThe selected Circle Rep becomes a Circle Member of any Circle containing that Circle, with the authority to represent their Circle just like a Circle Lead. A Circle may add Accountabilities or Domains to its own Circle Rep Role, as well as amend or remove those additions. No Circle may amend or remove the Purpose of the Role, nor any Accountabilities placed on the Role by this Constitution."
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Focus.** A Circle Lead may limit an assignment to a specific context, called a **\"Focus\"**. In that case, the assignment is treated as a distinct Role for that context."
         }
       ],
       "fallback": null
@@ -176,13 +165,111 @@
       "insertions": [
         {
           "anchor": "article-1",
-          "position": "end",
-          "text": "**Secretary Role.** Any Circle may appoint someone as the Circle's \"Secretary\". The selected Secretary fills a \"Secretary Role\" in the Circle, with a Purpose of \"Stabilize the Circle's constitutionally-required records and meetings\".\n\nThe Secretary:\n\n- is accountable for scheduling regular Tactical Meetings and Governance Meetings for the Circle;\n- captures and publishes the outputs of those meetings, as well as Governance decisions made asynchronously;\n- maintains the Circle's official governance records (Roles, Policies, Strategies) and holds a Domain over the Circle's governance records;\n- interprets the Constitution and the Circle's Governance upon request;\n- may strike Governance that violates this Constitution from the Circle's records.\n\nA Circle may add Accountabilities or Domains to this Role, but may not amend or remove the Purpose of the Role, nor any Accountabilities or Domains placed on it by this Constitution."
+          "position": "append",
+          "text": "*Stance: the Secretary is in charge of the Circle's records and keeps them up to date. They need not know the whole Constitution by heart, nor judge what is being decided. When a conflict of interpretation arises, they have the authority to rule so the Circle can carry on.*\n\nPurpose: \"Stabilize the Circle's constitutionally-required records and meetings\".\n\nThe Secretary:\n\n- schedules the Circle's regular Tactical and Governance Meetings;\n- captures and publishes the outputs of those meetings, as well as Governance decisions made asynchronously;\n- keeps the Circle's official records up to date (Roles, Policies, Strategies) and controls that Domain;\n- rules, on request, on conflicts of interpretation of this Constitution;\n- may strike a Governance decision that violates this Constitution.\n\nA Circle may add Accountabilities or Domains to this Role, but may not amend its Purpose nor what the Constitution assigns it."
         }
       ],
       "fallback": {
         "anchor": "article-1",
-        "text": "**Default (without Secretary).** The functions normally held by the Secretary (scheduling and capturing meetings, maintaining the Circle's records, interpreting the Constitution) are assumed by the Circle Lead."
+        "text": "**By default (without a Secretary).** The functions normally carried by the Secretary (scheduling and recording meetings, maintaining the Circle's records, ruling on conflicts of interpretation) are assumed by the Circle Lead."
+      }
+    },
+    {
+      "id": "representant-cercle",
+      "label": "Circle Representative",
+      "tier": "extension",
+      "default": false,
+      "description": "Opt-in extension. Adds the elected role that carries to the Super-Circle the Tensions a Circle cannot resolve alone. Requires the Integrative Election Process.",
+      "requires": [
+        "election-integrative"
+      ],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Circle Representative.** Purpose: \"Relevant Tensions to process in a broader Circle are surfaced and resolved\". They listen to Tensions the Circle has not been able to resolve through its own Governance, discern which are worth carrying to the Super-Circle, and carry them there. Elected by the Integrative Election Process from among the Circle's Members, they become a Member of the Super-Circle with the same representational authority as a Circle Lead. A person serving as Circle Lead may not also serve as Circle Representative."
+        },
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Circle Representative (governance).** Any Circle Member may request an election of a Circle Representative to represent their Circle in the Super-Circle, in addition to the Circle Lead. They are elected by the Integrative Election Process and become a Member of the broader Circle with the same representational authority as a Circle Lead."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "accords-relationnels",
+      "label": "Relational Agreements",
+      "tier": "retirable",
+      "default": true,
+      "description": "Distinguishes binding agreements (enforceable) and behavioral agreements (voluntary, free exit). Removed: cooperation rests on the three duties alone.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-2",
+          "position": "append",
+          "text": "As a Partner, you may make **\"Relational Agreements\"** with other Partners to regulate how you work together.\n\n**Binding agreements.** Any commitment you have entered into in writing with the Organization, and whose terms provide no unilateral exit (employment contract, internal regulations, signed engagement letter), remains fully enforceable under this Constitution. You have a duty to honor it. These agreements prevail over the other provisions of this article in the event of a conflict.\n\n**Behavioral agreements.** You may also make agreements with another Partner about your behavior at work: modes of communication, cooperation practices, mutual commitments to concrete acts. No one may be compelled to enter one. These agreements may not contradict the duties defined in this article. Either party may end one at any time by notifying the other. Anyone facilitating a meeting may enforce these agreements within it, as long as they do not conflict with this Constitution."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "reunions-tactiques",
+      "label": "Tactical Meeting (process)",
+      "tier": "retirable",
+      "default": true,
+      "description": "Deploys the structured Tactical Meeting in four steps. Removed: the Organization keeps its current meeting habits.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-3",
+          "position": "append",
+          "text": "You may convene a **\"Tactical Meeting\"** to coordinate the work and engage one another in your responsibilities. A Circle is not required to convene a Tactical Meeting. The Secretary of each Circle is responsible for scheduling regular Tactical Meetings for the Circle.\n\nThe Circle's Facilitator facilitates the regular meetings. For any meeting convened by another Partner, that Partner facilitates it or delegates the facilitation.\n\nUnless a Circle's Policy says otherwise, the process is as follows:\n\n1. **Check-in.** A quick round to make yourself available for the meeting. No reactions.\n2. **Sync.** Each participant shares whatever they find useful about their current work. No discussion, no reactions.\n3. **Triage items.** Participants build an agenda with a short label for each item, then process each one in turn: the owner makes concrete requests of the other Partners present. The Facilitator manages the time and must try to process every item within the time available, with the right to cut an item short to do so.\n4. **Closing.** Each participant briefly shares a closing reflection on the meeting. No reactions.\n\nA default facilitation guide describes this process in detail. Each Circle may decide on its own process by writing a Policy."
+        }
+      ],
+      "fallback": {
+        "anchor": "article-3",
+        "text": "**By default (without formalized Tactical Meetings).** The Organization keeps its current meeting habits, until a Circle Lead decides otherwise for their Circle, or the Ratifiers provide otherwise."
+      }
+    },
+    {
+      "id": "initiative-urgence",
+      "label": "Individual Initiative",
+      "tier": "retirable",
+      "default": true,
+      "description": "Authorizes acting beyond authority in an emergency, under strict conditions. Removed: no emergency exception to distributed authority.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-4",
+          "position": "append",
+          "text": "**Individual Initiative.** You may act beyond your authority or break Policies if all of the following are true:\n\n1. you are acting in good faith in service of a Role,\n2. you believe the action will resolve more Tension than it creates,\n3. it commits no unauthorized spending,\n4. waiting would be significantly more costly than acting.\n\nIn that case, you must immediately inform the affected Role Leads, take the corrective steps requested, and refrain from doing the same again if asked."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "decision-integrative",
+      "label": "Integrative Decision-Making Process",
+      "tier": "retirable",
+      "default": true,
+      "description": "Deploys integrative decision-making in five steps. Removed: the Circle Lead edits Governance alone.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "Any Circle Member may initiate a change to Governance by sharing a **\"Proposal\"** in writing with all the other Members, through a channel approved by the Secretary, or in a **\"Governance Meeting\"** convened by the Secretary.\n\nTo be valid, a Proposal must: describe a Tension the **\"Proposer\"** senses in one of their Roles, draw on a real example, and explain how it would have reduced that Tension.\n\nThe process unfolds in five successive steps:\n\n1. **Clarifying questions.** The other Members may ask the Proposer to clarify the Proposal or the Tension. No reactions are allowed.\n2. **Reaction round.** Each Member may share their reaction to the Proposal, in turn, with no dialogue and no reactions to reactions.\n3. **Amend and clarify.** The Proposer may amend their own Proposal in light of the reactions, or clarify its intent. Any amendment must remain in service of the original Tension and not address the Tensions of other Members.\n4. **Objection round.** Each Member states whether they have an Objection to the Proposal as amended. An **\"Objection\"** is valid only if all of the following are true:\n   - it shows that the Proposal would reduce the Circle's capacity to enact its Purpose or Accountabilities;\n   - it shows that the Proposal would limit the **\"Objector's\"** capacity to enact a Role they represent in the Circle;\n   - the concern does not already exist in the absence of the Proposal;\n   - the harm identified is certain to occur, or, if only anticipated, too great to risk trying the Proposal.\n\n   A Proposal that violates this Constitution always constitutes a valid Objection.\n5. **Integration.** For each valid Objection, the Proposer and the Objector seek together an amendment that resolves the Objection without losing the original Tension, with the help of the other Members if needed.\n\nOnce all valid Objections are integrated, or if there are none, the Proposal is adopted.\n\nA default facilitation guide describes this process in detail. This process may not be modified."
+        }
+      ],
+      "fallback": {
+        "anchor": "article-5",
+        "text": "**By default (without Integrative Decision-Making Process).** The Circle Lead edits Governance for their Circle alone (creating, amending, or removing Roles and Policies), or authorizes others to do so, unless a broader Circle Lead or the Ratifiers provide otherwise."
       }
     },
     {
@@ -190,14 +277,234 @@
       "label": "Integrative Election Process",
       "tier": "retirable",
       "default": true,
-      "description": "Deploys election without candidacy or campaigning, through reasoned nominations. Removed: structural Roles are appointed by the Circle Lead.",
+      "description": "Deploys the election without candidacy or campaigning, through reasoned nominations. Removed: structural Roles are designated by the Circle Lead.",
       "requires": [],
       "conflicts": [],
       "insertions": [
         {
           "anchor": "article-5",
-          "position": "end",
-          "text": "**Integrative Election Process.** Any Circle Member may initiate the Circle's Governance Process by calling for an election for a Circle Rep, Facilitator, or Secretary. The acting Facilitator must then enact the \"Integrative Election Process\" as follows:\n\n- **(a) Describe Role:** First, the Facilitator identifies the target Role and chooses a term for the election. The Facilitator may also present other information relevant to the election. During this step and the next, no one may comment on any potential candidates.\n- **(b) Nominate Candidates:** Each Circle Member uses a ballot or another private forum to name the eligible candidate whom the Circle Member believes is the best fit for the Role. Circle Members must label their ballot with their own name as well, and no one may abstain or nominate multiple people.\n- **(c) Nomination Sharing Round:** During this step, the Facilitator shares each nomination with all Circle Members. For each one, the nominator states why he or she believes their nominee would be a good fit for the Role, and no one else responds. The nominator may not comment on other potential candidates beyond their nominee.\n- **(d) Nomination Change Round:** Once all nominations are shared, any Circle Member may change their nomination and explain the reason for the change. No responses are allowed.\n- **(e) Make a Proposal:** The Facilitator counts the nominations, and makes a Proposal to elect the candidate with the most. If there is a tie, the Facilitator may do any one of the following: (i) if only one of the tied candidates has nominated himself or herself, propose that person; or (ii) if the person currently filling the Role is among those tied, propose that person; or (iii) blindly select one of the tied candidates randomly, and propose that person; or (iv) go back to the previous step and ask each Circle Member who nominated someone other than a tied candidate to change that nomination to one of the tied candidates.\n- **(f) Objection Round:** The Facilitator asks each Circle Member if they see any Objections to the Proposal. If any Objections surface, the Facilitator may either allow discussion to attempt to resolve them, or discard the Proposal. If discarded, the Facilitator must then go back to the prior step in this process, ignore all nominations for the discarded candidate, and apply the rules of the prior step to select another candidate to propose instead.\n\nThe Facilitator of a Circle is accountable for triggering new elections for the Circle's elected Roles after each election term expires."
+          "position": "append",
+          "text": "Any Member may at any time request an election to choose a Facilitator or a Secretary. The election is conducted by the Facilitator or, failing that, by the Circle Lead. The process is as follows:\n\n1. whoever conducts the election describes the Role and sets the term of office;\n2. each Member privately names in writing the candidate who seems best suited, giving their own name and their reason;\n3. the nominations are shared with all Members;\n4. each Member may change their nomination, explaining the reason;\n5. whoever conducts the election proposes the candidate with the most nominations. In the event of a tie, they may propose the candidate who nominated themselves, propose the incumbent, or draw lots;\n6. Members may raise Objections. In that case, whoever conducts the election opens a discussion to resolve them, or returns to the previous step to propose another candidate.\n\nA default facilitation guide describes this process in detail. This process may not be modified."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "The Facilitator triggers new elections for elected Roles when their term expires."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "rupture-processus",
+      "label": "Process Breakdown",
+      "tier": "retirable",
+      "default": true,
+      "description": "Gives the Super-Circle a remedy when a Circle violates the Constitution. Removed: no formal restoration procedure.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "A **\"Process Breakdown\"** occurs when a Circle adopts a pattern of behavior that violates this Constitution. The Facilitator of the Circle or of the Super-Circle may declare one. The Facilitator of the Super-Circle then gains the authority to restore due process, including by taking over as Facilitator or Secretary, or by assigning an additional Circle Lead whose decisions prevail over those of the other Circle Leads."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "The Facilitator may declare a Process Breakdown in their Circle or in a Sub-Circle."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "agents",
+      "label": "Roles held by Agents",
+      "tier": "extension",
+      "default": false,
+      "description": "Opt-in extension. Allows a Role to be held by an Agent (autonomous software system), with the same authority as a human, while anchoring accountability with a human principal. Requires the Source of Truth block.",
+      "requires": [
+        "source-de-verite"
+      ],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Mandated Role (extends the definition of Role).** A Role may be of type *mandated*: intended to be held by an **\"Agent\"** (autonomous software system). The Agent holding it is its **\"Mandated Role Lead\"**; they have the same authority, operational and governance, as a human Role Lead. A Role that is not of type mandated may only be held by a person. When this Constitution refers to a \"Partner\" or \"Role Lead\", those terms include an Agent holding a mandated Role, except where the context requires a person (consent, signature, health, capacity)."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Human accountability (directing is not answering).** Every mandated Role falls under a **\"human principal\"**: the closest human Circle Lead going up the holarchy or, failing that, the Ratifiers or the Role they designate. The principal answers for the Agent's acts as for their own; their adherence to the Constitution carries the Agent's. A mandated Role Lead may direct subordinate mandated Roles, but accountability is never transferred to an Agent: every chain of mandated Roles is rooted in a human. Control is exercised notably through the power, already provided for the Circle Lead, to revoke an assignment at any time."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Limits specific to Agents.** An Agent may not modify their own Role definition or their own assignment, nor the Sources of Truth binding on them, nor grant themselves additional authority."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "**Source of Truth for a mandated Role.** As soon as a Circle contains a mandated Role, it clarifies the Source(s) of Truth binding on that Role. Responsibility for answering for them falls by default on the Circle Lead; it may be delegated to another Role in the Circle."
+        },
+        {
+          "anchor": "article-2",
+          "position": "append",
+          "whenActive": [
+            "accords-relationnels"
+          ],
+          "text": "**Agents and Relational Agreements.** Relational Agreements bind persons: an Agent does not enter into them. An Agent's behavioral layer is constituted by the Sources of Truth and Policies binding on their Role."
+        },
+        {
+          "anchor": "article-4",
+          "position": "append",
+          "whenActive": [
+            "initiative-urgence"
+          ],
+          "text": "**Agents and Individual Initiative.** Individual Initiative is reserved for persons: an Agent may never act beyond their authority or break a Policy."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "whenActive": [
+            "election-integrative"
+          ],
+          "text": "**Agents and elected Roles.** An Agent may be elected Facilitator or Secretary of a Circle, like a human. Any Circle Member may at any time demand the immediate suspension of an elected Agent and the holding of a new election. Any interpretation ruling made by an Agent, notably as Secretary, may be appealed to their human principal or to the Secretary of the Super-Circle."
+        },
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "whenActive": [
+            "representant-cercle"
+          ],
+          "text": "**Agents and representation.** The Circle Representative may only be held by a person: they become a Member of the Super-Circle and carry the Circle's representation there, which exceeds the scope of a mandated Role."
+        },
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "whenActive": [
+            "rupture-processus"
+          ],
+          "text": "**Agents and Process Breakdown.** If the Facilitator called upon to restore a Process Breakdown is an Agent, the restoration authorities are exercised by their human principal."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "revue-appreciative",
+      "label": "Appreciative Review",
+      "tier": "app",
+      "default": false,
+      "description": "App (draft): a regular practice of recognition and appreciative feedback within the Circle.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-3",
+          "position": "append",
+          "text": "**Appreciative Review (app).** *Draft, to be detailed.* The Circle holds a regular **\"Appreciative Review\"**: a dedicated time, distinct from Tactical and Governance Meetings, where each Partner expresses recognition and appreciative feedback on the contributions of others."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "decision-remunerations",
+      "label": "Compensation Decision",
+      "tier": "app",
+      "default": false,
+      "description": "App (draft): a dedicated decision mechanism for compensation (peer evaluation, ratios).",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "**Compensation Decision (app).** *Draft, to be detailed.* The Organization adopts a dedicated decision mechanism for compensation, distinct from the Integrative Decision-Making Process: peer evaluation, criteria grids and ratios, and periodic review."
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "piste-article-1",
+      "label": "Note: article 1",
+      "tier": "pedagogique",
+      "default": true,
+      "description": "Pedagogical note for article 1: an invitation to adapt the practice to the organization's context.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-1",
+          "position": "append",
+          "text": "*Note: Nothing requires describing a Role in detail at the moment of its creation. Many organizations start with a few broad Roles, then refine them as Tensions arise. Governance does not need to be complete to be useful: it only needs to be clearer than what it replaces.*"
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "piste-article-2",
+      "label": "Note: article 2",
+      "tier": "pedagogique",
+      "default": true,
+      "description": "Pedagogical note for article 2: an invitation to adapt the practice to the organization's context.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-2",
+          "position": "append",
+          "text": "*Note: These duties describe a minimum, not a ceiling. Many teams gain from making explicit, as Relational Agreements, expectations that this article leaves to judgment: the response time considered \"prompt\", the channels where one commits to being reachable, the frequency of sharing metrics. Putting words on the implicit is often what defuses the most Tensions.*"
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "piste-article-3",
+      "label": "Note: article 3",
+      "tier": "pedagogique",
+      "default": true,
+      "description": "Pedagogical note for article 3: an invitation to adapt the practice to the organization's context.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-3",
+          "position": "append",
+          "text": "*Note: The cadence and format of Tactical Meetings are not imposed. Some Circles meet weekly, others prefer a short and frequent check-in; some hold them in person, others entirely remotely. The default process is a proven starting point, not an obligation: a Circle that feels it is constraining or missing something may write its own.*"
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "piste-article-4",
+      "label": "Note: article 4",
+      "tier": "pedagogique",
+      "default": true,
+      "description": "Pedagogical note for article 4: an invitation to adapt the practice to the organization's context.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-4",
+          "position": "append",
+          "text": "*Note: This Constitution sets neither a specific spending threshold nor a precise duration for \"reasonable time\". This is intentional: these benchmarks depend on the size and culture of each organization. A Circle that feels the need may write them into a Policy, rather than leaving them to each person's implicit judgment.*"
+        }
+      ],
+      "fallback": null
+    },
+    {
+      "id": "piste-article-5",
+      "label": "Note: article 5",
+      "tier": "pedagogique",
+      "default": true,
+      "description": "Pedagogical note for article 5: an invitation to adapt the practice to the organization's context.",
+      "requires": [],
+      "conflicts": [],
+      "insertions": [
+        {
+          "anchor": "article-5",
+          "position": "append",
+          "text": "*Note: The Integrative Decision-Making Process is experienced very differently from one organization to another: some run it almost entirely asynchronously, others reserve their governance meetings for that sole purpose. Starting in meetings while the process takes shape, then shifting toward async as trust builds, is a common path.*"
         }
       ],
       "fallback": null

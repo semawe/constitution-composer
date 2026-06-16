@@ -25,6 +25,7 @@ import {
   deleteComposition,
 } from "@/lib/compositions";
 import type { Session, User } from "@supabase/supabase-js";
+import { COMPOSER, type Locale } from "@/lib/i18n";
 
 // Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
 // Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
@@ -166,10 +167,12 @@ export default function Composer({
   data,
   branding,
   onTermClick,
+  locale = "fr",
 }: {
   data: ConstitutionData;
   branding: Branding;
   onTermClick: (key: string) => void;
+  locale?: Locale;
 }) {
   // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
@@ -190,6 +193,7 @@ export default function Composer({
   const [versionMsg, setVersionMsg] = useState<string | null>(null);
   const [versionBusy, setVersionBusy] = useState(false);
   const { logo, setLogo, font, setFont, titleColor, setTitleColor } = branding;
+  const t = COMPOSER[locale];
 
   // Charge un logo : redimensionné (max 400 px) côté client pour garder un
   // data URL léger, stocké tel quel dans la composition.
@@ -458,15 +462,13 @@ export default function Composer({
       return;
     }
     if (versions.length >= MAX_COMPOSITIONS) {
-      setVersionMsg(
-        `Limite de ${MAX_COMPOSITIONS} versions atteinte : supprimez-en une pour enregistrer.`,
-      );
+      setVersionMsg(t.limitReached(MAX_COMPOSITIONS));
       return;
     }
     setVersionBusy(true);
     setVersionMsg(null);
     try {
-      await saveComposition((title || "Sans titre").trim(), {
+      await saveComposition((title || t.untitled).trim(), {
         title,
         values,
         active: [...active],
@@ -475,10 +477,10 @@ export default function Composer({
         logo: logo || undefined,
       });
       await refreshVersions();
-      setVersionMsg("Version enregistrée.");
+      setVersionMsg(t.saved);
       track("sauvegarde_version");
     } catch {
-      setVersionMsg("Échec de l'enregistrement.");
+      setVersionMsg(t.saveFailed);
     } finally {
       setVersionBusy(false);
     }
@@ -491,18 +493,18 @@ export default function Composer({
     setTitleColor(v.payload.titleColor ?? "");
     setFont(v.payload.font ?? "source-serif");
     setLogo(v.payload.logo ?? "");
-    setVersionMsg(`« ${v.name} » chargée.`);
+    setVersionMsg(t.loaded(v.name));
   };
 
   const handleRenameVersion = async (v: SavedComposition) => {
-    const name = window.prompt("Nouveau nom de la version", v.name);
+    const name = window.prompt(t.renamePrompt, v.name);
     if (!name || !name.trim()) return;
     await renameComposition(v.id, name.trim());
     await refreshVersions();
   };
 
   const handleDeleteVersion = async (v: SavedComposition) => {
-    if (!window.confirm(`Supprimer la version « ${v.name} » ?`)) return;
+    if (!window.confirm(t.confirmDelete(v.name))) return;
     await deleteComposition(v.id);
     await refreshVersions();
     setVersionMsg(null);
@@ -576,26 +578,26 @@ export default function Composer({
 
   const countLabel =
     removed === 0 && addonsOn === 0
-      ? "Lite complète"
+      ? t.liteFull
       : removed > 0 && addonsOn === 0
-        ? `${retirableMods.length - removed}/${retirableMods.length} blocs retirables`
-        : `${retirableMods.length - removed}/${retirableMods.length} blocs · ${addonsOn} ajout${addonsOn > 1 ? "s" : ""}`;
+        ? t.blocksRetirable(retirableMods.length - removed, retirableMods.length)
+        : t.blocksWithAddons(retirableMods.length - removed, retirableMods.length, addonsOn);
 
   const pct = data.modules.length ? active.size / data.modules.length : 0;
   const versionLabel =
     removed === 0 && addonsOn === 0
-      ? "Version Lite, complète"
+      ? t.versionLite
       : active.size === data.modules.length
-        ? "Version intégrale"
+        ? t.versionFull
         : removed > 0 && addonsOn === 0
-          ? `Version allégée, ${removed} bloc${removed > 1 ? "s" : ""} retiré${removed > 1 ? "s" : ""}`
-          : "Version sur-mesure";
+          ? t.versionReduced(removed)
+          : t.versionCustom;
 
   // Sommaire + composer, partagés entre la sidebar (desktop) et le tiroir (mobile).
   const panel = (
     <div className="thin-scroll max-h-[calc(100vh-4rem)] overflow-y-auto pr-2">
       <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-        Sommaire
+        {t.toc}
       </h2>
       <nav className="mt-2 space-y-0.5">
         {data.blocks.map((b) => {
@@ -606,34 +608,26 @@ export default function Composer({
               onClick={() => goTo(b.id)}
               className={`block w-full border-l-2 py-1 pl-3 text-left leading-snug transition ${
                 on
-                  ? "border-slate-900"
-                  : "border-slate-200 hover:border-slate-400"
+                  ? "border-teal-500 bg-teal-50/50"
+                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
               }`}
             >
-              <span className={`block text-[0.82rem] ${on ? "font-medium text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
+              <span className={`block text-[0.82rem] ${on ? "font-medium text-teal-800" : "text-slate-500 hover:text-slate-700"}`}>
                 {b.heading}
               </span>
-              {b.summary && (
-                <span className="mt-0.5 block text-[0.73rem] leading-snug text-slate-400">
-                  {b.summary}
-                </span>
-              )}
             </button>
           );
         })}
       </nav>
 
       <h2 className="mt-7 text-sm font-semibold uppercase tracking-wide text-slate-500">
-        Composer
+        {t.composerLabel}
       </h2>
       <p className="mt-1 text-sm text-slate-500">{countLabel}</p>
       {gaps.length > 0 && (
         <p className="mt-1 flex items-start gap-1.5 text-xs text-amber-600">
           <span className="mt-px">⚠</span>
-          <span>
-            {gaps.length} règle{gaps.length > 1 ? "s" : ""} par défaut comble
-            {gaps.length > 1 ? "nt" : ""} les modules non activés
-          </span>
+          <span>{t.gapWarning(gaps.length)}</span>
         </p>
       )}
 
@@ -648,28 +642,28 @@ export default function Composer({
           }}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
         >
-          Tout activer
+          {t.activateAll}
         </button>
         <button
           onClick={() => setActive(defaultActive(data))}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
-          title="Revenir à la Lite complète : tous les blocs retirables cochés, sans extension ni app."
+          title={t.baseLiteTitle}
         >
-          Base Lite
+          {t.baseLite}
         </button>
         <button
           onClick={() => setActive(new Set())}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
-          title="Ne garder que le socle incompressible."
+          title={t.coreOnlyTitle}
         >
-          Socle seul
+          {t.coreOnly}
         </button>
       </div>
 
       <div className="mt-6 border-t border-slate-200 pt-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Mes versions
+            {t.myVersions}
           </h2>
           <span className="text-xs text-slate-400">
             {versions.length}/{MAX_COMPOSITIONS}
@@ -680,14 +674,14 @@ export default function Composer({
           disabled={versionBusy}
           className="mt-2 w-full rounded-full bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-700 disabled:opacity-60"
         >
-          {versionBusy ? "Enregistrement…" : "Enregistrer cette version"}
+          {versionBusy ? t.saving : t.saveVersion}
         </button>
         {versionMsg && (
           <p className="mt-1.5 text-xs text-slate-500">{versionMsg}</p>
         )}
         {!account && (
           <p className="mt-1.5 text-xs text-slate-400">
-            Connexion requise pour sauvegarder vos versions.
+            {t.loginToSave}
           </p>
         )}
         {versions.length > 0 && (
@@ -699,14 +693,14 @@ export default function Composer({
               >
                 <button
                   onClick={() => handleLoadVersion(v)}
-                  title="Charger cette version"
+                  title={t.loadTitle}
                   className="min-w-0 flex-1 truncate text-left"
                 >
                   <span className="block truncate text-slate-700">
-                    {v.name || "Sans titre"}
+                    {v.name || t.untitled}
                   </span>
                   <span className="block text-[0.7rem] text-slate-400">
-                    {new Date(v.updated_at).toLocaleDateString("fr-FR", {
+                    {new Date(v.updated_at).toLocaleDateString(t.dateLocale, {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
@@ -715,16 +709,16 @@ export default function Composer({
                 </button>
                 <button
                   onClick={() => handleRenameVersion(v)}
-                  aria-label="Renommer"
-                  title="Renommer"
+                  aria-label={t.rename}
+                  title={t.rename}
                   className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-slate-700 group-hover:opacity-100"
                 >
                   ✎
                 </button>
                 <button
                   onClick={() => handleDeleteVersion(v)}
-                  aria-label="Supprimer"
-                  title="Supprimer"
+                  aria-label={t.delete}
+                  title={t.delete}
                   className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-rose-600 group-hover:opacity-100"
                 >
                   ✕
@@ -784,12 +778,10 @@ export default function Composer({
               strokeLinecap="round"
             />
           </svg>
-          Sommaire &amp; modules
+          {t.mobilePanel}
         </button>
         <span className="text-xs text-slate-500">
-          {active.size > 0
-            ? `${active.size} actif${active.size > 1 ? "s" : ""}`
-            : "socle"}
+          {active.size > 0 ? t.mobileActive(active.size) : t.mobileCore}
         </span>
       </div>
 
@@ -805,7 +797,7 @@ export default function Composer({
           className="min-w-0 flex-1"
           style={fontVars(font)}
         >
-        <IntroBanner />
+        <IntroBanner locale={locale} />
         <header className="mb-8 border-b border-slate-200 pb-6">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {data.meta.version}
@@ -821,16 +813,16 @@ export default function Composer({
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            aria-label="Titre de votre Constitution"
+            aria-label={t.titleAriaLabel}
             placeholder={data.meta.title}
             spellCheck={false}
             style={titleColor ? { color: titleColor } : undefined}
             className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-3xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
           />
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-            <span>Titre modifiable : donnez un nom à votre Constitution.</span>
+            <span>{t.titleHint}</span>
             <span className="flex items-center gap-1.5">
-              Police
+              {t.fontLabel}
               <select
                 value={font}
                 onChange={(e) => setFont(e.target.value)}
@@ -847,7 +839,7 @@ export default function Composer({
             <span className="flex items-center gap-1.5">
               Logo
               <label className="cursor-pointer underline transition hover:text-slate-600">
-                {logo ? "changer" : "ajouter"}
+                {logo ? t.logoChange : t.logoAdd}
                 <input
                   type="file"
                   accept="image/*"
@@ -860,12 +852,12 @@ export default function Composer({
                   onClick={() => setLogo("")}
                   className="underline transition hover:text-slate-600"
                 >
-                  retirer
+                  {t.logoRemove}
                 </button>
               )}
             </span>
             <span className="flex items-center gap-1.5">
-              Couleur
+              {t.colorLabel}
               <input
                 type="color"
                 value={titleColor || "#0f172a"}
@@ -886,7 +878,7 @@ export default function Composer({
                   onClick={() => setTitleColor("")}
                   className="underline transition hover:text-slate-600"
                 >
-                  défaut
+                  {t.colorReset}
                 </button>
               )}
             </span>
@@ -911,18 +903,18 @@ export default function Composer({
               {account ? (
                 <>
                   {user?.user_metadata?.full_name
-                    ? `Connecté : ${user.user_metadata.full_name}`
-                    : "Compte actif"}
+                    ? t.loggedIn(user.user_metadata.full_name)
+                    : t.activeAccount}
                   {" · "}
                   <button
                     onClick={signOut}
                     className="underline transition hover:text-slate-600"
                   >
-                    se déconnecter
+                    {t.signOut}
                   </button>
                 </>
               ) : (
-                "Cœur et Intégrale en accès libre. Compte requis pour les Extensions, les Apps et le PDF."
+                t.freeTierMsg
               )}
             </p>
           </div>
@@ -936,7 +928,7 @@ export default function Composer({
                   onChange={(e) => setShowIntent(e.target.checked)}
                   className="h-3.5 w-3.5 accent-slate-500"
                 />
-                Afficher les notes d&apos;intention
+                {t.showIntent}
               </label>
             </div>
             <button
@@ -953,7 +945,7 @@ export default function Composer({
                   strokeLinejoin="round"
                 />
               </svg>
-              {pdfBusy ? "Génération…" : "Télécharger le PDF"}
+              {pdfBusy ? t.pdfGenerating : t.pdfDownload}
             </button>
           </div>
         </header>
@@ -1161,7 +1153,7 @@ export default function Composer({
               <div className="mb-2 flex justify-end">
                 <button
                   onClick={() => setMobileOpen(false)}
-                  aria-label="Fermer"
+                  aria-label={t.close}
                   className="rounded-full px-2 py-1 text-slate-500 hover:bg-slate-100"
                 >
                   ✕
@@ -1193,38 +1185,29 @@ export default function Composer({
             >
               <button
                 onClick={() => setGate(null)}
-                aria-label="Fermer"
+                aria-label={t.close}
                 className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
               >
                 ✕
               </button>
               <div className="bg-gradient-to-br from-teal-500 to-violet-600 px-6 py-7 text-white">
                 <p className="text-xs font-medium uppercase tracking-widest text-white/80">
-                  Créez votre compte gratuit
+                  {t.createFreeAccount}
                 </p>
                 <h2 className="mt-1 font-serif text-2xl font-semibold">
-                  {gate === "pdf"
-                    ? "Téléchargez votre Constitution"
-                    : gate === "save"
-                      ? "Sauvegardez vos versions"
-                      : "Débloquez les modules avancés"}
+                  {gate === "pdf" ? t.gateTitle.pdf : gate === "save" ? t.gateTitle.save : t.gateTitle.modules}
                 </h2>
                 <p className="mt-2 text-sm text-white/90">
-                  {gate === "pdf"
-                    ? "Le PDF de votre Constitution composée est réservé aux membres, la création de compte est gratuite."
-                    : gate === "save"
-                      ? "Enregistrez jusqu'à cinq versions de votre Constitution et retrouvez-les à chaque visite. La création de compte est gratuite."
-                      : "Les Extensions constitutionnelles et les Apps sont réservées aux membres. La création de compte est gratuite."}
+                  {gate === "pdf" ? t.gateDesc.pdf : gate === "save" ? t.gateDesc.save : t.gateDesc.modules}
                 </p>
               </div>
               <div className="px-6 py-6">
                 <div className="mb-5 flex items-start gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3">
                   <span className="text-xl leading-none">🎁</span>
                   <p className="text-sm text-teal-900">
-                    <strong>30 minutes de coaching offertes</strong> avec un coach
-                    certifié en Holacracy à la création de votre compte.
+                    <strong>{t.coachOffer}</strong> {t.coachOfferDetail}
                     <span className="mt-0.5 block text-xs text-teal-700">
-                      Coaching premium ensuite à 500 €/h.
+                      {t.coachOfferSub}
                     </span>
                   </p>
                 </div>
@@ -1238,17 +1221,16 @@ export default function Composer({
                     <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
                     <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
                   </svg>
-                  Continuer avec Google
+                  {t.continueGoogle}
                 </button>
                 <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-slate-400">
                   <span className="h-px flex-1 bg-slate-200" />
-                  ou par e-mail
+                  {t.orByEmail}
                   <span className="h-px flex-1 bg-slate-200" />
                 </div>
                 {otpSent ? (
                   <p className="rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
-                    Lien de connexion envoyé. Ouvrez-le depuis votre boîte mail
-                    pour vous connecter.
+                    {t.emailSent}
                   </p>
                 ) : (
                   <div className="flex gap-2">
@@ -1256,7 +1238,7 @@ export default function Composer({
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="vous@exemple.fr"
+                      placeholder={t.emailPlaceholder}
                       className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
                     />
                     <button
@@ -1264,12 +1246,12 @@ export default function Composer({
                       disabled={!email.trim()}
                       className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
                     >
-                      Recevoir un lien
+                      {t.sendLink}
                     </button>
                   </div>
                 )}
                 <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
-                  Compte gratuit. Avec Google : nom, prénom, e-mail, entreprise.
+                  {t.accountNotice}
                 </p>
               </div>
             </motion.div>
@@ -1292,23 +1274,22 @@ export default function Composer({
             className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
           >
             <h2 className="font-serif text-xl font-semibold text-slate-900">
-              Bienvenue
+              {t.welcome}
               {user?.user_metadata?.given_name
                 ? `, ${user.user_metadata.given_name}`
                 : ""}{" "}
               !
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Dernière étape : votre organisation. Cela nous permet de préparer
-              votre session de coaching offerte.
+              {t.lastStep}
             </p>
             <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-slate-500">
-              Nom de l&apos;entreprise / organisation
+              {t.orgName}
             </label>
             <input
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              placeholder="Ex. Sémawé"
+              placeholder={t.orgPlaceholder}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") submitCompany();
@@ -1320,13 +1301,13 @@ export default function Composer({
               disabled={!company.trim()}
               className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
             >
-              Continuer
+              {t.continue}
             </button>
             <button
               onClick={() => setNeedsCompany(false)}
               className="mt-2 w-full rounded-lg px-4 py-2 text-xs text-slate-400 transition hover:text-slate-600"
             >
-              Plus tard
+              {t.later}
             </button>
           </motion.div>
         </motion.div>
@@ -1352,20 +1333,20 @@ export default function Composer({
           >
             <button
               onClick={() => setBooking(false)}
-              aria-label="Fermer"
+              aria-label={t.close}
               className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
             >
               ✕
             </button>
             <div className="bg-gradient-to-br from-teal-500 to-violet-600 px-6 py-6 text-white">
               <p className="text-xs font-medium uppercase tracking-widest text-white/80">
-                Votre session offerte
+                {t.freeSession}
               </p>
               <h2 className="mt-1 font-serif text-2xl font-semibold">
-                30 minutes avec un coach Holacracy
+                {t.coachTitle}
               </h2>
               <p className="mt-2 text-sm text-white/90">
-                Choisissez votre coach et réservez un créneau de 30 minutes, offert.
+                {t.coachSubtitle}
               </p>
             </div>
             <div className="px-6 py-6">
@@ -1379,14 +1360,13 @@ export default function Composer({
                     onClick={() => setBooking(false)}
                     className="flex items-center justify-between rounded-lg border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-500 hover:bg-slate-50"
                   >
-                    <span>Réserver avec {c.name}</span>
+                    <span>{t.bookWith(c.name)}</span>
                     <span aria-hidden>→</span>
                   </a>
                 ))}
               </div>
               <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
-                Au-delà de la découverte : supervision par un coach senior,
-                500 €/h ou 3000 €/jour.
+                {t.coachingPricing}
               </p>
             </div>
           </motion.div>

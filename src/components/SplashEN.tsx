@@ -76,7 +76,7 @@ export default function SplashEN() {
             animate="show"
             className="inline-block rounded-md bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700"
           >
-            Holacracy · Constitution 5.0
+            Holacracy · Constitution v6 alpha
           </motion.span>
           <motion.h1
             variants={fadeUp}
