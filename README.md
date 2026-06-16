@@ -65,7 +65,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=
 ```
 
-> **Supabase setup:** apply the migrations in `supabase/migrations/` to your project. See [Supabase docs](https://supabase.com/docs/guides/cli/local-development) or use the API endpoint documented in CLAUDE.md.
+> **Supabase setup:** apply the migrations in `supabase/migrations/` to your project. See [Supabase docs](https://supabase.com/docs/guides/cli/local-development).
 
 ### Run
 
