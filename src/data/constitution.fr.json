@@ -115,7 +115,7 @@
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "Un Domaine peut être une «Source de Vérité» : un référentiel, un registre ou un ensemble d'informations qui fait foi pour le travail du Cercle. Le contrôler, c'est avoir l'autorité de décider quelle référence fait foi, non de décréter ce qui est vrai. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut pas faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
+          "text": "Une «Source de Vérité» est un Domaine d'un type particulier : un référentiel, un registre ou un ensemble d'informations désigné comme la référence qui fait foi pour le travail du Cercle. «Faire foi» veut dire que, lorsqu'une autre information la contredit (une perception, un souvenir, un document concurrent), c'est la Source de Vérité qui l'emporte : chacun s'y rapporte comme à la référence qui prime pour agir et pour décider, tant qu'elle n'a pas elle-même été mise à jour. Elle ne prétend pas dire ce qui est vrai dans l'absolu ; elle tranche quelle référence fait autorité. La contrôler, c'est détenir l'autorité de décider quelle référence fait foi et de la tenir à jour, non de décréter la réalité. Comme tout Domaine, une Source de Vérité est soumise à l'holarchie : celle d'un Sous-Cercle ne peut pas faire foi contre celle d'un Super-Cercle, qui prime en cas de contradiction."
         }
       ],
       "fallback": null

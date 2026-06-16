@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars } from "@/lib/branding";
@@ -432,8 +432,48 @@ export default function Composer({
       track("gate", { contexte: "modules", module: id });
       return;
     }
+    // Cible de défilement : on amène la modification dans le champ de vision
+    // pour qu'on voie ce que la bascule vient de changer dans le texte.
+    if (mod) {
+      const anchor = mod.insertions[0]?.anchor;
+      const section = data.blocks.find((b) => b.anchor === anchor)?.id;
+      const primary = activating
+        ? `ins-${id}-0` // l'insertion qui vient d'apparaître
+        : mod.tier === "retirable"
+          ? `reins-${id}` // le marqueur « + » de réinsertion
+          : mod.fallback
+            ? `fb-${id}` // la règle par défaut qui reprend la place
+            : section; // sinon, la section concernée
+      pendingScroll.current = { primary, fallback: section };
+    }
     setActive(next);
   };
+
+  // Après que la bascule a re-rendu le document, on défile vers la modification.
+  const pendingScroll = useRef<{
+    primary?: string;
+    fallback?: string;
+  } | null>(null);
+  useEffect(() => {
+    const target = pendingScroll.current;
+    if (!target) return;
+    pendingScroll.current = null;
+    const el =
+      (target.primary && document.getElementById(target.primary)) ||
+      (target.fallback && document.getElementById(target.fallback));
+    if (!el) return;
+    // Laisser l'insertion se monter (commit React + montage Framer) avant de
+    // viser sa position.
+    const timer = setTimeout(
+      () =>
+        el.scrollIntoView({
+          behavior: reduce ? "auto" : "smooth",
+          block: "center",
+        }),
+      60,
+    );
+    return () => clearTimeout(timer);
+  }, [active, reduce]);
 
   // Mes versions (Phase B) : charge la liste dès qu'un compte est actif.
   useEffect(() => {
@@ -987,12 +1027,13 @@ export default function Composer({
                     return (
                       <motion.div
                         key={ins.id}
+                        id={`ins-${ins.id}`}
                         layout
                         initial={{ opacity: 0, height: 0, y: -6 }}
                         animate={{ opacity: 1, height: "auto", y: 0 }}
                         exit={{ opacity: 0, height: 0, y: -6 }}
                         transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                        className={`mt-4 overflow-hidden rounded-r-md border-l-4 ${insUi.bar} ${insUi.tint} py-3 pl-4 pr-3`}
+                        className={`mt-4 scroll-mt-24 overflow-hidden rounded-r-md border-l-4 ${insUi.bar} ${insUi.tint} py-3 pl-4 pr-3`}
                       >
                         <span
                           className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${insUi.tag}`}
@@ -1010,12 +1051,13 @@ export default function Composer({
                   {fallbacks(block.anchor).map((m) => (
                     <motion.div
                       key={`fb-${m.id}`}
+                      id={`fb-${m.id}`}
                       layout
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                      className={`mt-4 overflow-hidden rounded-r-md border-l-4 ${TIER_UI.warning.bar} ${TIER_UI.warning.tint} py-3 pl-4 pr-3`}
+                      className={`mt-4 scroll-mt-24 overflow-hidden rounded-r-md border-l-4 ${TIER_UI.warning.bar} ${TIER_UI.warning.tint} py-3 pl-4 pr-3`}
                     >
                       <span
                         className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${TIER_UI.warning.tag}`}
@@ -1034,9 +1076,10 @@ export default function Composer({
                 {removedRetirables(block.anchor).map((m) => (
                   <button
                     key={`reins-${m.id}`}
+                    id={`reins-${m.id}`}
                     onClick={() => toggle(m.id)}
                     title={`Réinsérer : ${m.label}`}
-                    className="group/reins mt-3 flex w-full items-center gap-2 text-left"
+                    className="group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
                   >
                     <span className="h-px flex-1 bg-slate-200" />
                     <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">

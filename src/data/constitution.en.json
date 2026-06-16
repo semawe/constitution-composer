@@ -115,7 +115,7 @@
         {
           "anchor": "article-1",
           "position": "append",
-          "text": "A Domain may be a **\"Source of Truth\"**: a repository, registry, or body of information that is authoritative for the Circle's work. Controlling it means having the authority to decide which reference holds, not to decree what is true. Like any Domain, a Source of Truth is subject to the holarchy: that of a Sub-Circle cannot prevail against that of a Super-Circle, which takes precedence in the event of a conflict."
+          "text": "A **\"Source of Truth\"** is a Domain of a particular kind: a repository, registry, or body of information designated as the reference that is authoritative for the Circle's work. \"Authoritative\" means that, when other information contradicts it (a perception, a memory, a competing document), the Source of Truth prevails: everyone relies on it as the reference that holds for acting and deciding, until it is itself updated. It does not claim to state what is true in the absolute; it settles which reference holds. Controlling it means holding the authority to decide which reference is authoritative and to keep it up to date, not to decree reality. Like any Domain, a Source of Truth is subject to the holarchy: that of a Sub-Circle cannot prevail against that of a Super-Circle, which takes precedence in the event of a conflict."
         }
       ],
       "fallback": null
