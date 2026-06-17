@@ -26,11 +26,14 @@ create table if not exists public.compositions (
 );
 create index if not exists compositions_user_idx on public.compositions(user_id);
 
--- E-mail admin ? (répliqué dans src/lib/admin.ts — garder synchronisé)
+-- Admin emails — replace the placeholders below with your own admin
+-- addresses, and keep them in sync with NEXT_PUBLIC_ADMIN_EMAILS (front).
+-- This SQL function + RLS is the real access barrier; the front-end check is
+-- only cosmetic.
 create or replace function public.is_admin()
 returns boolean language sql stable as $$
   select coalesce(
-    lower(auth.jwt() ->> 'email') in ('contact@semawe.fr', 'admin@example.com'),
+    lower(auth.jwt() ->> 'email') in ('admin@example.com'),
     false
   );
 $$;
