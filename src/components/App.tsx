@@ -218,7 +218,13 @@ export default function App({
         <Glossaire font={font} locale={locale} />
       </div>
       <div className={view === "appstore" ? "" : "hidden"}>
-        <Marketplace data={constitution} onOpen={openInComposer} locale={locale} />
+        <Marketplace
+          data={constitution}
+          onOpen={openInComposer}
+          locale={locale}
+          signedIn={signedIn}
+          onRequestSignIn={requestSignIn}
+        />
       </div>
     </div>
   );

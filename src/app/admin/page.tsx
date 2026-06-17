@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminEmail } from "@/lib/admin";
+import AdminSubmissions from "@/components/AdminSubmissions";
 import type { User } from "@supabase/supabase-js";
 import constitutionData from "@/data/constitution.fr.json";
 
@@ -160,6 +161,7 @@ export default function AdminPage() {
 
       {state.kind === "ready" && (
         <>
+          <AdminSubmissions />
           <p className="mb-4 text-sm text-slate-500">
             {state.profiles.length} compte{state.profiles.length > 1 ? "s" : ""}{" "}
             · {state.comps.length} composition

@@ -4,6 +4,8 @@ import Link from "next/link";
 import type { ConstitutionData, Module, Tier } from "@/lib/constitution";
 import { getAppMeta } from "@/data/apps-meta";
 import { MARKETPLACE, type Locale } from "@/lib/i18n";
+import { submissionsAvailable } from "@/lib/submissions";
+import AppSubmissions from "@/components/AppSubmissions";
 
 const TIER_BADGE: Partial<Record<Tier, { label: string; cls: string }>> = {
   extension: {
@@ -17,10 +19,14 @@ export default function Marketplace({
   data,
   onOpen,
   locale = "fr",
+  signedIn = false,
+  onRequestSignIn = () => {},
 }: {
   data: ConstitutionData;
   onOpen: (anchor: string) => void;
   locale?: Locale;
+  signedIn?: boolean;
+  onRequestSignIn?: () => void;
 }) {
   const t = MARKETPLACE[locale];
   const extensions = data.modules.filter((m) => m.tier === "extension");
@@ -118,9 +124,17 @@ export default function Marketplace({
         <p className="mb-4 mt-1 text-sm text-slate-500">
           {t.sectionAppsDesc}
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {apps.map(renderCard)}
+        <div className="grid gap-4 sm:grid-cols-2">{apps.map(renderCard)}</div>
+      </section>
 
+      {submissionsAvailable ? (
+        <AppSubmissions
+          signedIn={signedIn}
+          onRequestSignIn={onRequestSignIn}
+          locale={locale}
+        />
+      ) : (
+        <section className="mt-10 border-t border-slate-200 pt-8">
           <a
             href={proposeMailto}
             className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-5 text-center transition hover:border-teal-400 hover:bg-teal-50/40"
@@ -138,8 +152,8 @@ export default function Marketplace({
               {t.proposeCta}
             </span>
           </a>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

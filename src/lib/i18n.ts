@@ -299,6 +299,26 @@ export const MARKETPLACE = {
     proposeSubject: "Proposition d'app pour l'App Store de la Constitution",
     proposeBody:
       "Bonjour,\n\nJe propose une app / extension pour l'App Store :\n\n- Nom :\n- Ce qu'elle ferait :\n- Pourquoi elle serait utile :\n\nMerci !",
+    formName: "Nom de l'app",
+    formKind: "Type",
+    formKindExtension: "Extension constitutionnelle",
+    formKindApp: "App",
+    formIntegration: "Où ça s'intègre",
+    formIntegrationPlaceholder:
+      "Ex. après l'Article 4, ou au niveau du Leader de Cercle…",
+    formDescription: "Ce que ça fait",
+    formRationale: "Pourquoi ce serait utile",
+    formSubmit: "Envoyer ma proposition",
+    formSubmitting: "Envoi…",
+    formSignIn: "Connectez-vous pour proposer une app.",
+    formSignInCta: "Se connecter",
+    formThanks:
+      "Merci, votre proposition a été envoyée. Vous la retrouvez ci-dessous avec son statut.",
+    formError: "Une erreur est survenue. Réessayez.",
+    mySubmissions: "Mes propositions",
+    statusPending: "En attente",
+    statusApproved: "Approuvée",
+    statusRejected: "Refusée",
   },
   en: {
     beyond: "Beyond Lite",
@@ -321,6 +341,25 @@ export const MARKETPLACE = {
     proposeSubject: "App suggestion for the Constitution App Store",
     proposeBody:
       "Hi,\n\nHere is an app / extension I'd like to suggest for the App Store:\n\n- Name:\n- What it would do:\n- Why it would be useful:\n\nThanks!",
+    formName: "App name",
+    formKind: "Type",
+    formKindExtension: "Constitutional extension",
+    formKindApp: "App",
+    formIntegration: "Where it plugs in",
+    formIntegrationPlaceholder: "e.g. after Article 4, or at the Circle Lead level…",
+    formDescription: "What it does",
+    formRationale: "Why it would be useful",
+    formSubmit: "Send my suggestion",
+    formSubmitting: "Sending…",
+    formSignIn: "Sign in to suggest an app.",
+    formSignInCta: "Sign in",
+    formThanks:
+      "Thanks, your suggestion was sent. You'll find it below with its status.",
+    formError: "Something went wrong. Please try again.",
+    mySubmissions: "My suggestions",
+    statusPending: "Pending",
+    statusApproved: "Approved",
+    statusRejected: "Rejected",
   },
 };
 
