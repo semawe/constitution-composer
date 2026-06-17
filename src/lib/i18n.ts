@@ -286,6 +286,12 @@ export const MARKETPLACE = {
     requires: "Nécessite :",
     discover: "Découvrir",
     activate: "Activer →",
+    sectionExtensions: "Extensions constitutionnelles",
+    sectionExtensionsDesc:
+      "Du texte constitutionnel en plus, qui s'intègre dans la Constitution elle-même.",
+    sectionApps: "Apps",
+    sectionAppsDesc:
+      "Des processus à brancher sur la Constitution, au-delà du texte de base.",
     proposeTitle: "Proposer une app",
     proposeDesc:
       "Une idée d'extension ou d'app pour l'App Store ? Proposez-la, on l'étudie.",
@@ -302,6 +308,12 @@ export const MARKETPLACE = {
     requires: "Requires:",
     discover: "Learn more",
     activate: "Activate →",
+    sectionExtensions: "Constitutional extensions",
+    sectionExtensionsDesc:
+      "Additional constitutional text that integrates into the Constitution itself.",
+    sectionApps: "Apps",
+    sectionAppsDesc:
+      "Processes to plug onto the Constitution, beyond the base text.",
     proposeTitle: "Suggest an app",
     proposeDesc:
       "Have an idea for an extension or app for the App Store? Suggest it and we'll look into it.",
