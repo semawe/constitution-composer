@@ -112,10 +112,10 @@ export default function Splash() {
               Composer ma Constitution →
             </Link>
             <Link
-              href="/cartographie"
+              href="/lite"
               className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
-              Découvrir la cartographie
+              Lire la version Lite
             </Link>
           </motion.div>
         </div>

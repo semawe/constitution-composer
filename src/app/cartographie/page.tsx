@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import CartoClient from "@/components/CartoClient";
+import OfflineRedirect from "@/components/OfflineRedirect";
 
+// Cartographie temporairement hors ligne (décision 2026-06-17 : à affiner avant
+// remise en ligne). Le composant CartoClient et ses données restent en place.
 export const metadata: Metadata = {
-  title: "Cartographie des organisations en Holacratie",
-  description:
-    "67 organisations qui pratiquent l'Holacratie, la gouvernance partagée ou des modes voisins. Filtrage par gouvernance et par pays. Ressource proposée par Sémawé.",
+  title: "Cartographie — hors ligne",
+  robots: { index: false, follow: false },
 };
 
 export default function CartographiePage() {
-  return <CartoClient />;
+  return (
+    <OfflineRedirect
+      to="/"
+      message="La cartographie est temporairement hors ligne. Redirection vers l'accueil…"
+    />
+  );
 }

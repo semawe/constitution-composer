@@ -18,7 +18,9 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
 
   const NAV = [
     { href: navHref("/composer", locale), label: t.composer },
-    { href: navHref("/cartographie", locale), label: t.cartographie },
+    { href: navHref("/micro", locale), label: t.micro },
+    { href: navHref("/lite", locale), label: t.lite },
+    { href: navHref("/integrale", locale), label: t.integrale },
     { href: navHref("/comprendre", locale), label: t.comprendre },
   ];
 
@@ -73,12 +75,18 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
     <footer className="border-t border-slate-200 bg-background">
       <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
         <span>{t.tagline}</span>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
+          <Link href={navHref("/micro", locale)} className="transition hover:text-slate-800">
+            {UI[locale].nav.micro}
+          </Link>
+          <Link href={navHref("/lite", locale)} className="transition hover:text-slate-800">
+            {UI[locale].nav.lite}
+          </Link>
+          <Link href={navHref("/integrale", locale)} className="transition hover:text-slate-800">
+            {UI[locale].nav.integrale}
+          </Link>
           <Link href={navHref("/comprendre", locale)} className="transition hover:text-slate-800">
             {UI[locale].nav.comprendre}
-          </Link>
-          <Link href={navHref("/cartographie", locale)} className="transition hover:text-slate-800">
-            {UI[locale].nav.cartographie}
           </Link>
           <Link href={navHref("/composer", locale)} className="transition hover:text-slate-800">
             {UI[locale].nav.composer}

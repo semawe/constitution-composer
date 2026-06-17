@@ -16,6 +16,9 @@ export const UI = {
   fr: {
     nav: {
       composer: "Composer",
+      micro: "Micro",
+      lite: "Lite",
+      integrale: "Intégrale",
       cartographie: "Cartographie",
       comprendre: "Comprendre",
       login: "Se connecter",
@@ -27,6 +30,9 @@ export const UI = {
   en: {
     nav: {
       composer: "Composer",
+      micro: "Micro",
+      lite: "Lite",
+      integrale: "Full",
       cartographie: "Directory",
       comprendre: "Learn",
       login: "Sign in",

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import CartoClientEN from "@/components/CartoClientEN";
+import OfflineRedirect from "@/components/OfflineRedirect";
 
+// Directory temporarily offline (decision 2026-06-17). CartoClientEN and its
+// data remain in the repo for a later relaunch.
 export const metadata: Metadata = {
-  title: "Directory of Holacracy organizations",
-  description:
-    "67 organizations practicing Holacracy, shared governance, or related modes, compiled by Sémawé. Filter by governance type and country.",
-  alternates: {
-    canonical: "https://constitution-composer.com/en/cartographie",
-    languages: { fr: "https://constitution-composer.com/cartographie" },
-  },
+  title: "Directory — offline",
+  robots: { index: false, follow: false },
 };
 
 export default function CartographiePageEN() {
-  return <CartoClientEN />;
+  return (
+    <OfflineRedirect
+      to="/en"
+      message="The directory is temporarily offline. Redirecting to the home page…"
+    />
+  );
 }
