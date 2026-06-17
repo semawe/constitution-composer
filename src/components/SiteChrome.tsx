@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 import { type Locale, getLocaleFromPath, toOtherLocale, UI } from "@/lib/i18n";
+import { HETEROSTASIA_URL, SEMAWE_URL, v5Href } from "@/lib/links";
 
 function navHref(base: string, locale: Locale) {
   return locale === "en" ? `/en${base}` : base;
@@ -20,7 +21,6 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
     { href: navHref("/composer", locale), label: t.composer },
     { href: navHref("/micro", locale), label: t.micro },
     { href: navHref("/lite", locale), label: t.lite },
-    { href: navHref("/integrale", locale), label: t.integrale },
     { href: navHref("/comprendre", locale), label: t.comprendre },
   ];
 
@@ -73,25 +73,53 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
 
   return (
     <footer className="border-t border-slate-200 bg-background">
-      <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-        <span>{t.tagline}</span>
-        <div className="flex flex-wrap gap-4">
-          <Link href={navHref("/micro", locale)} className="transition hover:text-slate-800">
-            {UI[locale].nav.micro}
-          </Link>
-          <Link href={navHref("/lite", locale)} className="transition hover:text-slate-800">
-            {UI[locale].nav.lite}
-          </Link>
-          <Link href={navHref("/integrale", locale)} className="transition hover:text-slate-800">
-            {UI[locale].nav.integrale}
-          </Link>
-          <Link href={navHref("/comprendre", locale)} className="transition hover:text-slate-800">
-            {UI[locale].nav.comprendre}
-          </Link>
-          <Link href={navHref("/composer", locale)} className="transition hover:text-slate-800">
-            {UI[locale].nav.composer}
-          </Link>
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8 text-sm text-slate-500">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <span>{t.tagline}</span>
+          <div className="flex flex-wrap gap-4">
+            <Link href={navHref("/micro", locale)} className="transition hover:text-slate-800">
+              {UI[locale].nav.micro}
+            </Link>
+            <Link href={navHref("/lite", locale)} className="transition hover:text-slate-800">
+              {UI[locale].nav.lite}
+            </Link>
+            <Link href={navHref("/comprendre", locale)} className="transition hover:text-slate-800">
+              {UI[locale].nav.comprendre}
+            </Link>
+            <Link href={navHref("/composer", locale)} className="transition hover:text-slate-800">
+              {UI[locale].nav.composer}
+            </Link>
+            <a
+              href={v5Href(locale)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition hover:text-slate-800"
+            >
+              {t.v5Label} ↗
+            </a>
+          </div>
         </div>
+        <p className="border-t border-slate-200 pt-4 text-xs text-slate-400">
+          {t.createdByPre}{" "}
+          <a
+            href={HETEROSTASIA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-slate-500 underline transition hover:text-slate-700"
+          >
+            Heterostasia
+          </a>
+          {t.createdByMid}{" "}
+          <a
+            href={SEMAWE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-slate-500 underline transition hover:text-slate-700"
+          >
+            Sémawé
+          </a>
+          .
+        </p>
       </div>
     </footer>
   );

@@ -29,6 +29,10 @@ export default function Marketplace({
   const labelOf = (id: string) =>
     data.modules.find((m) => m.id === id)?.label ?? id;
 
+  const proposeMailto = `mailto:contact@semawe.fr?subject=${encodeURIComponent(
+    t.proposeSubject,
+  )}&body=${encodeURIComponent(t.proposeBody)}`;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8 border-b border-slate-200 pb-6">
@@ -94,6 +98,24 @@ export default function Marketplace({
             </div>
           );
         })}
+
+        <a
+          href={proposeMailto}
+          className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-5 text-center transition hover:border-teal-400 hover:bg-teal-50/40"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-3xl font-light leading-none text-slate-500 transition group-hover:bg-teal-600 group-hover:text-white">
+            +
+          </span>
+          <h2 className="mt-3 font-serif text-lg font-semibold text-slate-900">
+            {t.proposeTitle}
+          </h2>
+          <p className="mt-1 text-sm leading-relaxed text-slate-600">
+            {t.proposeDesc}
+          </p>
+          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition group-hover:bg-teal-600">
+            {t.proposeCta}
+          </span>
+        </a>
       </div>
     </div>
   );

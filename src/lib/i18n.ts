@@ -25,6 +25,9 @@ export const UI = {
     },
     footer: {
       tagline: "Constitution Composer, un outil Sémawé.",
+      createdByPre: "Créé par",
+      createdByMid: ", fondé sur l'expérience de",
+      v5Label: "Constitution 5.0 officielle",
     },
   },
   en: {
@@ -39,6 +42,9 @@ export const UI = {
     },
     footer: {
       tagline: "Constitution Composer, a Sémawé tool.",
+      createdByPre: "Built by",
+      createdByMid: ", grounded in the experience of",
+      v5Label: "Official 5.0 Constitution",
     },
   },
 } satisfies Record<Locale, unknown>;
@@ -54,6 +60,7 @@ export const APP_UI = {
     },
     home: "Accueil",
     switchLang: "EN",
+    signIn: "Se connecter",
   },
   en: {
     tabs: {
@@ -64,6 +71,7 @@ export const APP_UI = {
     },
     home: "Home",
     switchLang: "FR",
+    signIn: "Sign in",
   },
 };
 
@@ -130,12 +138,15 @@ export const COMPOSER = {
       pdf: "Téléchargez votre Constitution",
       save: "Sauvegardez vos versions",
       modules: "Débloquez les modules avancés",
+      account: "Créez votre compte gratuit",
     },
     gateDesc: {
       pdf: "Le PDF de votre Constitution composée est réservé aux membres, la création de compte est gratuite.",
       save: "Enregistrez jusqu'à cinq versions de votre Constitution et retrouvez-les à chaque visite. La création de compte est gratuite.",
       modules:
         "Les Extensions constitutionnelles et les Apps sont réservées aux membres. La création de compte est gratuite.",
+      account:
+        "Créez un compte gratuit pour sauvegarder vos versions, débloquer les Extensions et les Apps, et exporter votre Constitution en PDF.",
     },
     coachOffer: "30 minutes de coaching offertes",
     coachOfferDetail:
@@ -226,12 +237,15 @@ export const COMPOSER = {
       pdf: "Download your Constitution",
       save: "Save your versions",
       modules: "Unlock advanced modules",
+      account: "Create your free account",
     },
     gateDesc: {
       pdf: "The PDF of your composed Constitution is for members only, account creation is free.",
       save: "Save up to five versions of your Constitution and retrieve them on every visit. Account creation is free.",
       modules:
         "Constitutional Extensions and Apps are for members only. Account creation is free.",
+      account:
+        "Create a free account to save your versions, unlock Extensions and Apps, and export your Constitution as PDF.",
     },
     coachOffer: "30 minutes of complimentary coaching",
     coachOfferDetail:
@@ -272,6 +286,13 @@ export const MARKETPLACE = {
     requires: "Nécessite :",
     discover: "Découvrir",
     activate: "Activer →",
+    proposeTitle: "Proposer une app",
+    proposeDesc:
+      "Une idée d'extension ou d'app pour l'App Store ? Proposez-la, on l'étudie.",
+    proposeCta: "Proposer une app par e-mail",
+    proposeSubject: "Proposition d'app pour l'App Store de la Constitution",
+    proposeBody:
+      "Bonjour Aliocha,\n\nJe te propose une app / extension pour l'App Store :\n\n- Nom :\n- Ce qu'elle ferait :\n- Pourquoi elle serait utile :\n\nMerci !",
   },
   en: {
     beyond: "Beyond Lite",
@@ -281,6 +302,13 @@ export const MARKETPLACE = {
     requires: "Requires:",
     discover: "Learn more",
     activate: "Activate →",
+    proposeTitle: "Suggest an app",
+    proposeDesc:
+      "Have an idea for an extension or app for the App Store? Suggest it and we'll look into it.",
+    proposeCta: "Suggest an app by email",
+    proposeSubject: "App suggestion for the Constitution App Store",
+    proposeBody:
+      "Hi Aliocha,\n\nHere is an app / extension I'd like to suggest for the App Store:\n\n- Name:\n- What it would do:\n- Why it would be useful:\n\nThanks!",
   },
 };
 

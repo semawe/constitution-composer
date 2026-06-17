@@ -23,13 +23,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://constitution-composer.com/integrale</loc>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://constitution-composer.com/integrale"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://constitution-composer.com/en/integrale"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://constitution-composer.com/comprendre</loc>
     <xhtml:link rel="alternate" hreflang="fr" href="https://constitution-composer.com/comprendre"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://constitution-composer.com/en/comprendre"/>
@@ -54,13 +47,6 @@
     <loc>https://constitution-composer.com/en/lite</loc>
     <xhtml:link rel="alternate" hreflang="fr" href="https://constitution-composer.com/lite"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://constitution-composer.com/en/lite"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://constitution-composer.com/en/integrale</loc>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://constitution-composer.com/integrale"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://constitution-composer.com/en/integrale"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

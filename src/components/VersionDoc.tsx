@@ -4,6 +4,7 @@ import { compose, type ConstitutionData } from "@/lib/constitution";
 import { fontVars } from "@/lib/branding";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 import type { Locale } from "@/lib/i18n";
+import { REPO_V6_URL, v5Href } from "@/lib/links";
 
 // Rendu Markdown léger (gras + listes), identique au visualiseur /admin/view.
 function inline(s: string, kb: string): ReactNode[] {
@@ -77,6 +78,17 @@ export default function VersionDoc({
   const items = compose(data, active);
   const branding = fontVars("source-serif");
 
+  const L =
+    locale === "en"
+      ? {
+          source: "Source (v6 alpha) on GitHub",
+          v5: "For the official, stable 5.0 version of Holacracy",
+        }
+      : {
+          source: "Code source (v6 alpha) sur GitHub",
+          v5: "Pour la version stable et officielle 5.0 de Holacracy",
+        };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav locale={locale} />
@@ -130,6 +142,25 @@ export default function VersionDoc({
         >
           {ctaLabel}
         </Link>
+
+        <div className="mt-10 flex flex-col gap-2 border-t border-slate-200 pt-6 text-sm text-slate-500">
+          <a
+            href={REPO_V6_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-slate-800"
+          >
+            {L.source} ↗
+          </a>
+          <a
+            href={v5Href(locale)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-slate-800"
+          >
+            {L.v5} ↗
+          </a>
+        </div>
       </main>
       <SiteFooter locale={locale} />
     </div>

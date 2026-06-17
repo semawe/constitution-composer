@@ -44,17 +44,34 @@ export default function App({
   };
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [userName, setUserName] = useState("");
   useEffect(() => {
     const sb = getSupabase();
     if (!sb) return;
-    sb.auth
-      .getSession()
-      .then(({ data }) => setIsAdmin(isAdminEmail(data.session?.user?.email)));
+    const sync = (u: { email?: string; user_metadata?: Record<string, unknown> } | null) => {
+      setIsAdmin(isAdminEmail(u?.email));
+      setSignedIn(!!u);
+      const name =
+        (u?.user_metadata?.given_name as string) ||
+        (u?.user_metadata?.full_name as string) ||
+        u?.email ||
+        "";
+      setUserName(name);
+    };
+    sb.auth.getSession().then(({ data }) => sync(data.session?.user ?? null));
     const { data: sub } = sb.auth.onAuthStateChange((_e, s) =>
-      setIsAdmin(isAdminEmail(s?.user?.email)),
+      sync(s?.user ?? null),
     );
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Ouvre la connexion (modal géré dans le Composer) depuis n'importe quel
+  // onglet : on bascule sur la Constitution pour que le modal soit visible.
+  const requestSignIn = () => {
+    setView("constitution");
+    window.dispatchEvent(new Event("cc:open-signin"));
+  };
 
   const goToTerm = (key: string) => {
     setView("glossaire");
@@ -149,6 +166,22 @@ export default function App({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1 pl-1">
+          {signedIn ? (
+            <span
+              className="hidden max-w-[10rem] items-center gap-1 truncate rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 sm:inline-flex"
+              title={userName}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+              {userName}
+            </span>
+          ) : (
+            <button
+              onClick={requestSignIn}
+              className="rounded-full border border-teal-600 px-3 py-1 text-xs font-medium text-teal-700 transition hover:bg-teal-50"
+            >
+              {t.signIn}
+            </button>
+          )}
           <Link
             href={otherLangHref}
             title={locale === "en" ? "Passer en français" : "Switch to English"}

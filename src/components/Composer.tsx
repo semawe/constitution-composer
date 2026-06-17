@@ -186,7 +186,9 @@ export default function Composer({
   const [user, setUser] = useState<User | null>(null);
   const [needsCompany, setNeedsCompany] = useState(false);
   const [company, setCompany] = useState("");
-  const [gate, setGate] = useState<null | "modules" | "pdf" | "save">(null);
+  const [gate, setGate] = useState<
+    null | "modules" | "pdf" | "save" | "account"
+  >(null);
   const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [versions, setVersions] = useState<SavedComposition[]>([]);
@@ -407,6 +409,14 @@ export default function Composer({
     await supabase.auth.updateUser({ data: { company: company.trim() } });
     setNeedsCompany(false);
   };
+
+  // La chrome du Composer (App.tsx) peut demander l'ouverture de la connexion
+  // via un événement, sans remonter tout l'état d'auth.
+  useEffect(() => {
+    const open = () => setGate((g) => g ?? "account");
+    window.addEventListener("cc:open-signin", open);
+    return () => window.removeEventListener("cc:open-signin", open);
+  }, []);
 
   const signOut = async () => {
     if (supabase) {
@@ -1238,10 +1248,22 @@ export default function Composer({
                   {t.createFreeAccount}
                 </p>
                 <h2 className="mt-1 font-serif text-2xl font-semibold">
-                  {gate === "pdf" ? t.gateTitle.pdf : gate === "save" ? t.gateTitle.save : t.gateTitle.modules}
+                  {gate === "pdf"
+                    ? t.gateTitle.pdf
+                    : gate === "save"
+                      ? t.gateTitle.save
+                      : gate === "account"
+                        ? t.gateTitle.account
+                        : t.gateTitle.modules}
                 </h2>
                 <p className="mt-2 text-sm text-white/90">
-                  {gate === "pdf" ? t.gateDesc.pdf : gate === "save" ? t.gateDesc.save : t.gateDesc.modules}
+                  {gate === "pdf"
+                    ? t.gateDesc.pdf
+                    : gate === "save"
+                      ? t.gateDesc.save
+                      : gate === "account"
+                        ? t.gateDesc.account
+                        : t.gateDesc.modules}
                 </p>
               </div>
               <div className="px-6 py-6">
