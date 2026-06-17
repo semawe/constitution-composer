@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 import { type Locale, getLocaleFromPath, toOtherLocale, UI } from "@/lib/i18n";
 import { HETEROSTASIA_URL, SEMAWE_URL, v5Href } from "@/lib/links";
+import { buildLabel } from "@/lib/build-info";
 
 function navHref(base: string, locale: Locale) {
   return locale === "en" ? `/en${base}` : base;
@@ -120,6 +121,7 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
           </a>
           .
         </p>
+        <p className="text-[0.7rem] text-slate-300">{buildLabel}</p>
       </div>
     </footer>
   );
