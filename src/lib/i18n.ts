@@ -148,7 +148,7 @@ export const COMPOSER = {
       account:
         "Créez un compte gratuit pour sauvegarder vos versions, débloquer les Extensions et les Apps, et exporter votre Constitution en PDF.",
     },
-    coachOffer: "30 minutes de coaching offertes",
+    coachOffer: "20 minutes de coaching offertes",
     coachOfferDetail:
       "avec un coach certifié en Holacracy à la création de votre compte.",
     coachOfferSub: "Coaching premium ensuite à 500 €/h.",
@@ -168,9 +168,9 @@ export const COMPOSER = {
     continue: "Continuer",
     later: "Plus tard",
     freeSession: "Votre session offerte",
-    coachTitle: "30 minutes avec un coach Holacracy",
+    coachTitle: "20 minutes avec un coach Holacracy",
     coachSubtitle:
-      "Choisissez votre coach et réservez un créneau de 30 minutes, offert.",
+      "Choisissez votre coach et réservez un créneau de 20 minutes, offert.",
     bookWith: (name: string) => `Réserver avec ${name}`,
     coachingPricing:
       "Au-delà de la découverte : supervision par un coach senior, 500 €/h ou 3000 €/jour.",
@@ -247,7 +247,7 @@ export const COMPOSER = {
       account:
         "Create a free account to save your versions, unlock Extensions and Apps, and export your Constitution as PDF.",
     },
-    coachOffer: "30 minutes of complimentary coaching",
+    coachOffer: "20 minutes of complimentary coaching",
     coachOfferDetail:
       "with a certified Holacracy coach when you create your account.",
     coachOfferSub: "Premium coaching: 500 €/h thereafter.",
@@ -266,9 +266,9 @@ export const COMPOSER = {
     continue: "Continue",
     later: "Later",
     freeSession: "Your complimentary session",
-    coachTitle: "30 minutes with a Holacracy coach",
+    coachTitle: "20 minutes with a Holacracy coach",
     coachSubtitle:
-      "Choose your coach and book a complimentary 30-minute slot.",
+      "Choose your coach and book a complimentary 20-minute slot.",
     bookWith: (name: string) => `Book with ${name}`,
     coachingPricing:
       "Beyond onboarding: senior coach supervision, 500 €/h or 3 000 €/day.",

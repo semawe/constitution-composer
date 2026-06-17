@@ -31,10 +31,14 @@ import { COMPOSER, type Locale } from "@/lib/i18n";
 // Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
 const isGatedTier = (tier: Tier) => tier === "extension" || tier === "app";
 
-// Coachs : pages de réservation Google Agenda (créneaux 30 min de découverte).
+// Coachs certifiés Holacracy : pages de réservation Google Agenda (créneaux
+// d'initiation de 20 min). Source de vérité : base Notion « Coachs — plannings
+// Google RDV » (projet Site Web semawe.fr) — tenir ces liens synchronisés.
 const COACHES = [
   { name: "Coach 1", url: "https://calendar.example.com/booking" },
-  { name: "Coach 2", url: "https://calendar.example.com/booking" },
+  { name: "Coach 2", url: "https://calendar.google.com/calendar/appointments/schedules/REDACTED" },
+  { name: "Coach 3", url: "https://calendar.example.com/booking" },
+  { name: "Coach 4", url: "https://calendar.example.com/booking" },
 ];
 
 const TIER_UI: Record<
@@ -1147,7 +1151,7 @@ export default function Composer({
             </p>
             <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
               <li>
-                🎁 <strong>30 minutes de découverte offertes</strong> à la
+                🎁 <strong>20 minutes de découverte offertes</strong> à la
                 création de votre compte.
               </li>
               <li>
@@ -1159,7 +1163,7 @@ export default function Composer({
               onClick={() => setBooking(true)}
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
             >
-              🎁 Réserver mes 30 minutes offertes
+              🎁 Réserver mes 20 minutes offertes
             </button>
           </div>
 
