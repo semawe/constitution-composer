@@ -2,7 +2,7 @@ import type { Locale } from "@/lib/i18n";
 
 // Liens externes de référence, centralisés pour rester cohérents partout.
 
-/** Repo public où Aliocha publie la Constitution v6 alpha. */
+/** Repo public où Sémawé publie la Constitution v6 alpha. */
 export const REPO_V6_URL = "https://github.com/semawe/Holacracy-Constitution";
 
 export const HETEROSTASIA_URL = "https://heterostasia.com";

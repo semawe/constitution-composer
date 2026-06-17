@@ -292,7 +292,7 @@ export const MARKETPLACE = {
     proposeCta: "Proposer une app par e-mail",
     proposeSubject: "Proposition d'app pour l'App Store de la Constitution",
     proposeBody:
-      "Bonjour Aliocha,\n\nJe te propose une app / extension pour l'App Store :\n\n- Nom :\n- Ce qu'elle ferait :\n- Pourquoi elle serait utile :\n\nMerci !",
+      "Bonjour,\n\nJe propose une app / extension pour l'App Store :\n\n- Nom :\n- Ce qu'elle ferait :\n- Pourquoi elle serait utile :\n\nMerci !",
   },
   en: {
     beyond: "Beyond Lite",
@@ -308,7 +308,7 @@ export const MARKETPLACE = {
     proposeCta: "Suggest an app by email",
     proposeSubject: "App suggestion for the Constitution App Store",
     proposeBody:
-      "Hi Aliocha,\n\nHere is an app / extension I'd like to suggest for the App Store:\n\n- Name:\n- What it would do:\n- Why it would be useful:\n\nThanks!",
+      "Hi,\n\nHere is an app / extension I'd like to suggest for the App Store:\n\n- Name:\n- What it would do:\n- Why it would be useful:\n\nThanks!",
   },
 };
 
