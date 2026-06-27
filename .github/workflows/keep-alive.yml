@@ -20,9 +20,15 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           code=$(curl -s -o /dev/null -w '%{http_code}' \
+            --max-time 15 \
             -H "apikey: $SUPABASE_ANON_KEY" \
             -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1")
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1") || curl_exit=$?
+          # curl_exit non nul = réseau ou DNS en échec (ex. projet en pause, exit 6)
+          if [ "${curl_exit:-0}" -ne 0 ]; then
+            echo "curl a échoué (exit ${curl_exit}) — base injoignable ou projet en pause" >&2
+            exit 1
+          fi
           echo "HTTP $code"
           # 200 (ok) comme 401/403 (RLS) prouvent que la requête a atteint Postgres.
           if [ "$code" = "000" ]; then
