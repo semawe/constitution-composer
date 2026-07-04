@@ -4,6 +4,12 @@ name: Supabase keep-alive
 # pendant plus de 7 jours. Ce cron ping la base une fois par jour pour
 # maintenir l'activité (auth + données comptes/versions/Déclarations vivent
 # dans Supabase). Voir CLAUDE.md § Supabase.
+#
+# IMPORTANT (2026-07-04) : une simple LECTURE REST ne compte PAS comme
+# « activité suffisante » pour le scan Supabase (projet pausé le 2026-06-26
+# puis re-listé le 2026-07-03 malgré des GET quotidiens HTTP 200). On appelle
+# donc désormais la fonction RPC `keepalive()` (migration 0004) qui fait une
+# ÉCRITURE réelle en base — activité non ambiguë.
 
 on:
   schedule:
@@ -14,24 +20,29 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST (compte une requête côté Postgres)
+      - name: Ping Supabase RPC keepalive (écriture réelle côté Postgres)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' \
+          code=$(curl -s -o /tmp/body -w '%{http_code}' \
             --max-time 15 \
+            -X POST \
             -H "apikey: $SUPABASE_ANON_KEY" \
             -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1") || curl_exit=$?
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            "$SUPABASE_URL/rest/v1/rpc/keepalive") || curl_exit=$?
           # curl_exit non nul = réseau ou DNS en échec (ex. projet en pause, exit 6)
           if [ "${curl_exit:-0}" -ne 0 ]; then
             echo "curl a échoué (exit ${curl_exit}) — base injoignable ou projet en pause" >&2
             exit 1
           fi
           echo "HTTP $code"
-          # 200 (ok) comme 401/403 (RLS) prouvent que la requête a atteint Postgres.
-          if [ "$code" = "000" ]; then
-            echo "Aucune réponse — base injoignable" >&2
+          echo "Réponse : $(cat /tmp/body)"
+          # 200 = l'UPDATE a bien eu lieu (la fonction renvoie le timestamp).
+          # Tout autre code (000, 4xx, 5xx) = l'écriture n'a pas abouti → échec.
+          if [ "$code" != "200" ]; then
+            echo "Écriture keepalive échouée (HTTP $code)" >&2
             exit 1
           fi
