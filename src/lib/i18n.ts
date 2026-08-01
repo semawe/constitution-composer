@@ -28,6 +28,7 @@ export const UI = {
       createdByPre: "Créé par",
       createdByMid: ", fondé sur l'expérience de",
       v5Label: "Constitution 5.0 officielle",
+      legal: "Mentions légales",
     },
   },
   en: {
@@ -45,6 +46,7 @@ export const UI = {
       createdByPre: "Built by",
       createdByMid: ", grounded in the experience of",
       v5Label: "Official 5.0 Constitution",
+      legal: "Legal notice",
     },
   },
 } satisfies Record<Locale, unknown>;

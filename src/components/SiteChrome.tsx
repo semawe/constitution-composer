@@ -98,6 +98,12 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
             >
               {t.v5Label} ↗
             </a>
+            <Link
+              href={navHref("/mentions-legales", locale)}
+              className="transition hover:text-slate-800"
+            >
+              {t.legal}
+            </Link>
           </div>
         </div>
         <p className="border-t border-slate-200 pt-4 text-xs text-slate-400">
