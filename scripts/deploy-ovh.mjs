@@ -79,9 +79,12 @@ function assertSafeRemoteDir(raw) {
   if (dir.split('/').includes('..') || dir.split('/').includes('.')) {
     throw new Error(`FTP_REMOTE_DIR interdit (traversée de chemin) : ${raw}`);
   }
-  if (dir === '/www' && process.env.FTP_ALLOW_WWW !== 'yes') {
+  // En FTP la session est chrootée (`/constitution-composer`) ; en SFTP le
+  // chemin part du home réel (`/home/lafabriqrd/constitution-composer`). Dans
+  // les deux cas, un dossier `www` final est la racine du site principal.
+  if (dir.split('/').pop() === 'www' && process.env.FTP_ALLOW_WWW !== 'yes') {
     throw new Error(
-      '/www est la racine du site principal de l’hébergement. Si c’est ' +
+      `${dir} est la racine du site principal de l’hébergement. Si c’est ` +
         'vraiment la cible, relance avec FTP_ALLOW_WWW=yes.',
     );
   }
