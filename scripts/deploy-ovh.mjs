@@ -32,12 +32,15 @@ if (existsSync(envDeployPath)) {
   }
 }
 
+// `sftp` (chiffré, port 22 — disponible sur cluster121) ou `ftp` (historique).
+const protocol = (process.env.FTP_PROTOCOL || 'ftp').toLowerCase();
+
 const config = {
   host: process.env.FTP_HOST,
   user: process.env.FTP_USER,
   password: process.env.FTP_PASSWORD,
   port: Number(process.env.FTP_PORT || 21),
-  remoteDir: process.env.FTP_REMOTE_DIR || '/www',
+  remoteDir: process.env.FTP_REMOTE_DIR,
   // L'offre gratuite OVH ne supporte pas le FTPS explicite (« 500 This security
   // scheme is not implemented »). FTP simple par défaut, comme pour heterostasia.
   secure: process.env.FTP_SECURE === 'true',
@@ -53,9 +56,98 @@ if (missing.length) {
   process.exit(1);
 }
 
+// Garde-fou de purge. Ce script VIDE récursivement le répertoire cible avant
+// d'uploader : sur le cluster121 mutualisé, une valeur erronée (`/`, `.`, `..`,
+// une faute de frappe, une variable vide) effacerait les autres sites du compte
+// (www/, sosa/, plusdedeux/). FTP_REMOTE_DIR est donc obligatoire, validé, et
+// jamais défaulté vers une racine.
+function assertSafeRemoteDir(raw) {
+  if (!raw) {
+    throw new Error(
+      "FTP_REMOTE_DIR est obligatoire (aucune valeur par défaut : l'ancien " +
+        "défaut /www est la racine du site principal du compte).",
+    );
+  }
+  const dir = raw.trim().replace(/\/+$/, '');
+  if (!/^\/[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/.test(dir)) {
+    throw new Error(
+      `FTP_REMOTE_DIR invalide : ${JSON.stringify(raw)}. Attendu un chemin ` +
+        'absolu à au moins un segment, sans caractère exotique (ex. ' +
+        '/constitution-composer).',
+    );
+  }
+  if (dir.split('/').includes('..') || dir.split('/').includes('.')) {
+    throw new Error(`FTP_REMOTE_DIR interdit (traversée de chemin) : ${raw}`);
+  }
+  if (dir === '/www' && process.env.FTP_ALLOW_WWW !== 'yes') {
+    throw new Error(
+      '/www est la racine du site principal de l’hébergement. Si c’est ' +
+        'vraiment la cible, relance avec FTP_ALLOW_WWW=yes.',
+    );
+  }
+  return dir;
+}
+
+try {
+  config.remoteDir = assertSafeRemoteDir(config.remoteDir);
+} catch (err) {
+  console.error(`Erreur : ${err.message}`);
+  process.exit(1);
+}
+
 if (!existsSync(OUT)) {
   console.error('Erreur : dossier out/ introuvable. Lance d’abord `npm run build`.');
   process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Transport SFTP (recommandé) — cluster121 expose SSH/SFTP sur le port 22.
+// Le FTP simple fait transiter le mot de passe et le site en clair : quiconque
+// observe le réseau pendant un déploiement peut récupérer les identifiants ou
+// substituer les fichiers. FTP_PROTOCOL=sftp bascule sur un canal chiffré.
+// ---------------------------------------------------------------------------
+if (protocol === 'sftp') {
+  const { default: SftpClient } = await import('ssh2-sftp-client');
+  const sftp = new SftpClient();
+
+  async function clearRemoteSftp(dir) {
+    if (dir !== config.remoteDir && !dir.startsWith(config.remoteDir + '/')) {
+      throw new Error(`Purge hors cible refusée : ${dir}`);
+    }
+    for (const e of await sftp.list(dir)) {
+      const p = `${dir}/${e.name}`;
+      if (e.type === 'd') {
+        await clearRemoteSftp(p);
+        await sftp.rmdir(p);
+      } else {
+        await sftp.delete(p);
+      }
+    }
+  }
+
+  try {
+    await sftp.connect({
+      host: config.host,
+      username: config.user,
+      password: config.password,
+      port: Number(process.env.FTP_PORT || 22),
+    });
+    console.log(
+      `Connecté à ${config.host} en SFTP. Upload de out/ vers ${config.remoteDir} …`,
+    );
+    if (!(await sftp.exists(config.remoteDir))) {
+      await sftp.mkdir(config.remoteDir, true);
+    }
+    await clearRemoteSftp(config.remoteDir);
+    await sftp.uploadDir(OUT, config.remoteDir);
+    console.log('Déploiement terminé.');
+  } catch (err) {
+    console.error('Échec du déploiement :', err.message);
+    process.exitCode = 1;
+  } finally {
+    await sftp.end().catch(() => {});
+  }
+  process.exit(process.exitCode ?? 0);
 }
 
 const client = new Client(120000);
@@ -68,6 +160,11 @@ client.ftp.verbose = false;
 // pour ne pas laisser d'anciens répertoires homonymes de pages (ex. admin/view/)
 // qui déclencheraient des redirections mod_dir parasites.
 async function clearRemote(dir) {
+  // Deuxième filet : aucune récursion ne peut sortir du répertoire cible, même
+  // si le serveur renvoyait une entrée de listing aberrante.
+  if (dir !== config.remoteDir && !dir.startsWith(config.remoteDir + '/')) {
+    throw new Error(`Purge hors cible refusée : ${dir}`);
+  }
   const list = await client.list(dir);
   for (const e of list) {
     if (e.name === '.' || e.name === '..') continue;
@@ -88,13 +185,25 @@ async function clearRemote(dir) {
 }
 
 try {
+  if (!config.secure) {
+    console.warn(
+      'Attention : FTP en clair — identifiants et fichiers transitent sans ' +
+        'chiffrement. Préfère FTP_PROTOCOL=sftp (port 22).',
+    );
+  }
   await client.access({
     host: config.host,
     user: config.user,
     password: config.password,
     port: config.port,
     secure: config.secure,
-    secureOptions: { rejectUnauthorized: false },
+    // Le certificat est vérifié. FTP_INSECURE_TLS=yes ne sert qu'à diagnostiquer
+    // un cluster mal configuré : un FTPS non validé n'apporte aucune garantie
+    // face à un intermédiaire actif.
+    secureOptions:
+      process.env.FTP_INSECURE_TLS === 'yes'
+        ? { rejectUnauthorized: false }
+        : undefined,
   });
   console.log(`Connecté à ${config.host} (FTPS=${config.secure}). Upload de out/ vers ${config.remoteDir} …`);
   await client.ensureDir(config.remoteDir);

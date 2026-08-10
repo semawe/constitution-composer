@@ -5,6 +5,7 @@ import {
   compose,
   defaultActive,
   modulesForAnchor,
+  normalizeActive,
   requiredByActive,
   toggleModule,
 } from "./constitution";
@@ -134,6 +135,55 @@ describe("toggleModule", () => {
     const off = toggleModule(data, on, "ext");
     expect(off).toEqual(new Set(["lite"]));
   });
+
+  it("un retrait par conflit emporte les modules qui en dépendaient", () => {
+    // app entre en conflit avec ext, dont ext2 dépend : les deux doivent partir.
+    const next = toggleModule(data, new Set(["lite", "ext", "ext2"]), "app");
+    expect(next.has("app")).toBe(true);
+    expect(next.has("ext")).toBe(false);
+    expect(next.has("ext2")).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizeActive : frontière d'entrée des états venus de l'extérieur
+// (localStorage, Supabase, visualiseur admin).
+// ---------------------------------------------------------------------------
+
+describe("normalizeActive", () => {
+  it("écarte les identifiants inconnus", () => {
+    expect(normalizeActive(data, ["lite", "fantome"])).toEqual(new Set(["lite"]));
+  });
+
+  it("ferme les prérequis en chaîne", () => {
+    expect(normalizeActive(data, ["ext2"])).toEqual(
+      new Set(["ext2", "ext", "lite"]),
+    );
+  });
+
+  it("résout les conflits et leurs dépendants", () => {
+    expect(normalizeActive(data, ["app", "ext", "ext2"])).toEqual(
+      new Set(["app", "lite"]),
+    );
+  });
+
+  it("est idempotente", () => {
+    const once = normalizeActive(data, ["ext2", "fantome"]);
+    expect(normalizeActive(data, once)).toEqual(once);
+  });
+
+  it("un état sauvegardé incohérent ne produit plus de document contradictoire", () => {
+    // Cas ENG-01 : "ext" seul, sans son prérequis "lite". Sans normalisation,
+    // compose() sort l'insertion de ext ET le remplacement obligatoire de lite.
+    const brut = compose(data, new Set(["ext"]));
+    expect(brut.some((i) => i.text === "ins-ext")).toBe(true);
+    expect(brut.some((i) => i.kind === "fallback")).toBe(true);
+
+    const propre = compose(data, normalizeActive(data, ["ext"]));
+    expect(propre.some((i) => i.text === "ins-ext")).toBe(true);
+    expect(propre.some((i) => i.text === "ins-lite")).toBe(true);
+    expect(propre.some((i) => i.kind === "fallback")).toBe(false);
+  });
 });
 
 describe("requiredByActive / modulesForAnchor", () => {
@@ -190,6 +240,22 @@ describe("constitution.fr.json : intégrité", () => {
     for (const m of d.modules) {
       const active = toggleModule(d, defaultActive(d), m.id);
       expect(() => compose(d, active)).not.toThrow();
+    }
+  });
+
+  it("normalizeActive rend tout état satisfaisable sur les données réelles", () => {
+    for (const m of d.modules) {
+      // Chaque module pris isolément, comme le ferait une version sauvegardée.
+      const active = normalizeActive(d, [m.id]);
+      for (const id of active) {
+        const mod = d.modules.find((x) => x.id === id)!;
+        for (const r of mod.requires) {
+          expect(active, `${id} requiert ${r}`).toContain(r);
+        }
+        for (const c of mod.conflicts) {
+          expect(active, `${id} en conflit avec ${c}`).not.toContain(c);
+        }
+      }
     }
   });
 });

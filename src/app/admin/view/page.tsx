@@ -4,8 +4,12 @@ import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminEmail } from "@/lib/admin";
-import { compose, type ConstitutionData } from "@/lib/constitution";
-import { fontVars } from "@/lib/branding";
+import {
+  compose,
+  normalizeActive,
+  type ConstitutionData,
+} from "@/lib/constitution";
+import { fontVars, safeLogo } from "@/lib/branding";
 import constitutionRaw from "@/data/constitution.fr.json";
 import principesRaw from "@/data/principes.fr.json";
 
@@ -167,7 +171,12 @@ export default function AdminViewPage() {
   const branding = fontVars(comp.font ?? "source-serif");
   const titleStyle = comp.titleColor ? { color: comp.titleColor } : undefined;
 
-  const items = compose(constitution, new Set(comp.active ?? []));
+  // Le payload vient de la base, donc de l'utilisateur : on le normalise avant
+  // de composer, et on n'affiche un logo que s'il s'agit bien d'une data: URL
+  // d'image (sinon un utilisateur ferait sortir une requête du navigateur de
+  // l'admin en la déguisant en logo).
+  const items = compose(constitution, normalizeActive(constitution, comp.active ?? []));
+  const logo = safeLogo(comp.logo);
 
   // Principes ordonnés (comme dans la Déclaration).
   let declItems: { n: number; title: string; text: string }[] = [];
@@ -207,9 +216,7 @@ export default function AdminViewPage() {
       </div>
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      {comp.logo && (
-        <img src={comp.logo} alt="Logo" className="mb-3 max-h-16 w-auto" />
-      )}
+      {logo && <img src={logo} alt="Logo" className="mb-3 max-h-16 w-auto" />}
       <h1
         className="font-serif text-3xl font-semibold text-slate-900 sm:text-4xl"
         style={titleStyle}

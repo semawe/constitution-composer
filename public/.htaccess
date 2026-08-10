@@ -60,6 +60,16 @@ ErrorDocument 404 /404.html
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
 
+  # Content-Security-Policy. L'enjeu principal : la session Supabase vit dans le
+  # stockage local, donc lisible par tout script de la page — un script tiers
+  # compromis pourrait l'exfiltrer, y compris celle d'un administrateur. La CSP
+  # ferme les destinations : seuls Supabase et Umami sont joignables, et aucun
+  # script ne peut être chargé depuis une autre origine.
+  # `unsafe-inline` sur script-src reste nécessaire : Next.js sème des scripts
+  # inline de sérialisation (self.__next_f) dont le contenu varie à chaque
+  # build, ce qui exclut une liste de hachages tenable en export statique.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is; connect-src 'self' https://zzebhtyvbzfnfrjhqiia.supabase.co wss://zzebhtyvbzfnfrjhqiia.supabase.co https://cloud.umami.is https://gateway.umami.is; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+
   # Assets Next hashés : cache long immuable.
   SetEnvIf Request_URI ^/_next/static/ NEXT_STATIC
   Header set Cache-Control "public, max-age=31536000, immutable" env=NEXT_STATIC

@@ -3,7 +3,9 @@
 // et clic vers le glossaire. Source : data/glossaire.fr.json.
 
 import type { ReactNode } from "react";
-import glossaireData from "@/data/glossaire.fr.json";
+import glossaireFr from "@/data/glossaire.fr.json";
+import glossaireEn from "@/data/glossaire.en.json";
+import type { Locale } from "@/lib/i18n";
 
 export interface GlossaryTerm {
   key: string;
@@ -11,37 +13,54 @@ export interface GlossaryTerm {
   definition: string;
 }
 
-export const GLOSSARY = glossaireData.terms as GlossaryTerm[];
-export const GLOSSARY_META = glossaireData.meta as {
+const DATA = { fr: glossaireFr, en: glossaireEn };
+
+export function glossary(locale: Locale = "fr"): GlossaryTerm[] {
+  return DATA[locale].terms as GlossaryTerm[];
+}
+
+export const GLOSSARY = glossary("fr");
+export const GLOSSARY_META = glossaireFr.meta as {
   title: string;
   intro: string;
 };
-
-const byTerm = new Map(GLOSSARY.map((t) => [t.term, t]));
 
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Alternance triée par longueur décroissante : les termes composés priment sur
-// les plus courts (« Membres du Cercle » avant « Cercle »). Sensible à la casse
-// pour ne capter que les usages définis (initiale majuscule), avec un « s »
-// final optionnel pour les pluriels.
-const TERM_RE = new RegExp(
-  "(" +
-    [...GLOSSARY]
-      .sort((a, b) => b.term.length - a.term.length)
-      .map((t) => escapeRegex(t.term))
-      .join("|") +
-    ")(s)?",
-  "g",
-);
+// Index par langue, construit une seule fois. Alternance triée par longueur
+// décroissante : les termes composés priment sur les plus courts (« Membres du
+// Cercle » avant « Cercle »). Sensible à la casse pour ne capter que les usages
+// définis (initiale majuscule), avec un « s » final optionnel pour les pluriels.
+function buildIndex(locale: Locale) {
+  const terms = glossary(locale);
+  return {
+    byTerm: new Map(terms.map((t) => [t.term, t])),
+    re: new RegExp(
+      "(" +
+        [...terms]
+          .sort((a, b) => b.term.length - a.term.length)
+          .map((t) => escapeRegex(t.term))
+          .join("|") +
+        ")(s)?",
+      "g",
+    ),
+  };
+}
+
+const INDEX: Record<Locale, ReturnType<typeof buildIndex>> = {
+  fr: buildIndex("fr"),
+  en: buildIndex("en"),
+};
 
 export function linkifyTerms(
   text: string,
   onTermClick: (key: string) => void,
   keyBase: string,
+  locale: Locale = "fr",
 ): ReactNode[] {
+  const { byTerm, re: TERM_RE } = INDEX[locale];
   const out: ReactNode[] = [];
   let last = 0;
   let i = 0;

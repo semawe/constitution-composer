@@ -13,6 +13,7 @@ import {
   pdf,
 } from "@react-pdf/renderer";
 import { type ConstitutionData, type Tier, compose } from "./constitution";
+import { COMPOSER, PRINCIPES_UI, type Locale } from "./i18n";
 
 // Polices du document, auto-hébergées dans /public/fonts (mêmes fichiers que
 // les @font-face de globals.css). Enregistrées à la demande, une seule fois.
@@ -208,6 +209,7 @@ function ComposedDoc({
   titleColor,
   font,
   logo,
+  locale = "fr",
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
@@ -217,7 +219,9 @@ function ComposedDoc({
   titleColor?: string;
   font?: string;
   logo?: string;
+  locale?: Locale;
 }) {
+  const t = COMPOSER[locale];
   const items = compose(data, active);
   const fam = PDF_FONTS[font ?? "source-serif"] ?? "Source Serif 4";
   return (
@@ -231,7 +235,11 @@ function ComposedDoc({
         <Text style={[styles.title, titleColor ? { color: titleColor } : {}]}>
           {title}
         </Text>
-        {date && <Text style={styles.date}>Composé le {date}</Text>}
+        {date && (
+          <Text style={styles.date}>
+            {t.pdfComposedOn} {date}
+          </Text>
+        )}
 
         {items.map((it) => {
           if (it.kind === "block") {
@@ -241,7 +249,7 @@ function ComposedDoc({
                 {paragraphs(it.text)}
                 {it.key === "block:preambule" && values.trim() && (
                   <View>
-                    <Text style={styles.valuesHeading}>Valeurs et principes</Text>
+                    <Text style={styles.valuesHeading}>{t.pdfValuesHeading}</Text>
                     {paragraphs(values)}
                   </View>
                 )}
@@ -250,7 +258,7 @@ function ComposedDoc({
           }
           const color = it.warning ? COLOR.warning : COLOR[it.tier];
           const tag = it.warning
-            ? `Règle par défaut : « ${it.moduleLabel} » non activé`
+            ? t.pdfDefaultRule(it.moduleLabel ?? "")
             : it.tier === "retirable"
               ? `${it.moduleLabel}`
               : `+ ${it.moduleLabel}`;
@@ -266,9 +274,7 @@ function ComposedDoc({
           {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image style={styles.footerLogo} src="/logo-semawe-light.png" />
           <Text style={styles.footerText}>
-            Composé avec le Composeur de Constitution de Sémawé, diffusé sous
-            licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
-            {data.meta.notice}
+            {t.pdfFooter(data.meta.license, data.meta.notice)}
           </Text>
         </View>
       </Page>
@@ -288,6 +294,7 @@ export interface PrincipesPdfData {
   logo?: string;
   font?: string;
   titleColor?: string;
+  locale?: Locale;
 }
 
 function SignatureList({ names }: { names: string[] }) {
@@ -304,6 +311,7 @@ function SignatureList({ names }: { names: string[] }) {
 }
 
 function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
+  const t = PRINCIPES_UI[d.locale ?? "fr"];
   const fam = PDF_FONTS[d.font ?? "source-serif"] ?? "Source Serif 4";
   return (
     <Document title={d.meta.title}>
@@ -319,7 +327,7 @@ function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
         {d.devise ? <Text style={styles.devise}>« {d.devise} »</Text> : null}
         {d.raisonEtre ? (
           <View>
-            <Text style={styles.valuesHeading}>Raison d&apos;Être</Text>
+            <Text style={styles.valuesHeading}>{t.pdfPurpose}</Text>
             {paragraphs(d.raisonEtre)}
           </View>
         ) : null}
@@ -334,17 +342,21 @@ function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
           </View>
         ))}
 
-        <Text style={styles.h2}>Adoption</Text>
+        <Text style={styles.h2}>{t.adoption}</Text>
         {paragraphs(d.adoptionText)}
         {d.ratifiers.length > 0 && (
           <View>
-            <Text style={styles.signHeading}>RATIFICATEURS</Text>
+            <Text style={styles.signHeading}>
+              {t.pdfRatifiers.toUpperCase()}
+            </Text>
             <SignatureList names={d.ratifiers} />
           </View>
         )}
         {d.signatories.length > 0 && (
           <View>
-            <Text style={styles.signHeading}>SIGNATAIRES</Text>
+            <Text style={styles.signHeading}>
+              {t.pdfSignatories.toUpperCase()}
+            </Text>
             <SignatureList names={d.signatories} />
           </View>
         )}
@@ -353,9 +365,7 @@ function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
           {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image style={styles.footerLogo} src="/logo-semawe-light.png" />
           <Text style={styles.footerText}>
-            Déclaration de Principes composée avec le Composeur de Sémawé,
-            diffusée sous licence {d.meta.license}, dérivée de la Constitution
-            Holacracy. {d.meta.notice}
+            {t.footer(d.meta.license, d.meta.notice)}
           </Text>
         </View>
       </Page>
@@ -380,6 +390,7 @@ export async function generateComposedPdfBlob(
     titleColor?: string;
     font?: string;
     logo?: string;
+    locale?: Locale;
   },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
@@ -395,6 +406,7 @@ export async function generateComposedPdfBlob(
       titleColor={opts?.titleColor}
       font={opts?.font}
       logo={opts?.logo}
+      locale={opts?.locale}
     />,
   ).toBlob();
 }

@@ -1,16 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://constitution-composer.com"),
@@ -52,7 +41,7 @@ export default function RootLayout({
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${sourceSerif.variable} dark h-full antialiased`}
+      className="dark h-full antialiased"
     >
       <head>
         {/* Applique avant le paint le thème choisi (dark par défaut) et le

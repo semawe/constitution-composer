@@ -19,6 +19,21 @@ export const FONT_OPTIONS: FontOption[] = [
   { key: "ibm-plex", label: "IBM Plex Sans", stack: "'IBM Plex Sans', system-ui, sans-serif" },
 ];
 
+// Le logo est censé être une data: URL produite par le lecteur de fichier local.
+// Rien ne garantit qu'un payload venu de la base en soit une : une composition
+// insérée directement peut y placer une URL externe, qui ferait alors sortir une
+// requête du navigateur de qui l'affiche (adresse IP, heure de consultation,
+// ressource interne atteignable). On n'accepte donc qu'une image en data: URL,
+// bornée en taille.
+const LOGO_MAX_CHARS = 1_500_000; // ~1,1 Mo de binaire encodé en base64
+// Le SVG est volontairement absent : une data: URL SVG peut porter du script.
+const LOGO_RE = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
+export function safeLogo(value: unknown): string {
+  if (typeof value !== "string" || value.length > LOGO_MAX_CHARS) return "";
+  return LOGO_RE.test(value) ? value : "";
+}
+
 export function fontStack(key: string): string {
   return FONT_OPTIONS.find((f) => f.key === key)?.stack ?? FONT_OPTIONS[0].stack;
 }

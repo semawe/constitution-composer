@@ -10,6 +10,9 @@
 @font-face { font-family: "Lora"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/lora-700.woff") format("woff"); }
 @font-face { font-family: "Inter"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/inter-400.woff") format("woff"); }
 @font-face { font-family: "Inter"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/inter-700.woff") format("woff"); }
+/* Geist (SIL OFL, cf. /fonts/GEIST-LICENSE.txt). Auto-hébergée comme les
+   autres : le build ne doit dépendre d'aucun téléchargement Google Fonts. */
+@font-face { font-family: "Geist"; font-weight: 100 900; font-style: normal; font-display: swap; src: url("/fonts/geist-variable.woff2") format("woff2-variations"); }
 @font-face { font-family: "IBM Plex Sans"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/ibm-plex-400.woff") format("woff"); }
 @font-face { font-family: "IBM Plex Sans"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/ibm-plex-700.woff") format("woff"); }
 
@@ -25,6 +28,13 @@
 .dark {
   --background: #0f172a;
   --foreground: #e2e8f0;
+}
+
+:root {
+  /* Anciennement injectées par next/font/google : désormais posées en dur,
+     les fichiers étant dans /public/fonts. */
+  --font-geist-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --font-source-serif: "Source Serif 4", Georgia, serif;
 }
 
 @theme inline {

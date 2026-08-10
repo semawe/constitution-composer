@@ -3,7 +3,7 @@
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
-import { FONT_OPTIONS, fontVars } from "@/lib/branding";
+import { FONT_OPTIONS, fontVars, safeLogo } from "@/lib/branding";
 import { linkifyTerms } from "@/lib/glossary";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -12,6 +12,7 @@ import {
   type Tier,
   defaultActive,
   modulesForAnchor,
+  normalizeActive,
   requiredByActive,
   toggleModule,
 } from "@/lib/constitution";
@@ -100,7 +101,12 @@ const TIER_UI: Record<
 
 type TermClick = (key: string) => void;
 
-function renderInline(s: string, keyBase: string, onTermClick: TermClick) {
+function renderInline(
+  s: string,
+  keyBase: string,
+  onTermClick: TermClick,
+  locale: Locale = "fr",
+) {
   return s.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**"))
       return (
@@ -116,7 +122,7 @@ function renderInline(s: string, keyBase: string, onTermClick: TermClick) {
       );
     return (
       <span key={`${keyBase}-${i}`}>
-        {linkifyTerms(part, onTermClick, `${keyBase}-${i}`)}
+        {linkifyTerms(part, onTermClick, `${keyBase}-${i}`, locale)}
       </span>
     );
   });
@@ -125,9 +131,11 @@ function renderInline(s: string, keyBase: string, onTermClick: TermClick) {
 function Prose({
   text,
   onTermClick,
+  locale = "fr",
 }: {
   text: string;
   onTermClick: TermClick;
+  locale?: Locale;
 }) {
   return (
     <>
@@ -139,7 +147,7 @@ function Prose({
             <ul key={i} className="mb-3 ml-5 list-disc space-y-1 last:mb-0">
               {lines.map((l, j) => (
                 <li key={j} className="leading-relaxed">
-                  {renderInline(l.trim().replace(/^- /, ""), `p${i}-${j}`, onTermClick)}
+                  {renderInline(l.trim().replace(/^- /, ""), `p${i}-${j}`, onTermClick, locale)}
                 </li>
               ))}
             </ul>
@@ -151,7 +159,7 @@ function Prose({
             <ol key={i} className="mb-3 ml-5 list-decimal space-y-1 last:mb-0">
               {lines.map((l, j) => (
                 <li key={j} className="leading-relaxed">
-                  {renderInline(l.trim().replace(/^\d+\.\s/, ""), `p${i}-${j}`, onTermClick)}
+                  {renderInline(l.trim().replace(/^\d+\.\s/, ""), `p${i}-${j}`, onTermClick, locale)}
                 </li>
               ))}
             </ol>
@@ -159,7 +167,7 @@ function Prose({
         }
         return (
           <p key={i} className="mb-3 leading-relaxed last:mb-0">
-            {renderInline(chunk, `p${i}`, onTermClick)}
+            {renderInline(chunk, `p${i}`, onTermClick, locale)}
           </p>
         );
       })}
@@ -297,18 +305,38 @@ export default function Composer({
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
 
-  // Restaure la composition après le retour de redirection Google (round-trip OAuth).
+  // Brouillon local. Il couvre deux besoins : le retour de redirection Google
+  // (round-trip OAuth) et, surtout, le simple rechargement de page — sans lui,
+  // le texte saisi dans « Valeurs et principes » et les modules activés étaient
+  // perdus dès qu'on rafraîchissait, tant qu'aucune version n'avait été
+  // sauvegardée. Le brouillon reste local, jamais envoyé au compte tout seul.
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem("cc_compose");
-      if (!raw) return;
-      const s = JSON.parse(raw);
-      if (Array.isArray(s.active)) setActive(new Set(s.active));
-      if (typeof s.title === "string" && s.title) setTitle(s.title);
-      if (typeof s.values === "string") setValues(s.values);
-      localStorage.removeItem("cc_compose");
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (Array.isArray(s.active)) setActive(normalizeActive(data, s.active));
+        if (typeof s.title === "string" && s.title) setTitle(s.title);
+        if (typeof s.values === "string") setValues(s.values);
+      }
     } catch {}
-  }, []);
+    setDraftLoaded(true);
+  }, [data]);
+
+  useEffect(() => {
+    if (!draftLoaded) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          "cc_compose",
+          JSON.stringify({ active: [...active], title, values }),
+        );
+      } catch {}
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [draftLoaded, active, title, values]);
 
   const goTo = (id: string) => {
     setActiveId(id); // retour immédiat, sans attendre le scrollspy
@@ -330,7 +358,8 @@ export default function Composer({
         titleColor: titleColor || undefined,
         font,
         logo: logo || undefined,
-        date: new Date().toLocaleDateString("fr-FR", {
+        locale,
+        date: new Date().toLocaleDateString(t.dateLocale, {
           day: "2-digit",
           month: "long",
           year: "numeric",
@@ -550,12 +579,15 @@ export default function Composer({
   };
 
   const handleLoadVersion = (v: SavedComposition) => {
-    setActive(new Set(v.payload.active ?? []));
+    // Le payload vient de la base : il peut être ancien (modules disparus),
+    // incohérent (prérequis manquants) ou forgé. On le normalise avant de le
+    // donner au moteur.
+    setActive(normalizeActive(data, v.payload.active ?? []));
     setTitle(v.payload.title ?? data.meta.title);
     setValues(v.payload.values ?? "");
     setTitleColor(v.payload.titleColor ?? "");
     setFont(v.payload.font ?? "source-serif");
-    setLogo(v.payload.logo ?? "");
+    setLogo(safeLogo(v.payload.logo));
     setVersionMsg(t.loaded(v.name));
   };
 
@@ -701,7 +733,7 @@ export default function Composer({
               setGate("modules");
               return;
             }
-            setActive(new Set(data.modules.map((m) => m.id)));
+            setActive(normalizeActive(data, data.modules.map((m) => m.id)));
           }}
           className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
         >
@@ -1041,7 +1073,7 @@ export default function Composer({
                   )}
                 </AnimatePresence>
 
-                <Prose text={block.text} onTermClick={onTermClick} />
+                <Prose text={block.text} onTermClick={onTermClick} locale={locale} />
 
                 {/* Insertions actives + remplacements obligatoires */}
                 <AnimatePresence initial={false}>
@@ -1065,7 +1097,7 @@ export default function Composer({
                           {ins.mod.label}
                         </span>
                         <div className="text-[0.98rem]">
-                          <Prose text={ins.text} onTermClick={onTermClick} />
+                          <Prose text={ins.text} onTermClick={onTermClick} locale={locale} />
                         </div>
                       </motion.div>
                     );
@@ -1088,7 +1120,7 @@ export default function Composer({
                         ⚠ Règle par défaut : « {m.label} » non activé
                       </span>
                       <div className="text-[0.98rem]">
-                        <Prose text={m.fallback!.text} onTermClick={onTermClick} />
+                        <Prose text={m.fallback!.text} onTermClick={onTermClick} locale={locale} />
                       </div>
                     </motion.div>
                   ))}

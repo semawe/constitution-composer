@@ -212,6 +212,7 @@ export default function App({
           font={font}
           titleColor={titleColor}
           onTermClick={goToTerm}
+          locale={locale}
         />
       </div>
       <div className={view === "glossaire" ? "" : "hidden"}>

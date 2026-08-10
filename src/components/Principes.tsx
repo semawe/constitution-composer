@@ -4,11 +4,9 @@ import { type DragEvent, useEffect, useMemo, useState } from "react";
 import { fontVars } from "@/lib/branding";
 import { linkifyTerms } from "@/lib/glossary";
 import { getSupabase } from "@/lib/supabase";
+import { COMPOSER, PRINCIPES_UI, type Locale } from "@/lib/i18n";
 
 const LS_PRINCIPES = "cc_principes";
-
-const ADOPTION_TEXT =
-  "En ratifiant le présent document, les Ratificateurs adoptent l'ensemble indissociable que forment ces Principes et la Constitution comme cadre de gouvernance et d'exploitation de leur organisation. Ils transfèrent leur autorité dans ce que ces Principes et cette Constitution définissent ensemble, et s'engagent à n'exercer le pouvoir qu'à travers les processus qui en découlent. Les Partenaires signataires acceptent d'œuvrer selon ce même cadre.";
 
 export interface Principle {
   id: string;
@@ -28,10 +26,11 @@ function paras(
   text: string,
   onTermClick: (key: string) => void,
   keyBase = "t",
+  locale: Locale = "fr",
 ) {
   return text.split(/\n\n/).map((p, i) => (
     <p key={i} className="mt-2 leading-relaxed">
-      {linkifyTerms(p, onTermClick, `${keyBase}-${i}`)}
+      {linkifyTerms(p, onTermClick, `${keyBase}-${i}`, locale)}
     </p>
   ));
 }
@@ -42,13 +41,18 @@ export default function Principes({
   font,
   titleColor,
   onTermClick,
+  locale = "fr",
 }: {
   data: PrincipesData;
   logo: string;
   font: string;
   titleColor: string;
   onTermClick: (key: string) => void;
+  locale?: Locale;
 }) {
+  const t = PRINCIPES_UI[locale];
+  // Le modal de connexion partage ses libellés avec la Constitution.
+  const c = COMPOSER[locale];
   const [removed, setRemoved] = useState<ReadonlySet<string>>(new Set());
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [custom, setCustom] = useState<
@@ -67,6 +71,33 @@ export default function Principes({
   const [order, setOrder] = useState<string[]>([]);
   const [dragId, setDragId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  // Cycle de vie de la Déclaration du compte : tant qu'on n'a pas fini de lire
+  // celle du serveur, on n'écrit RIEN dessus (sinon le brouillon affiché — qui
+  // peut être celui de la personne précédente sur un poste partagé — écrase ou
+  // remplit le compte qui vient de se connecter).
+  const [remote, setRemote] = useState<"idle" | "loading" | "ready">("idle");
+  // Brouillon anonyme non vide face à un compte sans Déclaration : on demande
+  // avant de rattacher, on ne recopie pas d'office.
+  const [offerAttach, setOfferAttach] = useState(false);
+
+  const clearDeclaration = () => {
+    setRemoved(new Set());
+    setCustom([]);
+    setOrder([]);
+    setRaisonEtre("");
+    setDevise("");
+    setRatifiers("");
+    setSignatories("");
+    setOfferAttach(false);
+    try {
+      localStorage.removeItem(LS_PRINCIPES);
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k?.startsWith(`${LS_PRINCIPES}:`)) localStorage.removeItem(k);
+      }
+    } catch {}
+  };
 
   // Compte (mur freemium du PDF de la Déclaration, comme la Constitution).
   const supabase = useMemo(() => getSupabase(), []);
@@ -83,12 +114,17 @@ export default function Principes({
       } catch {}
       return;
     }
-    supabase.auth
-      .getSession()
-      .then(({ data }) => setAccount(!!data.session?.user));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) =>
-      setAccount(!!s?.user),
-    );
+    supabase.auth.getSession().then(({ data }) => {
+      setAccount(!!data.session?.user);
+      setUserId(data.session?.user?.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((e, s) => {
+      setAccount(!!s?.user);
+      setUserId(s?.user?.id ?? null);
+      // Déconnexion : on ne laisse pas la Déclaration de la personne précédente
+      // à l'écran — elle serait recopiée dans le compte suivant.
+      if (e === "SIGNED_OUT") clearDeclaration();
+    });
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
 
@@ -143,12 +179,14 @@ export default function Principes({
     setLoaded(true);
   }, []);
 
-  // Persiste à chaque changement (après le chargement initial).
+  // Persiste à chaque changement (après le chargement initial). Une fois
+  // connecté, le miroir local est nominatif : le brouillon d'une personne ne
+  // réapparaît pas sous le compte de la suivante sur un poste partagé.
   useEffect(() => {
     if (!loaded) return;
     try {
       localStorage.setItem(
-        LS_PRINCIPES,
+        userId ? `${LS_PRINCIPES}:${userId}` : LS_PRINCIPES,
         JSON.stringify({
           removed: [...removed],
           custom,
@@ -162,6 +200,7 @@ export default function Principes({
     } catch {}
   }, [
     loaded,
+    userId,
     removed,
     custom,
     raisonEtre,
@@ -186,17 +225,38 @@ export default function Principes({
     [removed, custom, order, raisonEtre, devise, ratifiers, signatories],
   );
 
+  // Y a-t-il quelque chose à perdre dans le brouillon local ?
+  const draftIsEmpty =
+    removed.size === 0 &&
+    custom.length === 0 &&
+    !raisonEtre.trim() &&
+    !devise.trim() &&
+    !ratifiers.trim() &&
+    !signatories.trim();
+
   // À la connexion : charge la Déclaration du compte si elle existe.
   useEffect(() => {
-    if (!supabase || !account) return;
+    if (!supabase || !userId) {
+      setRemote("idle");
+      return;
+    }
     let alive = true;
+    setRemote("loading");
+    setOfferAttach(false);
     supabase
       .from("declarations")
       .select("payload")
-      .limit(1)
+      .eq("user_id", userId)
       .maybeSingle()
       .then(({ data }) => {
-        if (!alive || !data?.payload) return;
+        if (!alive) return;
+        if (!data?.payload) {
+          // Compte sans Déclaration. Si un brouillon anonyme est à l'écran, on
+          // ne le verse pas d'office dans ce compte : on propose.
+          setOfferAttach(!draftIsEmpty);
+          setRemote("ready");
+          return;
+        }
         const p = data.payload as {
           removed?: string[];
           custom?: { id: string; title: string; text: string }[];
@@ -213,28 +273,32 @@ export default function Principes({
         if (typeof p.devise === "string") setDevise(p.devise);
         if (typeof p.ratifiers === "string") setRatifiers(p.ratifiers);
         if (typeof p.signatories === "string") setSignatories(p.signatories);
+        setRemote("ready");
       });
     return () => {
       alive = false;
     };
-  }, [supabase, account]);
+    // draftIsEmpty n'est lu qu'au moment de la réponse : le relire en dépendance
+    // relancerait la requête à chaque frappe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase, userId]);
 
   // Sauvegarde différée dans le compte à chaque changement (connecté).
+  // Trois verrous avant d'écrire : le chargement local est fini, la Déclaration
+  // du compte a été lue (`remote === "ready"`), et aucun rattachement n'est en
+  // attente de décision.
   useEffect(() => {
-    if (!supabase || !account || !loaded) return;
+    if (!supabase || !userId || !loaded) return;
+    if (remote !== "ready" || offerAttach) return;
     const t = setTimeout(async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
       await supabase.from("declarations").upsert({
-        user_id: user.id,
+        user_id: userId,
         payload: declarationPayload,
         updated_at: new Date().toISOString(),
       });
     }, 1500);
     return () => clearTimeout(t);
-  }, [supabase, account, loaded, declarationPayload]);
+  }, [supabase, userId, loaded, remote, offerAttach, declarationPayload]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -333,18 +397,22 @@ export default function Principes({
         intro: data.intro,
         raisonEtre: raisonEtre.trim() || undefined,
         devise: devise.trim() || undefined,
-        adoptionText: ADOPTION_TEXT,
+        adoptionText: t.adoptionText,
         items,
         ratifiers: parseNames(ratifiers),
         signatories: parseNames(signatories),
         logo: logo || undefined,
         font,
         titleColor: titleColor || undefined,
+        locale,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "declaration-de-principes.pdf";
+      a.download =
+        locale === "en"
+          ? "declaration-of-principles.pdf"
+          : "declaration-de-principes.pdf";
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -367,12 +435,36 @@ export default function Principes({
       className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
       style={fontVars(font)}
     >
+      {offerAttach && (
+        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="font-medium">
+            {t.attachTitle}
+          </p>
+          <p className="mt-1">
+            {t.attachBody}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              onClick={() => setOfferAttach(false)}
+              className="rounded-full bg-amber-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-800"
+            >
+              {t.attachKeep}
+            </button>
+            <button
+              onClick={clearDeclaration}
+              className="rounded-full border border-amber-400 px-3 py-1.5 text-xs font-medium transition hover:bg-amber-100"
+            >
+              {t.attachReset}
+            </button>
+          </div>
+        </div>
+      )}
       <header className="mb-8 border-b border-slate-200 pb-6">
         {logo && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={logo}
-            alt="Logo de l'organisation"
+            alt={t.logoAlt}
             className="mb-3 max-h-16 w-auto"
           />
         )}
@@ -387,8 +479,7 @@ export default function Principes({
         </h1>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-slate-500">
-            {activeCount} principe{activeCount > 1 ? "s" : ""} retenu
-            {activeCount > 1 ? "s" : ""}
+            {t.kept(activeCount)}
           </p>
           <button
             onClick={handlePdf}
@@ -404,7 +495,7 @@ export default function Principes({
                 strokeLinejoin="round"
               />
             </svg>
-            {pdfBusy ? "Génération…" : "Télécharger le PDF signable"}
+            {pdfBusy ? t.generating : t.downloadPdf}
           </button>
         </div>
       </header>
@@ -415,32 +506,34 @@ export default function Principes({
         <div className="mb-8 space-y-3 rounded-md border border-slate-200 bg-white/70 p-4">
           <div>
             <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-              Raison d&apos;Être de l&apos;organisation
+              {t.purposeLabel}
             </label>
             <textarea
               value={raisonEtre}
               onChange={(e) => setRaisonEtre(e.target.value)}
               rows={2}
-              placeholder="La raison d'être que ces principes servent : quelques lignes."
+              placeholder={t.purposePlaceholder}
               className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-transparent p-2.5 text-[0.98rem] leading-relaxed outline-none transition focus:border-slate-400"
             />
           </div>
           <div>
             <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-              Devise <span className="normal-case text-slate-400">(facultatif)</span>
+              {t.mottoLabel}{" "}
+              <span className="normal-case text-slate-400">
+                ({locale === "en" ? "optional" : "facultatif"})
+              </span>
             </label>
             <input
               value={devise}
               onChange={(e) => setDevise(e.target.value)}
-              placeholder="Une formule courte qui vous rassemble."
+              placeholder={t.mottoPlaceholder}
               className="mt-1 w-full rounded border border-slate-200 bg-transparent px-2.5 py-2 text-sm outline-none transition focus:border-slate-400"
             />
           </div>
         </div>
 
         <p className="mb-4 text-xs text-slate-400">
-          Glissez un principe par sa poignée <span aria-hidden>⠿</span> pour le
-          réordonner ; la numérotation s&apos;adapte.
+          {t.dragHintPre} <span aria-hidden>⠿</span> {t.dragHint}
         </p>
 
         {orderedIds.map((id) => {
@@ -454,12 +547,12 @@ export default function Principes({
                 key={id}
                 className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-slate-200 px-3 py-2 text-sm text-slate-400"
               >
-                <span>Principe retiré : « {p.title} »</span>
+                <span>{t.removedPrinciple(p.title)}</span>
                 <button
                   onClick={() => restore(id)}
                   className="shrink-0 underline transition hover:text-slate-600"
                 >
-                  Rétablir
+                  {t.restore}
                 </button>
               </div>
             );
@@ -477,7 +570,7 @@ export default function Principes({
           const grip = (
             <span
               className="mt-1 shrink-0 cursor-grab select-none text-slate-300 transition hover:text-slate-500"
-              title="Glisser pour réordonner"
+              title={t.dragTitle}
               aria-hidden
             >
               ⠿
@@ -500,14 +593,14 @@ export default function Principes({
                     <input
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
-                      placeholder="Titre du principe"
+                      placeholder={t.titlePlaceholder}
                       className="w-full rounded border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-slate-400"
                     />
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
                       rows={3}
-                      placeholder="Énoncé du principe (optionnel)"
+                      placeholder={t.textPlaceholder}
                       className="doc-prose mt-2 w-full resize-y rounded border border-slate-200 p-3 text-[0.98rem] outline-none transition focus:border-slate-400"
                     />
                     <div className="mt-2 flex gap-2">
@@ -516,13 +609,13 @@ export default function Principes({
                         disabled={!editTitle.trim()}
                         className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
                       >
-                        Enregistrer
+                        {t.save}
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
                         className="rounded-full border border-slate-300 px-4 py-1.5 text-sm text-slate-600 transition hover:border-slate-500"
                       >
-                        Annuler
+                        {t.cancel}
                       </button>
                     </div>
                   </div>
@@ -538,7 +631,7 @@ export default function Principes({
                             onClick={() => startEdit(c)}
                             className="underline transition hover:text-slate-700"
                           >
-                            Éditer
+                            {t.edit}
                           </button>
                         )}
                         <button
@@ -549,18 +642,18 @@ export default function Principes({
                           }
                           className="underline transition hover:text-amber-600"
                         >
-                          Retirer
+                          {t.remove}
                         </button>
                       </div>
                     </div>
                     {p
-                      ? paras(p.text, onTermClick, id)
+                      ? paras(p.text, onTermClick, id, locale)
                       : c!.text
-                        ? paras(c!.text, onTermClick, id)
+                        ? paras(c!.text, onTermClick, id, locale)
                         : null}
                     {c && (
                       <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">
-                        Principe ajouté
+                        {t.added}
                       </p>
                     )}
                   </>
@@ -569,7 +662,7 @@ export default function Principes({
                   <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-amber-50/60 py-3 pl-4 pr-3">
                     <p className="text-sm text-amber-800">
                       <span className="font-semibold">
-                        ⚠ Retirer ce principe ?
+                        {t.confirmRemove}
                       </span>{" "}
                       {p.warning}
                     </p>
@@ -578,13 +671,13 @@ export default function Principes({
                         onClick={() => remove(id)}
                         className="rounded-full bg-amber-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-amber-700"
                       >
-                        Confirmer le retrait
+                        {t.confirmRemoveBtn}
                       </button>
                       <button
                         onClick={() => setConfirmId(null)}
                         className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 transition hover:border-slate-500"
                       >
-                        Annuler
+                        {t.cancel}
                       </button>
                     </div>
                   </div>
@@ -599,14 +692,14 @@ export default function Principes({
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Titre du principe"
+              placeholder={t.titlePlaceholder}
               className="w-full rounded border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-slate-400"
             />
             <textarea
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               rows={3}
-              placeholder="Énoncé du principe (optionnel)"
+              placeholder={t.textPlaceholder}
               className="doc-prose mt-2 w-full resize-y rounded border border-slate-200 p-3 text-[0.98rem] outline-none transition focus:border-slate-400"
             />
             <div className="mt-2 flex gap-2">
@@ -615,7 +708,7 @@ export default function Principes({
                 disabled={!newTitle.trim()}
                 className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
               >
-                Ajouter
+                {t.add}
               </button>
               <button
                 onClick={() => {
@@ -625,7 +718,7 @@ export default function Principes({
                 }}
                 className="rounded-full border border-slate-300 px-4 py-1.5 text-sm text-slate-600 transition hover:border-slate-500"
               >
-                Annuler
+                {t.cancel}
               </button>
             </div>
           </div>
@@ -634,44 +727,43 @@ export default function Principes({
             onClick={() => setAdding(true)}
             className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3 py-1.5 text-sm text-slate-500 transition hover:border-slate-500 hover:text-slate-700"
           >
-            <span className="text-base leading-none">+</span> Ajouter un principe
+            <span className="text-base leading-none">+</span> {t.addPrinciple}
           </button>
         )}
 
         <section className="mt-12 border-t border-slate-200 pt-6">
           <h2 className="font-serif text-xl font-semibold text-slate-900">
-            Adoption
+            {t.adoption}
           </h2>
-          <p className="mt-2 leading-relaxed">{ADOPTION_TEXT}</p>
+          <p className="mt-2 leading-relaxed">{t.adoptionText}</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Ratificateurs
+                {t.ratifiers}
               </label>
               <textarea
                 value={ratifiers}
                 onChange={(e) => setRatifiers(e.target.value)}
                 rows={4}
-                placeholder="Un nom et prénom par ligne."
+                placeholder={t.namesPlaceholder}
                 className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-slate-400"
               />
             </div>
             <div>
               <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Signataires
+                {t.signatories}
               </label>
               <textarea
                 value={signatories}
                 onChange={(e) => setSignatories(e.target.value)}
                 rows={4}
-                placeholder="Un nom et prénom par ligne."
+                placeholder={t.namesPlaceholder}
                 className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-slate-400"
               />
             </div>
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Ces noms apparaîtront avec une ligne de signature dans le PDF de la
-            Déclaration.
+            {t.namesHint}
           </p>
         </section>
 
@@ -689,9 +781,7 @@ export default function Principes({
             className="hidden h-10 w-auto shrink-0 dark:block"
           />
           <span>
-            Déclaration de Principes composée avec le Composeur de Sémawé,
-            diffusée sous licence {data.meta.license}, dérivée de la Constitution
-            Holacracy. {data.meta.notice}
+            {t.footer(data.meta.license, data.meta.notice)}
           </span>
         </footer>
       </article>
@@ -705,21 +795,20 @@ export default function Principes({
           <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
             <button
               onClick={() => setGate(false)}
-              aria-label="Fermer"
+              aria-label={c.close}
               className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
             >
               ✕
             </button>
             <div className="bg-gradient-to-br from-teal-500 to-violet-600 px-6 py-7 text-white">
               <p className="text-xs font-medium uppercase tracking-widest text-white/80">
-                Créez votre compte gratuit
+                {c.createFreeAccount}
               </p>
               <h2 className="mt-1 font-serif text-2xl font-semibold">
-                Téléchargez votre Déclaration
+                {t.gateTitle}
               </h2>
               <p className="mt-2 text-sm text-white/90">
-                Le PDF signable de votre Déclaration de Principes est réservé aux
-                membres, la création de compte est gratuite.
+                {t.gateDesc}
               </p>
             </div>
             <div className="px-6 py-6">
@@ -733,16 +822,16 @@ export default function Principes({
                   <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
                   <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
                 </svg>
-                Continuer avec Google
+                {c.continueGoogle}
               </button>
               <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-slate-400">
                 <span className="h-px flex-1 bg-slate-200" />
-                ou par e-mail
+                {c.orByEmail}
                 <span className="h-px flex-1 bg-slate-200" />
               </div>
               {otpSent ? (
                 <p className="rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
-                  Lien de connexion envoyé. Ouvrez-le depuis votre boîte mail.
+                  {c.emailSent}
                 </p>
               ) : (
                 <div className="flex gap-2">
@@ -750,7 +839,7 @@ export default function Principes({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="vous@exemple.fr"
+                    placeholder={c.emailPlaceholder}
                     className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
                   />
                   <button
@@ -758,7 +847,7 @@ export default function Principes({
                     disabled={!email.trim()}
                     className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
                   >
-                    Recevoir un lien
+                    {c.sendLink}
                   </button>
                 </div>
               )}

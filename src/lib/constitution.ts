@@ -71,6 +71,65 @@ export interface RenderedItem {
 }
 
 /**
+ * Normalise un ensemble de modules actifs venu de l'extérieur (localStorage,
+ * Supabase, visualiseur admin, URL). `compose()` fait confiance à ce qu'on lui
+ * donne : sans ce passage, un état sauvegardé peut violer les `requires` et
+ * produire une Constitution qui contredit son propre graphe de dépendances
+ * (ex. les insertions « Agents » sans « Source de Vérité »), ou référencer des
+ * modules disparus du fond.
+ *
+ * Trois passes : rejet des identifiants inconnus, fermeture transitive des
+ * prérequis, puis résolution des conflits (le module conflictuel est retiré,
+ * ainsi que tout ce qui en dépendait).
+ */
+export function normalizeActive(
+  data: ConstitutionData,
+  ids: Iterable<string>,
+): Set<string> {
+  const byId = new Map(data.modules.map((m) => [m.id, m]));
+  const next = new Set<string>();
+
+  // 1. Identifiants connus seulement.
+  for (const id of ids) if (byId.has(id)) next.add(id);
+
+  // 2. Fermeture transitive des prérequis.
+  const stack = [...next];
+  while (stack.length) {
+    const cur = byId.get(stack.pop()!);
+    cur?.requires.forEach((r) => {
+      if (byId.has(r) && !next.has(r)) {
+        next.add(r);
+        stack.push(r);
+      }
+    });
+  }
+
+  // 3. Conflits : on retire la cible du conflit, puis tout module privé d'un
+  //    prérequis par ce retrait (en cascade).
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const m of data.modules) {
+      if (!next.has(m.id)) continue;
+      for (const c of m.conflicts) {
+        if (next.has(c)) {
+          next.delete(c);
+          changed = true;
+        }
+      }
+    }
+    for (const m of data.modules) {
+      if (next.has(m.id) && m.requires.some((r) => !next.has(r))) {
+        next.delete(m.id);
+        changed = true;
+      }
+    }
+  }
+
+  return next;
+}
+
+/**
  * Compose le document : socle dans l'ordre, puis pour chaque ancre,
  * les insertions des modules actifs, puis les remplacements obligatoires
  * des modules inactifs qui en portent un.
@@ -196,9 +255,28 @@ export function toggleModule(
         }
       });
     }
-    // Désactiver les conflits.
+    // Désactiver les conflits, dans les deux sens : le module activé déclare
+    // ses conflits, mais un module déjà actif peut aussi déclarer un conflit
+    // avec celui-ci.
     const cur = byId.get(id);
     cur?.conflicts.forEach((c) => next.delete(c));
+    for (const m of data.modules) {
+      if (m.id !== id && next.has(m.id) && m.conflicts.includes(id)) {
+        next.delete(m.id);
+      }
+    }
+    // Un retrait par conflit peut priver d'autres modules de leur prérequis :
+    // on referme la cascade, comme lors d'une désactivation.
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const m of data.modules) {
+        if (next.has(m.id) && m.requires.some((r) => !next.has(r))) {
+          next.delete(m.id);
+          changed = true;
+        }
+      }
+    }
   }
 
   return next;

@@ -121,6 +121,12 @@ export const COMPOSER = {
     showIntent: "Afficher les notes d'intention",
     pdfGenerating: "Génération...",
     pdfDownload: "Télécharger le PDF",
+    // Libellés du PDF de la Constitution
+    pdfComposedOn: "Composé le",
+    pdfValuesHeading: "Valeurs et principes",
+    pdfDefaultRule: (label: string) => `Règle par défaut : « ${label} » non activé`,
+    pdfFooter: (license: string, notice: string) =>
+      `Composé avec le Composeur de Constitution de Sémawé, diffusé sous licence ${license}, dérivé de la Constitution Holacracy. ${notice}`,
     liteFull: "Lite complète",
     blocksRetirable: (kept: number, total: number) =>
       `${kept}/${total} blocs retirables`,
@@ -220,6 +226,12 @@ export const COMPOSER = {
     showIntent: "Show intent notes",
     pdfGenerating: "Generating...",
     pdfDownload: "Download PDF",
+    // Constitution PDF labels
+    pdfComposedOn: "Composed on",
+    pdfValuesHeading: "Values and principles",
+    pdfDefaultRule: (label: string) => `Default rule: “${label}” not enabled`,
+    pdfFooter: (license: string, notice: string) =>
+      `Composed with Sémawé's Constitution Composer, released under ${license}, derived from the Holacracy Constitution. ${notice}`,
     liteFull: "Full Lite",
     blocksRetirable: (kept: number, total: number) =>
       `${kept}/${total} removable blocks`,
@@ -364,6 +376,116 @@ export const MARKETPLACE = {
     statusRejected: "Rejected",
   },
 };
+
+// Déclaration de Principes (onglet + PDF signable)
+export const PRINCIPES_UI = {
+  fr: {
+    adoptionText:
+      "En ratifiant le présent document, les Ratificateurs adoptent l'ensemble indissociable que forment ces Principes et la Constitution comme cadre de gouvernance et d'exploitation de leur organisation. Ils transfèrent leur autorité dans ce que ces Principes et cette Constitution définissent ensemble, et s'engagent à n'exercer le pouvoir qu'à travers les processus qui en découlent. Les Partenaires signataires acceptent d'œuvrer selon ce même cadre.",
+    logoAlt: "Logo de l'organisation",
+    kept: (n: number) =>
+      `${n} principe${n > 1 ? "s" : ""} retenu${n > 1 ? "s" : ""}`,
+    generating: "Génération…",
+    downloadPdf: "Télécharger le PDF signable",
+    purposeLabel: "Raison d'Être de l'organisation",
+    purposePlaceholder:
+      "La raison d'être que ces principes servent : quelques lignes.",
+    mottoLabel: "Devise",
+    mottoPlaceholder: "Une formule courte qui vous rassemble.",
+    dragHint: "pour le réordonner ; la numérotation s'adapte.",
+    dragHintPre: "Glissez un principe par sa poignée",
+    dragTitle: "Glisser pour réordonner",
+    removedPrinciple: (title: string) => `Principe retiré : « ${title} »`,
+    restore: "Rétablir",
+    titlePlaceholder: "Titre du principe",
+    textPlaceholder: "Énoncé du principe (optionnel)",
+    save: "Enregistrer",
+    cancel: "Annuler",
+    edit: "Éditer",
+    remove: "Retirer",
+    added: "Principe ajouté",
+    confirmRemove: "⚠ Retirer ce principe ?",
+    confirmRemoveBtn: "Confirmer le retrait",
+    add: "Ajouter",
+    addPrinciple: "Ajouter un principe",
+    adoption: "Adoption",
+    ratifiers: "Ratificateurs",
+    signatories: "Signataires",
+    namesPlaceholder: "Un nom et prénom par ligne.",
+    namesHint:
+      "Ces noms apparaîtront avec une ligne de signature dans le PDF de la Déclaration.",
+    footer: (license: string, notice: string) =>
+      `Déclaration de Principes composée avec le Composeur de Sémawé, diffusée sous licence ${license}, dérivée de la Constitution Holacracy. ${notice}`,
+    attachTitle: "Cette Déclaration n'est pas encore rattachée à votre compte.",
+    attachBody:
+      "Elle a été rédigée avant votre connexion, sur ce navigateur. Voulez-vous l'enregistrer dans votre compte, ou repartir d'une Déclaration vierge ?",
+    attachKeep: "Enregistrer dans mon compte",
+    attachReset: "Repartir de zéro",
+    gateTitle: "Téléchargez votre Déclaration",
+    gateDesc:
+      "Le PDF signable de votre Déclaration de Principes est réservé aux membres, la création de compte est gratuite.",
+    // PDF
+    pdfComposedOn: "Composé le",
+    pdfPurpose: "Raison d'Être",
+    pdfMotto: "Devise",
+    pdfRatifiers: "Ratificateurs",
+    pdfSignatories: "Partenaires signataires",
+    pdfSignature: "Signature",
+    pdfDate: "Date",
+  },
+  en: {
+    adoptionText:
+      "By ratifying this document, the Ratifiers adopt the indivisible whole formed by these Principles and the Constitution as the framework for governing and operating their organization. They transfer their authority into what these Principles and this Constitution define together, and undertake to exercise power only through the processes arising from them. The signing Partners agree to work within that same framework.",
+    logoAlt: "Organization logo",
+    kept: (n: number) => `${n} principle${n > 1 ? "s" : ""} kept`,
+    generating: "Generating…",
+    downloadPdf: "Download the signable PDF",
+    purposeLabel: "Purpose of the organization",
+    purposePlaceholder: "The purpose these principles serve: a few lines.",
+    mottoLabel: "Motto",
+    mottoPlaceholder: "A short phrase that brings you together.",
+    dragHintPre: "Drag a principle by its handle",
+    dragHint: "to reorder it; numbering adapts.",
+    dragTitle: "Drag to reorder",
+    removedPrinciple: (title: string) => `Principle removed: “${title}”`,
+    restore: "Restore",
+    titlePlaceholder: "Principle title",
+    textPlaceholder: "Principle statement (optional)",
+    save: "Save",
+    cancel: "Cancel",
+    edit: "Edit",
+    remove: "Remove",
+    added: "Added principle",
+    confirmRemove: "⚠ Remove this principle?",
+    confirmRemoveBtn: "Confirm removal",
+    add: "Add",
+    addPrinciple: "Add a principle",
+    adoption: "Adoption",
+    ratifiers: "Ratifiers",
+    signatories: "Signatories",
+    namesPlaceholder: "One first and last name per line.",
+    namesHint:
+      "These names will appear with a signature line in the Declaration PDF.",
+    footer: (license: string, notice: string) =>
+      `Declaration of Principles composed with Sémawé's Composer, released under ${license}, derived from the Holacracy Constitution. ${notice}`,
+    attachTitle: "This Declaration is not attached to your account yet.",
+    attachBody:
+      "It was drafted before you signed in, on this browser. Would you like to save it to your account, or start from a blank Declaration?",
+    attachKeep: "Save to my account",
+    attachReset: "Start over",
+    gateTitle: "Download your Declaration",
+    gateDesc:
+      "The signable PDF of your Declaration of Principles is for members only, account creation is free.",
+    // PDF
+    pdfComposedOn: "Composed on",
+    pdfPurpose: "Purpose",
+    pdfMotto: "Motto",
+    pdfRatifiers: "Ratifiers",
+    pdfSignatories: "Signing Partners",
+    pdfSignature: "Signature",
+    pdfDate: "Date",
+  },
+} satisfies Record<Locale, unknown>;
 
 // Glossaire tab
 export const GLOSSAIRE_UI = {
