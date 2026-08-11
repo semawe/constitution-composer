@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminUser } from "@/lib/admin";
 import AdminSubmissions from "@/components/AdminSubmissions";
 import type { User } from "@supabase/supabase-js";
 import constitutionData from "@/data/constitution.fr.json";
@@ -44,6 +44,7 @@ type State =
   | { kind: "loading" }
   | { kind: "unconfigured" }
   | { kind: "denied" }
+  | { kind: "error"; message: string }
   | {
       kind: "ready";
       profiles: ProfileRow[];
@@ -77,7 +78,7 @@ export default function AdminPage() {
         data: { session },
       } = await sb.auth.getSession();
       const user: User | null = session?.user ?? null;
-      if (!user || !isAdminEmail(user.email)) {
+      if (!user || !isAdminUser(user)) {
         setState({ kind: "denied" });
         return;
       }
@@ -92,6 +93,14 @@ export default function AdminPage() {
           .order("updated_at", { ascending: false }),
         sb.from("declarations").select("user_id,payload,updated_at"),
       ]);
+      // Une lecture refusée par la RLS renvoie une erreur et des données
+      // nulles : sans ce test, l'écran affichait des listes vides, ce qui se
+      // lit comme « aucun compte » et non comme « je n'ai pas le droit ».
+      const failed = [p, c, d].find((r) => r.error);
+      if (failed?.error) {
+        setState({ kind: "error", message: failed.error.message });
+        return;
+      }
       setState({
         kind: "ready",
         profiles: (p.data ?? []) as ProfileRow[],
@@ -148,6 +157,20 @@ export default function AdminPage() {
           Supabase n&apos;est pas configuré sur cet environnement : aucune donnée
           à afficher.
         </p>
+      )}
+
+      {state.kind === "error" && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-6">
+          <p className="text-sm text-amber-900">
+            Lecture refusée par la base : <code>{state.message}</code>
+          </p>
+          <p className="mt-2 text-sm text-amber-800">
+            Le compte est reconnu comme associé côté interface mais pas côté
+            base. Le claim <code>admin</code> manque probablement sur cette
+            session : déconnectez-vous puis reconnectez-vous pour obtenir un
+            jeton à jour.
+          </p>
+        </div>
       )}
 
       {state.kind === "denied" && (

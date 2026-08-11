@@ -1,14 +1,18 @@
-// Périmètre admin de l'écran /admin. La liste vient de l'environnement
-// (NEXT_PUBLIC_ADMIN_EMAILS, séparée par des virgules) et doit rester
-// synchronisée avec la fonction SQL public.is_admin() qui protège la lecture
-// côté base via RLS. Le gating front n'est qu'un affichage : la vraie barrière
-// est la RLS Supabase.
+// Périmètre admin de l'écran /admin.
+//
+// Le droit vient d'un seul endroit : le claim `admin` dans `app_metadata`,
+// porté par le JWT Supabase. `app_metadata` n'est modifiable qu'avec la clé
+// service_role — contrairement à `user_metadata`, que l'utilisateur contrôle.
+// La même expression protège la lecture des tables côté base (`public.is_admin()`,
+// migration `0007_admin_claim.sql`) : le front et la RLS ne peuvent plus
+// diverger. Qui obtient le claim se décide dans `private.admin_emails`.
+//
+// Ce gating front n'est toujours qu'un affichage : la vraie barrière est la RLS.
 
-export const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
+export interface AdminClaimCarrier {
+  app_metadata?: Record<string, unknown> | null;
+}
 
-export function isAdminEmail(email?: string | null): boolean {
-  return !!email && ADMIN_EMAILS.includes(email.trim().toLowerCase());
+export function isAdminUser(user?: AdminClaimCarrier | null): boolean {
+  return user?.app_metadata?.admin === true;
 }

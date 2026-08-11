@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminUser } from "@/lib/admin";
 import type { ConstitutionData } from "@/lib/constitution";
 import constitutionRaw from "@/data/constitution.fr.json";
 
@@ -46,7 +46,7 @@ export default function InsertionsConfigPage() {
     }
     sb.auth
       .getSession()
-      .then(({ data: d }) => setAdmin(isAdminEmail(d.session?.user?.email)));
+      .then(({ data: d }) => setAdmin(isAdminUser(d.session?.user)));
   }, []);
 
   const rows = useMemo<Row[]>(

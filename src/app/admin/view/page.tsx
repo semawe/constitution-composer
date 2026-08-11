@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminUser } from "@/lib/admin";
 import {
   compose,
   normalizeActive,
@@ -108,7 +108,7 @@ export default function AdminViewPage() {
       const {
         data: { session },
       } = await sb.auth.getSession();
-      if (!session?.user || !isAdminEmail(session.user.email)) {
+      if (!session?.user || !isAdminUser(session.user)) {
         setState({ kind: "denied" });
         return;
       }

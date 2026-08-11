@@ -9,7 +9,7 @@ import Marketplace from "@/components/Marketplace";
 import ThemeToggle from "@/components/ThemeToggle";
 import type { ConstitutionData } from "@/lib/constitution";
 import { getSupabase } from "@/lib/supabase";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminUser } from "@/lib/admin";
 import { APP_UI, type Locale } from "@/lib/i18n";
 
 const LS_BRANDING = "cc-branding";
@@ -49,8 +49,14 @@ export default function App({
   useEffect(() => {
     const sb = getSupabase();
     if (!sb) return;
-    const sync = (u: { email?: string; user_metadata?: Record<string, unknown> } | null) => {
-      setIsAdmin(isAdminEmail(u?.email));
+    const sync = (
+      u: {
+        email?: string;
+        user_metadata?: Record<string, unknown>;
+        app_metadata?: Record<string, unknown> | null;
+      } | null,
+    ) => {
+      setIsAdmin(isAdminUser(u));
       setSignedIn(!!u);
       const name =
         (u?.user_metadata?.given_name as string) ||
