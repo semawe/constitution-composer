@@ -93,6 +93,9 @@ export default function App({
   const [titleColor, setTitleColor] = useState("");
   const [brandingLoaded, setBrandingLoaded] = useState(false);
 
+  // Identité visuelle restaurée depuis localStorage après le montage. La lire
+  // pendant le rendu ferait diverger l'HTML prérendu du premier rendu client.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_BRANDING);
@@ -105,6 +108,7 @@ export default function App({
     } catch {}
     setBrandingLoaded(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!brandingLoaded) return;

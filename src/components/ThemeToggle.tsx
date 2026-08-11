@@ -1,25 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 // Sélecteur de thème. Dark par défaut ; le choix est persisté dans localStorage
 // (clé cc-theme) et appliqué avant le paint par un script inline dans layout.tsx
 // pour éviter tout flash.
+//
+// L'état vrai du thème est la classe `dark` sur <html>, posée par ce script
+// inline avant l'hydratation : c'est un store externe, pas un état React. On le
+// lit avec useSyncExternalStore plutôt qu'en recopiant le DOM dans un state via
+// un effet — le rendu serveur reçoit le même défaut (sombre) et le client lit la
+// valeur réelle sans render en cascade.
+const THEME_EVENT = "cc:theme";
+
+function subscribe(onChange: () => void) {
+  window.addEventListener(THEME_EVENT, onChange);
+  return () => window.removeEventListener(THEME_EVENT, onChange);
+}
+
+function isDark() {
+  return document.documentElement.classList.contains("dark");
+}
+
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(true);
+  const dark = useSyncExternalStore(subscribe, isDark, () => true);
 
-  useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
-
-  const toggle = () => {
-    const next = !dark;
-    setDark(next);
+  const toggle = useCallback(() => {
+    const next = !isDark();
     document.documentElement.classList.toggle("dark", next);
     try {
       localStorage.setItem("cc-theme", next ? "dark" : "light");
     } catch {}
-  };
+    window.dispatchEvent(new Event(THEME_EVENT));
+  }, []);
 
   return (
     <button

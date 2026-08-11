@@ -53,6 +53,10 @@ export default function AppSubmissions({
   }, [signedIn]);
 
   useEffect(() => {
+    // refresh() remet la liste à vide quand la session tombe, puis la
+    // recharge : remise à zéro sur changement de dépendance, pas un état
+    // dérivable du rendu.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
   }, [refresh]);
 

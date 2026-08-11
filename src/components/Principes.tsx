@@ -110,6 +110,8 @@ export default function Principes({
   useEffect(() => {
     if (!supabase) {
       try {
+        // repli compte simulé lu dans localStorage après montage.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (localStorage.getItem("cc_account") === "1") setAccount(true);
       } catch {}
       return;
@@ -161,7 +163,10 @@ export default function Principes({
     setOtpSent(true);
   };
 
-  // Restaure l'état des principes (survit au changement d'onglet et au rechargement).
+  // Restaure l'état des principes (survit au changement d'onglet et au
+  // rechargement). Lecture d'un store externe après le montage, pour la même
+  // raison que le brouillon du composer.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_PRINCIPES);
@@ -178,6 +183,7 @@ export default function Principes({
     } catch {}
     setLoaded(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Persiste à chaque changement (après le chargement initial). Une fois
   // connecté, le miroir local est nominatif : le brouillon d'une personne ne
@@ -237,6 +243,8 @@ export default function Principes({
   // À la connexion : charge la Déclaration du compte si elle existe.
   useEffect(() => {
     if (!supabase || !userId) {
+      // remise à zéro du cycle de lecture distante quand la session tombe.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRemote("idle");
       return;
     }

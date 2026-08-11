@@ -65,14 +65,15 @@ function fmtDate(s: string) {
 }
 
 export default function AdminPage() {
-  const [state, setState] = useState<State>({ kind: "loading" });
+  // Initialisation paresseuse : sans clés Supabase, l'écran naît « unconfigured »
+  // au lieu de naître « loading » puis d'être corrigé par un effet.
+  const [state, setState] = useState<State>(() =>
+    getSupabase() ? { kind: "loading" } : { kind: "unconfigured" },
+  );
 
   useEffect(() => {
     const sb = getSupabase();
-    if (!sb) {
-      setState({ kind: "unconfigured" });
-      return;
-    }
+    if (!sb) return; // état initial déjà « unconfigured »
     (async () => {
       const {
         data: { session },

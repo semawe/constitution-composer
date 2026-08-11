@@ -32,7 +32,11 @@ interface Row {
 type Pos = string;
 
 export default function InsertionsConfigPage() {
-  const [admin, setAdmin] = useState<boolean | null>(null);
+  // false d'emblée quand Supabase n'est pas configuré : aucun accès possible,
+  // inutile de passer par « indéterminé » puis de corriger dans un effet.
+  const [admin, setAdmin] = useState<boolean | null>(() =>
+    getSupabase() ? null : false,
+  );
   const [cfg, setCfg] = useState<Record<string, { anchor: string; pos: Pos }>>(
     {},
   );
@@ -40,10 +44,7 @@ export default function InsertionsConfigPage() {
 
   useEffect(() => {
     const sb = getSupabase();
-    if (!sb) {
-      setAdmin(false);
-      return;
-    }
+    if (!sb) return; // état initial déjà false
     sb.auth
       .getSession()
       .then(({ data: d }) => setAdmin(isAdminUser(d.session?.user)));
@@ -77,6 +78,9 @@ export default function InsertionsConfigPage() {
       if (!merged[r.key])
         merged[r.key] = { anchor: r.defaultAnchor, pos: "end" };
     }
+    // config lue dans localStorage après montage, puis éditable : elle ne
+    // peut pas être dérivée pendant le rendu sans divergence d'hydratation.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCfg(merged);
   }, [rows]);
 

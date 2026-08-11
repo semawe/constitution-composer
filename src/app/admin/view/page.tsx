@@ -95,14 +95,15 @@ type State =
     };
 
 export default function AdminViewPage() {
-  const [state, setState] = useState<State>({ kind: "loading" });
+  // Initialisation paresseuse : sans clés Supabase, il n'y a rien à afficher
+  // dès le premier rendu, plutôt qu'un « loading » corrigé par un effet.
+  const [state, setState] = useState<State>(() =>
+    getSupabase() ? { kind: "loading" } : { kind: "notfound" },
+  );
 
   useEffect(() => {
     const sb = getSupabase();
-    if (!sb) {
-      setState({ kind: "notfound" });
-      return;
-    }
+    if (!sb) return; // état initial déjà « notfound »
     const compId = new URLSearchParams(window.location.search).get("comp");
     (async () => {
       const {

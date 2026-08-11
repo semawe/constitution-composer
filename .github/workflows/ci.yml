@@ -28,6 +28,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: Lint
+        run: npm run lint
+
       # L'artefact réellement déployé est l'export statique : sans ce build, la
       # CI peut rester verte alors que la génération statique échoue.
       - name: Build static export

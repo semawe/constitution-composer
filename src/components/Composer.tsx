@@ -274,6 +274,8 @@ export default function Composer({
   useEffect(() => {
     if (!supabase) {
       try {
+        // repli compte simulé lu dans localStorage après montage.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (localStorage.getItem("cc_account") === "1") setAccount(true);
       } catch {}
       return;
@@ -312,6 +314,10 @@ export default function Composer({
   // sauvegardée. Le brouillon reste local, jamais envoyé au compte tout seul.
   const [draftLoaded, setDraftLoaded] = useState(false);
 
+  // Le brouillon est lu dans localStorage après le montage : le lire pendant le
+  // rendu ferait diverger l'HTML prérendu (modules par défaut) du premier rendu
+  // client (brouillon restauré).
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem("cc_compose");
@@ -324,6 +330,7 @@ export default function Composer({
     } catch {}
     setDraftLoaded(true);
   }, [data]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!draftLoaded) return;
@@ -530,6 +537,9 @@ export default function Composer({
   // Mes versions (Phase B) : charge la liste dès qu'un compte est actif.
   useEffect(() => {
     if (!account) {
+      // remise à zéro de la liste à la déconnexion, sur changement de
+      // dépendance.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVersions([]);
       return;
     }
