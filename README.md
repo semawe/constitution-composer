@@ -151,6 +151,7 @@ lint and a full static build). What each file guards:
   so rather than skipping. Also compares the FR and EN content structurally: an insertion added on
   one side only would otherwise produce an English Constitution missing a section, without
   breaking anything.
+- **`src/lib/pdf.render.test.tsx` — the export, for real.** Renders actual PDFs (both documents, both languages, all five fonts) and asserts real bytes come out. The tree walk above sees what a document *contains*; it is blind to anything that breaks inside the PDF engine. This file exists because of one such defect: none of the five bundled fonts ships an italic variant, and react-pdf throws rather than synthesizing an oblique — so the Principles export, whose intro is italic, failed on every attempt in production, silently. Italic emphasis now maps to a built-in PDF italic face (`Times-Italic` / `Helvetica-Oblique`), and this test would catch the regression the moment it came back.
 - **`src/lib/markup.test.ts` — the markup grammar.** The fond uses five patterns and no more (paragraphs, bullet lists, numbered lists, bold, italic), parsed in one place by `src/lib/markup.ts`. Beyond unit cases, a property check over every text of the real content in both languages: the grammar restitutes every word, in order — it loses nothing and invents nothing. Its two deliberate limits (no nested lists, no single-item list) are guarded on the content side rather than silently tolerated.
 - **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
 
@@ -191,7 +192,7 @@ By contributing, you agree that your code is licensed under AGPL v3.
 - **Constitution engine:** `src/lib/constitution.ts` — `compose()` resolves the active set of blocks; `toggleModule()` handles `requires`/`conflicts` constraints
 - **Content source of truth:** the canonical Constitution, vendored as a submodule at `vendor/holacracy-constitution`. `src/data/principes.{fr,en}.json` are generated from it by `scripts/fond.mjs` and guarded in CI — see [Constitution content pipeline](#constitution-content-pipeline). `src/data/constitution.fr.json` and `constitution.en.json` are still hand-mirrored: their structured source (`composer/`) lives in the private working repo, which is deliberately not vendored here
 - **Markup:** `src/lib/markup.ts` owns the grammar of the light markup the content uses; `src/components/Prose.tsx` is the only HTML renderer of it (Composer, `/lite`, `/micro`, admin viewer) and `src/lib/pdf.tsx` the only PDF one. Five copies of that grammar used to coexist and had drifted apart — the PDF ignored italics, and `/lite` printed raw asterisks on an indexed page. One grammar, two renderers: there is no longer anywhere for the drift to happen
-- **PDF:** `src/lib/pdf.tsx` — uses `.woff` fonts (not `.woff2`) due to a react-pdf decoder limitation
+- **PDF:** `src/lib/pdf.tsx` — uses `.woff` fonts (not `.woff2`) due to a react-pdf decoder limitation. Only weights 400 and 700 are bundled, so italic emphasis is rendered with a built-in PDF italic face rather than `fontStyle: "italic"`, which react-pdf refuses to resolve for a family with no italic variant (it throws, and the export produces nothing). Bundling the italic files of the five families would let `ITALIC_FACE` in that file go away
 
 ---
 
