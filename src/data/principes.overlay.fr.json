@@ -1,0 +1,18 @@
+{
+  "notice": "Version non officielle. Holacracy® est une marque de HolacracyOne LLC.",
+  "license": "CC BY-SA 4.0",
+  "warnings": {
+    "p01": "En retirant ce principe, votre Déclaration cesse d'affirmer que l'organisation poursuit une raison d'être qui lui est propre. L'engagement de chacun ne se rattache plus explicitement à un but qui le dépasse.",
+    "p02": "Sans ce principe, rien n'invite plus à accueillir les tensions comme des informations utiles. Elles risquent d'être tues plutôt que traitées, et l'organisation perd l'un de ses moyens d'apprendre.",
+    "p03": "Retirer ce principe affaiblit le fondement du modèle, selon lequel l'autorité gagne à être proche de l'action, distribuée et délimitée. Votre Déclaration n'affirme plus que chacun détient une autorité réelle à l'intérieur de limites explicites.",
+    "p04": "Sans ce principe, votre Déclaration n'engage plus à rendre la structure explicite. L'ambiguïté qui en résulte fragilise la liberté d'agir, car chacun ignore alors où il peut décider sans demander la permission.",
+    "p05": "En le retirant, vous renoncez à séparer les décisions qui modifient la structure de celles qui font avancer le travail. Les deux registres risquent de se confondre, au détriment de la clarté et de la capacité à évoluer.",
+    "p06": "Sans ce principe, plus rien n'affirme que la structure s'adapte aux personnes. La tentation revient de chercher à changer les personnes pour faire tenir l'organisation.",
+    "p07": "Retirer ce principe ouvre la voie à des modifications du cadre par décision unilatérale. Votre Déclaration ne protège plus le système contre l'exercice du pouvoir hors des processus prévus.",
+    "p08": "Sans ce principe, l'implicite redevient opposable. Votre Déclaration n'engage plus à expliciter rôles, autorités et accords, et chacun perd la sécurité de savoir à quoi s'en tenir.",
+    "p09": "En le retirant, vous renoncez à la subsidiarité. L'autorité de modifier les règles d'un périmètre pourrait alors échapper à ceux qui en sont responsables.",
+    "p10": "Sans ce principe, l'autonomie risque d'être confondue avec l'indépendance. Votre Déclaration n'affirme plus que chaque rôle est autonome dans son périmètre tout en restant interdépendant du reste.",
+    "p11": "Retirer ce principe laisse croire que la Constitution tranche une fois pour toutes les polarités d'une organisation. Vous perdez l'invitation à les habiter selon vos propres réponses plutôt qu'à les supprimer.",
+    "p12": "Sans ce principe, plus rien n'affirme que la redevabilité a toujours un siège humain. La distinction entre diriger et répondre s'efface, et l'on peut croire qu'en confiant un rôle, à une personne comme à un agent, on délègue aussi le fait d'en répondre."
+  }
+}

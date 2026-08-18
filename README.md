@@ -47,10 +47,15 @@ Built by [Sémawé](https://semawe.fr), a French Holacracy consulting firm.
 ### Install
 
 ```bash
-git clone https://github.com/semawe/constitution-composer.git
+git clone --recurse-submodules https://github.com/semawe/constitution-composer.git
 cd constitution-composer
 npm install
 ```
+
+The `--recurse-submodules` flag pulls in `vendor/holacracy-constitution`, the canonical
+Constitution text (see [Constitution content pipeline](#constitution-content-pipeline)). It is
+only needed to regenerate or verify the content files, not to build the app — if you already
+cloned without it, run `git submodule update --init --recursive`.
 
 ### Environment variables
 
@@ -73,7 +78,51 @@ NEXT_PUBLIC_UMAMI_WEBSITE_ID=
 npm run dev        # http://localhost:3000
 npm test           # Vitest engine tests
 npm run build      # production build (static export → out/)
+npm run fond:check # verify the content files match the canonical Constitution
 ```
+
+---
+
+## Constitution content pipeline
+
+The app does not own the text it serves. The canonical Constitution lives in
+[semawe/Holacracy-Constitution](https://github.com/semawe/Holacracy-Constitution) as Markdown
+under `v6-alpha/`, and the JSON in `src/data/` is a machine encoding of it.
+
+**How the source is reached: a git submodule**, pinned at `vendor/holacracy-constitution`.
+
+Three ways were on the table — a submodule, an npm dependency, or a sibling clone expected next
+to this repo. The submodule wins on the three properties that matter here:
+
+- **Pinned and reproducible.** The commit is recorded in the tree, so a given checkout of this
+  repo always regenerates the exact same content. A sibling clone would silently regenerate
+  against whatever the contributor happens to have on disk — which is the very failure this
+  pipeline exists to prevent.
+- **Available in CI without credentials.** `semawe/Holacracy-Constitution` is public, so the
+  guard below runs on any fork and any pull request. Wiring CI to a private working repo would
+  have made the check unrunnable for outside contributors.
+- **No packaging detour.** The Constitution is a document, not a library; publishing it to npm
+  to make it importable would add a release step between editing the text and seeing it here.
+
+Regenerating:
+
+```bash
+git submodule update --init --recursive
+npm run fond:build   # rewrites src/data/principes.{fr,en}.json
+```
+
+**`src/data/principes.fr.json` and `principes.en.json` are generated. Do not edit them by hand.**
+What the Markdown does not carry — the warning shown when a principle is unchecked, the legal
+notice, the license — lives in `src/data/principes.overlay.{fr,en}.json` and is merged in by
+identifier. A canonical principle with no matching warning (or a warning with no matching
+principle) fails the generation rather than passing silently: adding a principle upstream forces
+the editorial work here.
+
+CI enforces this. The `Fond synchronisé avec la Constitution canonique` step in
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `npm run fond:check`, which
+regenerates in memory and compares against what is committed. Any divergence — a hand edit here,
+or an advance in the canonical text without a regeneration — fails the build with the command to
+run. Generation without that guard would protect nothing, since nobody would run it.
 
 ---
 
@@ -107,7 +156,7 @@ By contributing, you agree that your code is licensed under AGPL v3.
 ## Architecture notes
 
 - **Constitution engine:** `src/lib/constitution.ts` — `compose()` resolves the active set of blocks; `toggleModule()` handles `requires`/`conflicts` constraints
-- **Content source of truth:** `holacracy-constitution/composer/` (`SCHEMA.md` + `constitution.fr.json`). `src/data/constitution.fr.json` is a copy — do not edit it directly
+- **Content source of truth:** the canonical Constitution, vendored as a submodule at `vendor/holacracy-constitution`. `src/data/principes.{fr,en}.json` are generated from it by `scripts/fond.mjs` and guarded in CI — see [Constitution content pipeline](#constitution-content-pipeline). `src/data/constitution.fr.json` and `constitution.en.json` are still hand-mirrored: their structured source (`composer/`) lives in the private working repo, which is deliberately not vendored here
 - **PDF:** `src/lib/pdf.tsx` — uses `.woff` fonts (not `.woff2`) due to a react-pdf decoder limitation
 
 ---

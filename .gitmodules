@@ -1,0 +1,4 @@
+[submodule "vendor/holacracy-constitution"]
+	path = vendor/holacracy-constitution
+	url = https://github.com/semawe/Holacracy-Constitution.git
+	branch = master

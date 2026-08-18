@@ -1,0 +1,18 @@
+{
+  "notice": "Alpha version. Holacracy® is a trademark of HolacracyOne LLC.",
+  "license": "CC BY-SA 4.0",
+  "warnings": {
+    "p01": "By removing this principle, your Declaration no longer affirms that the organization pursues a purpose of its own. Each person's commitment is no longer explicitly tied to a goal that transcends them.",
+    "p02": "Without this principle, nothing invites treating tensions as useful information. They risk being suppressed rather than processed, and the organization loses one of its means of learning.",
+    "p03": "Removing this principle weakens the foundation of the model, according to which authority gains from being close to the action, distributed and delimited. Your Declaration no longer affirms that each person holds real authority within explicit boundaries.",
+    "p04": "Without this principle, your Declaration no longer commits to making the structure explicit. The resulting ambiguity undermines the freedom to act, because each person no longer knows where they may decide without asking permission.",
+    "p05": "By removing it, you give up separating decisions that change the structure from those that move the work forward. The two registers risk becoming confused, to the detriment of clarity and the capacity to evolve.",
+    "p06": "Without this principle, nothing affirms that the structure adapts to people. The temptation returns to try to change people to keep the organization running.",
+    "p07": "Removing this principle opens the door to modifying the framework by unilateral decision. Your Declaration no longer protects the system against the exercise of power outside the intended processes.",
+    "p08": "Without this principle, the implicit becomes enforceable again. Your Declaration no longer commits to making roles, authorities, and agreements explicit, and each person loses the security of knowing where they stand.",
+    "p09": "By removing it, you give up subsidiarity. The authority to change the rules of an area could then escape those who are responsible for it.",
+    "p10": "Without this principle, autonomy risks being confused with independence. Your Declaration no longer affirms that each role is autonomous within its boundaries while remaining interdependent with the rest.",
+    "p11": "Removing this principle suggests that the Constitution settles an organization's polarities once and for all. You lose the invitation to hold them according to your own responses rather than suppressing them.",
+    "p12": "Without this principle, nothing affirms that accountability always has a human seat. The distinction between directing and answering fades, and one might believe that by entrusting a role, to a person or an agent, accountability transfers along with it."
+  }
+}
