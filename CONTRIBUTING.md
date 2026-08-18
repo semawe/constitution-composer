@@ -45,7 +45,26 @@ git checkout -b feat/my-feature
 
 ## Content changes
 
-The Holacracy Constitution text lives in `holacracy-constitution/composer/` — that is the source of truth. `src/data/` is a copy. If you need to change constitution content, update the source first and mirror to `src/data/`. Do not diverge the two.
+The Constitution text is not owned by this repo. It lives in
+[semawe/Holacracy-Constitution](https://github.com/semawe/Holacracy-Constitution), vendored here as
+the `vendor/holacracy-constitution` submodule. Everything in `src/data/` derives from it.
+
+`src/data/principes.fr.json` and `principes.en.json` are **generated** — never edit them by hand.
+Change the canonical Markdown upstream, bump the submodule, then:
+
+```bash
+npm run fond:build
+```
+
+App-side content that the canonical text does not carry (the warning shown when a principle is
+unchecked, the legal notice, the license) belongs in `src/data/principes.overlay.{fr,en}.json`.
+
+CI runs `npm run fond:check` and fails on any divergence, so a hand edit or a missed regeneration
+never reaches `main`. See [Constitution content pipeline](README.md#constitution-content-pipeline).
+
+The remaining `src/data/` files (`constitution.*.json`, `glossaire.*.json`) are still mirrored by
+hand from the private working repo. Update the source first, mirror second, and do not diverge the
+two.
 
 ## License
 
