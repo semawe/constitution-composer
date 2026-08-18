@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminUser } from "@/lib/admin";
 import type { ConstitutionData } from "@/lib/constitution";
+import { chunks } from "@/lib/markup";
 import constitutionRaw from "@/data/constitution.fr.json";
 
 const data = constitutionRaw as ConstitutionData;
@@ -13,7 +14,7 @@ const LS_KEY = "cc_insertion_spec";
 // paragraphes d'un bloc (pour proposer "après le paragraphe …").
 function paragraphsOf(blockId: string): string[] {
   const b = data.blocks.find((x) => x.id === blockId);
-  return b ? b.text.split(/\n\n/) : [];
+  return b ? chunks(b.text) : [];
 }
 const preview = (s: string, n = 60) =>
   s.replace(/\*\*/g, "").trim().slice(0, n) + (s.length > n ? "…" : "");

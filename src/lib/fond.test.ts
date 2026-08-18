@@ -191,6 +191,15 @@ describe.each(FONDS)("fidélité du fond à la source canonique (%s)", (lang, da
     }
   });
 
+  it("aucune insertion n'exprime un placement que le moteur n'applique pas", () => {
+    // `compose()` ajoute l'insertion après le bloc, sans lire `position`. Un
+    // « after paragraph 2 » encodé dans le fond serait une intention perdue en
+    // silence : tant que le placeur fin n'existe pas, le fond dit « append ».
+    for (const m of data.modules)
+      for (const ins of m.insertions)
+        expect(ins.position, `${m.id} : placement non appliqué`).toBe("append");
+  });
+
   it("chaque terme défini par la source existe dans le document composable", () => {
     const texte = texteMaximal(data);
     const termes = termesCanoniques(markdown);

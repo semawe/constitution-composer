@@ -3,6 +3,7 @@
 import { type DragEvent, useEffect, useMemo, useState } from "react";
 import { fontVars } from "@/lib/branding";
 import { linkifyTerms } from "@/lib/glossary";
+import { chunks } from "@/lib/markup";
 import { getSupabase } from "@/lib/supabase";
 import { COMPOSER, PRINCIPES_UI, type Locale } from "@/lib/i18n";
 
@@ -28,7 +29,7 @@ function paras(
   keyBase = "t",
   locale: Locale = "fr",
 ) {
-  return text.split(/\n\n/).map((p, i) => (
+  return chunks(text).map((p, i) => (
     <p key={i} className="mt-2 leading-relaxed">
       {linkifyTerms(p, onTermClick, `${keyBase}-${i}`, locale)}
     </p>

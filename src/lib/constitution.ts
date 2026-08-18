@@ -23,6 +23,12 @@ export interface Block {
 
 export interface Insertion {
   anchor: string;
+  /**
+   * Intention éditoriale, pas une instruction : `compose()` ajoute toujours
+   * l'insertion après le bloc d'ancrage. Le fond ne porte donc que « append »,
+   * et un test l'y contraint — un jour où le placeur fin existera, ce champ
+   * cessera d'être décoratif, mais il ne doit pas mentir en attendant.
+   */
   position: string;
   text: string;
   /** Insertion conditionnelle : incluse seulement si TOUS ces modules sont actifs. */

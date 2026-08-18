@@ -41,9 +41,18 @@ export function parseInline(text: string): InlineSegment[] {
     });
 }
 
+/**
+ * Découpe brut : les blocs d'un texte, séparés par une ligne vide, tels qu'écrits.
+ * Exporté pour les rares usages qui indexent les blocs sans les rendre (l'outil
+ * d'administration des insertions) : la règle de découpage ne se réécrit pas.
+ */
+export function chunks(text: string): string[] {
+  return text.split(/\n\n/);
+}
+
 /** Découpe un texte du fond en blocs : paragraphes, listes à puces, listes numérotées. */
 export function parseBlocks(text: string): MarkupBlock[] {
-  return text.split(/\n\n/).map((chunk): MarkupBlock => {
+  return chunks(text).map((chunk): MarkupBlock => {
     const lines = chunk.split("\n");
     const trimmed = lines.map((l) => l.trim());
     if (lines.length > 1 && trimmed.every((l) => /^- /.test(l)))
