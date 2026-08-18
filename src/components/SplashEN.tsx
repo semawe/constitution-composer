@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 
 const fadeUp: Variants = {
@@ -47,6 +47,9 @@ const STEPS = [
 ];
 
 export default function SplashEN() {
+  // Le réglage système « animations réduites » vaut pour la page d'arrivée
+  // comme pour le reste : sans cela, l'entrée animée s'imposait quand même.
+  const reduce = useReducedMotion();
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
@@ -72,7 +75,7 @@ export default function SplashEN() {
         <div className="relative mx-auto max-w-5xl px-4 pb-20 pt-16 sm:pt-24">
           <motion.span
             variants={fadeUp}
-            initial="hidden"
+            initial={reduce ? false : "hidden"}
             animate="show"
             className="inline-block rounded-md bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700"
           >
@@ -80,7 +83,7 @@ export default function SplashEN() {
           </motion.span>
           <motion.h1
             variants={fadeUp}
-            initial="hidden"
+            initial={reduce ? false : "hidden"}
             animate="show"
             custom={1}
             className="mt-4 max-w-2xl font-serif text-4xl font-medium leading-tight text-slate-900 sm:text-5xl"
@@ -89,7 +92,7 @@ export default function SplashEN() {
           </motion.h1>
           <motion.p
             variants={fadeUp}
-            initial="hidden"
+            initial={reduce ? false : "hidden"}
             animate="show"
             custom={2}
             className="mt-4 max-w-xl text-lg leading-relaxed text-slate-600"
@@ -100,7 +103,7 @@ export default function SplashEN() {
           </motion.p>
           <motion.div
             variants={fadeUp}
-            initial="hidden"
+            initial={reduce ? false : "hidden"}
             animate="show"
             custom={3}
             className="mt-8 flex flex-wrap items-center gap-3"
@@ -127,7 +130,7 @@ export default function SplashEN() {
             <motion.div
               key={v.title}
               variants={fadeUp}
-              initial="hidden"
+              initial={reduce ? false : "hidden"}
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
               custom={i}
@@ -150,7 +153,7 @@ export default function SplashEN() {
             <motion.div
               key={s.n}
               variants={fadeUp}
-              initial="hidden"
+              initial={reduce ? false : "hidden"}
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
               custom={i}

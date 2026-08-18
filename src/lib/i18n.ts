@@ -121,6 +121,17 @@ export const COMPOSER = {
     showIntent: "Afficher les notes d'intention",
     pdfGenerating: "Génération...",
     pdfDownload: "Télécharger le PDF",
+    pdfFailed:
+      "Le PDF n'a pas pu être produit. Réessayez ; votre composition est intacte à l'écran.",
+    defaultRule: (label: string) => `Règle par défaut : « ${label} » non activé`,
+    reinsert: (label: string) => `Réinsérer : ${label}`,
+    addModuleHere: "Ajouter un module ici",
+    legend: "Légende",
+    legendDefaultRule: "Règle par défaut",
+    versionsFailed:
+      "Vos versions n'ont pas pu être lues. Rechargez la page : ce que vous voyez à l'écran n'est pas perdu.",
+    versionActionFailed:
+      "L'opération sur cette version a échoué. Rien n'a été modifié dans votre compte.",
     // Libellés du PDF de la Constitution
     pdfComposedOn: "Composé le",
     pdfValuesHeading: "Valeurs et principes",
@@ -226,6 +237,17 @@ export const COMPOSER = {
     showIntent: "Show intent notes",
     pdfGenerating: "Generating...",
     pdfDownload: "Download PDF",
+    pdfFailed:
+      "The PDF could not be produced. Try again; your composition is untouched on screen.",
+    defaultRule: (label: string) => `Default rule: “${label}” not enabled`,
+    reinsert: (label: string) => `Reinsert: ${label}`,
+    addModuleHere: "Add a module here",
+    legend: "Legend",
+    legendDefaultRule: "Default rule",
+    versionsFailed:
+      "Your saved versions could not be read. Reload the page: what you see on screen is not lost.",
+    versionActionFailed:
+      "That version operation failed. Nothing was changed in your account.",
     // Constitution PDF labels
     pdfComposedOn: "Composed on",
     pdfValuesHeading: "Values and principles",
@@ -387,6 +409,14 @@ export const PRINCIPES_UI = {
       `${n} principe${n > 1 ? "s" : ""} retenu${n > 1 ? "s" : ""}`,
     generating: "Génération…",
     downloadPdf: "Télécharger le PDF signable",
+    saving: "Enregistrement…",
+    saved: "Enregistré dans votre compte.",
+    saveFailed:
+      "Enregistrement impossible : votre Déclaration n'a pas été écrite dans votre compte. Vérifiez votre connexion, puis modifiez un champ pour réessayer.",
+    loadFailed:
+      "Votre Déclaration n'a pas pu être lue. Elle est intacte dans votre compte : rechargez la page plutôt que de la ressaisir, pour ne pas l'écraser.",
+    pdfFailed:
+      "Le PDF n'a pas pu être produit. Réessayez ; si cela persiste, dites-le-nous, rien n'est perdu de votre Déclaration.",
     purposeLabel: "Raison d'Être de l'organisation",
     purposePlaceholder:
       "La raison d'être que ces principes servent : quelques lignes.",
@@ -440,6 +470,14 @@ export const PRINCIPES_UI = {
     kept: (n: number) => `${n} principle${n > 1 ? "s" : ""} kept`,
     generating: "Generating…",
     downloadPdf: "Download the signable PDF",
+    saving: "Saving…",
+    saved: "Saved to your account.",
+    saveFailed:
+      "Could not save: your Declaration was not written to your account. Check your connection, then edit a field to retry.",
+    loadFailed:
+      "Your Declaration could not be read. It is untouched in your account: reload the page rather than retyping it, so you do not overwrite it.",
+    pdfFailed:
+      "The PDF could not be produced. Try again; if it keeps failing, tell us — nothing is lost from your Declaration.",
     purposeLabel: "Purpose of the organization",
     purposePlaceholder: "The purpose these principles serve: a few lines.",
     mottoLabel: "Motto",

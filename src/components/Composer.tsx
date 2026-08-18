@@ -8,6 +8,8 @@ import Prose from "@/components/Prose";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
+  type RenderedItem,
+  compose,
   type Module,
   type Tier,
   defaultActive,
@@ -138,6 +140,8 @@ export default function Composer({
   const [otpSent, setOtpSent] = useState(false);
   const [versions, setVersions] = useState<SavedComposition[]>([]);
   const [versionMsg, setVersionMsg] = useState<string | null>(null);
+  const [versionsUnread, setVersionsUnread] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
   const [versionBusy, setVersionBusy] = useState(false);
   const { logo, setLogo, font, setFont, titleColor, setTitleColor } = branding;
   const t = COMPOSER[locale];
@@ -280,6 +284,7 @@ export default function Composer({
 
   const doGeneratePdf = async () => {
     setPdfBusy(true);
+    setPdfError(false);
     track("pdf_export");
     try {
       const { generateComposedPdfBlob } = await import("@/lib/pdf");
@@ -320,6 +325,10 @@ export default function Composer({
         setExportPrompted(true);
         setBooking(true);
       }
+    } catch {
+      // L'export est le geste que la personne est venue faire : son échec ne
+      // peut pas se résumer à un bouton qui reprend son état normal.
+      setPdfError(true);
     } finally {
       setPdfBusy(false);
     }
@@ -481,8 +490,13 @@ export default function Composer({
 
   const refreshVersions = () =>
     listCompositions()
-      .then(setVersions)
-      .catch(() => {});
+      .then((rows) => {
+        setVersions(rows);
+        setVersionsUnread(false);
+      })
+      // Sans ce message, une lecture ratée s'affichait « 0/5 » : indistinguable
+      // d'un compte sans version, donc une invitation à tout resaisir.
+      .catch(() => setVersionsUnread(true));
 
   const handleSaveVersion = async () => {
     if (!account) {
@@ -531,15 +545,23 @@ export default function Composer({
   const handleRenameVersion = async (v: SavedComposition) => {
     const name = window.prompt(t.renamePrompt, v.name);
     if (!name || !name.trim()) return;
-    await renameComposition(v.id, name.trim());
-    await refreshVersions();
+    try {
+      await renameComposition(v.id, name.trim());
+      await refreshVersions();
+    } catch {
+      setVersionMsg(t.versionActionFailed);
+    }
   };
 
   const handleDeleteVersion = async (v: SavedComposition) => {
     if (!window.confirm(t.confirmDelete(v.name))) return;
-    await deleteComposition(v.id);
-    await refreshVersions();
-    setVersionMsg(null);
+    try {
+      await deleteComposition(v.id);
+      await refreshVersions();
+      setVersionMsg(null);
+    } catch {
+      setVersionMsg(t.versionActionFailed);
+    }
   };
 
   // Modules inactifs qui portent un remplacement obligatoire = trous comblés.
@@ -553,25 +575,27 @@ export default function Composer({
   const modulesByTier = (tier: Tier) =>
     data.modules.filter((m) => m.tier === tier);
 
-  const activeInsertions = (anchor: string) =>
-    data.modules
-      .filter((m) => active.has(m.id))
-      .flatMap((m) =>
-        m.insertions
-          .map((ins, i) => ({ ins, i }))
-          .filter(({ ins }) => ins.anchor === anchor)
-          // insertion conditionnelle : tous les modules requis doivent être actifs
-          .filter(
-            ({ ins }) =>
-              !ins.whenActive || ins.whenActive.every((id) => active.has(id)),
-          )
-          .map(({ ins, i }) => ({ id: `${m.id}-${i}`, mod: m, text: ins.text })),
-      );
+  // L'écran rend la sortie du moteur, il ne la recalcule pas. Ces deux fonctions
+  // dupliquaient les règles de `compose()` — insertions ancrées, conditions
+  // `whenActive`, remplacements obligatoires — et rien ne garantissait que les
+  // deux implémentations restent d'accord : un changement de règle pouvait
+  // modifier le PDF et les pages figées sans modifier l'aperçu, ou l'inverse
+  // (revue adverse du 18/08/2026).
+  const parBloc = useMemo(() => {
+    const groupes = new Map<string, RenderedItem[]>();
+    let courant: string | null = null;
+    for (const item of compose(data, active)) {
+      if (item.kind === "block") {
+        courant = item.anchor;
+        groupes.set(item.anchor, []);
+        continue;
+      }
+      if (courant) groupes.get(courant)!.push(item);
+    }
+    return groupes;
+  }, [data, active]);
 
-  const fallbacks = (anchor: string) =>
-    data.modules.filter(
-      (m) => !active.has(m.id) && m.fallback?.anchor === anchor,
-    );
+  const composedFor = (anchor: string) => parBloc.get(anchor) ?? [];
 
   const availableChips = (anchor: string) =>
     modulesForAnchor(data, anchor).filter(
@@ -708,6 +732,16 @@ export default function Composer({
         >
           {versionBusy ? t.saving : t.saveVersion}
         </button>
+        {versionsUnread && (
+          <p role="alert" className="mt-1.5 text-xs text-rose-700">
+            {t.versionsFailed}
+          </p>
+        )}
+        {pdfError && (
+          <p role="alert" className="mt-1.5 text-xs text-rose-700">
+            {t.pdfFailed}
+          </p>
+        )}
         {versionMsg && (
           <p className="mt-1.5 text-xs text-slate-500">{versionMsg}</p>
         )}
@@ -790,7 +824,7 @@ export default function Composer({
         </div>
       ))}
 
-      <Legend tierLabel={tierLabel} />
+      <Legend tierLabel={tierLabel} ui={t} />
     </div>
   );
 
@@ -1012,55 +1046,44 @@ export default function Composer({
 
                 <Prose text={block.text} onTermClick={onTermClick} locale={locale} />
 
-                {/* Insertions actives + remplacements obligatoires */}
+                {/* Insertions actives et remplacements obligatoires, dans
+                    l'ordre où le moteur les compose : une seule passe sur sa
+                    sortie, pas deux filtrages du même tableau. */}
                 <AnimatePresence initial={false}>
-                  {activeInsertions(block.anchor).map((ins) => {
-                    const insUi = TIER_UI[ins.mod.tier];
+                  {composedFor(block.anchor).map((item) => {
+                    const ui = item.warning ? TIER_UI.warning : TIER_UI[item.tier];
+                    const domId =
+                      item.kind === "fallback"
+                        ? `fb-${item.moduleId}`
+                        : `ins-${item.moduleId}-${item.insertionIndex}`;
                     return (
                       <motion.div
-                        key={ins.id}
-                        id={`ins-${ins.id}`}
+                        key={item.key}
+                        id={domId}
                         layout
                         initial={{ opacity: 0, height: 0, y: -6 }}
                         animate={{ opacity: 1, height: "auto", y: 0 }}
                         exit={{ opacity: 0, height: 0, y: -6 }}
                         transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                        className={`mt-4 scroll-mt-24 overflow-hidden rounded-r-md border-l-4 ${insUi.bar} ${insUi.tint} py-3 pl-4 pr-3`}
+                        className={`mt-4 scroll-mt-24 overflow-hidden rounded-r-md border-l-4 ${ui.bar} ${ui.tint} py-3 pl-4 pr-3`}
                       >
                         <span
-                          className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${insUi.tag}`}
+                          className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${ui.tag}`}
                         >
-                          {ins.mod.tier === "retirable" ? "" : "+ "}
-                          {ins.mod.label}
+                          {item.kind === "fallback"
+                            ? `⚠ ${t.defaultRule(item.moduleLabel ?? "")}`
+                            : `${item.tier === "retirable" ? "" : "+ "}${item.moduleLabel}`}
                         </span>
                         <div className="text-[0.98rem]">
-                          <Prose text={ins.text} onTermClick={onTermClick} locale={locale} />
+                          <Prose
+                            text={item.text}
+                            onTermClick={onTermClick}
+                            locale={locale}
+                          />
                         </div>
                       </motion.div>
                     );
                   })}
-
-                  {fallbacks(block.anchor).map((m) => (
-                    <motion.div
-                      key={`fb-${m.id}`}
-                      id={`fb-${m.id}`}
-                      layout
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                      className={`mt-4 scroll-mt-24 overflow-hidden rounded-r-md border-l-4 ${TIER_UI.warning.bar} ${TIER_UI.warning.tint} py-3 pl-4 pr-3`}
-                    >
-                      <span
-                        className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${TIER_UI.warning.tag}`}
-                      >
-                        ⚠ Règle par défaut : « {m.label} » non activé
-                      </span>
-                      <div className="text-[0.98rem]">
-                        <Prose text={m.fallback!.text} onTermClick={onTermClick} locale={locale} />
-                      </div>
-                    </motion.div>
-                  ))}
                 </AnimatePresence>
 
                 {/* Blocs retirables retirés : fin liseré + "+" pour réinsérer
@@ -1070,7 +1093,7 @@ export default function Composer({
                     key={`reins-${m.id}`}
                     id={`reins-${m.id}`}
                     onClick={() => toggle(m.id)}
-                    title={`Réinsérer : ${m.label}`}
+                    title={t.reinsert(m.label)}
                     className="group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
                   >
                     <span className="h-px flex-1 bg-slate-200" />
@@ -1089,6 +1112,7 @@ export default function Composer({
                 <InsertDivider
                   modules={availableChips(block.anchor)}
                   onActivate={toggle}
+                  ui={t}
                 />
 
                 {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
@@ -1510,9 +1534,11 @@ function ModuleToggle({
 function InsertDivider({
   modules,
   onActivate,
+  ui,
 }: {
   modules: Module[];
   onActivate: (id: string) => void;
+  ui: (typeof COMPOSER)[Locale];
 }) {
   const [open, setOpen] = useState(false);
   if (modules.length === 0) return <div className="h-4" />;
@@ -1522,7 +1548,7 @@ function InsertDivider({
         <span className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <button
           onClick={() => setOpen((o) => !o)}
-          aria-label="Ajouter un module ici"
+          aria-label={ui.addModuleHere}
           className={`flex h-7 w-7 items-center justify-center rounded-full border bg-background transition duration-200 ${
             open
               ? "rotate-45 border-slate-500 text-slate-700"
@@ -1623,19 +1649,25 @@ function PreambleValues({
   );
 }
 
-function Legend({ tierLabel }: { tierLabel: Record<string, string> }) {
+function Legend({
+  tierLabel,
+  ui,
+}: {
+  tierLabel: Record<string, string>;
+  ui: (typeof COMPOSER)[Locale];
+}) {
   const rows: { key: Tier | "warning"; label: string }[] = [
     { key: "core", label: tierLabel.core ?? "Cœur" },
     { key: "retirable", label: tierLabel.retirable ?? "Retirable" },
     { key: "pedagogique", label: tierLabel.pedagogique ?? "Piste pedagogique" },
     { key: "extension", label: tierLabel.extension ?? "Extension constitutionnelle" },
     { key: "app", label: tierLabel.app ?? "App" },
-    { key: "warning", label: "Règle par défaut" },
+    { key: "warning", label: ui.legendDefaultRule },
   ];
   return (
     <div className="mt-8 border-t border-slate-200 pt-4">
       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-        Légende
+        {ui.legend}
       </p>
       <ul className="mt-2 space-y-1.5">
         {rows.map((r) => (

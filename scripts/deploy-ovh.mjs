@@ -16,9 +16,9 @@
 // doit jamais toucher le disque (lien secret OVH à usage unique, mémoire seule).
 
 import { Client } from 'basic-ftp';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '..', 'out');
@@ -33,7 +33,19 @@ if (existsSync(envDeployPath)) {
 }
 
 // `sftp` (chiffré, port 22 — disponible sur cluster121) ou `ftp` (historique).
-const protocol = (process.env.FTP_PROTOCOL || 'ftp').toLowerCase();
+// SFTP par défaut : le FTP simple fait transiter identifiants et fichiers en
+// clair, et ce compte héberge aussi www/, sosa/ et plusdedeux/ — un identifiant
+// capté ouvre les trois. Vérifié le 18/08/2026 : cluster121 répond en SFTP sur
+// le port 22. Le clair reste possible, mais il se demande.
+const protocol = (process.env.FTP_PROTOCOL || 'sftp').toLowerCase();
+if (protocol !== 'sftp' && process.env.FTP_ALLOW_PLAINTEXT !== 'yes') {
+  console.error(
+    'Erreur : FTP_PROTOCOL=' + protocol + ' fait transiter le mot de passe en ' +
+      'clair. Utilise FTP_PROTOCOL=sftp (port 22), ou assume le clair avec ' +
+      'FTP_ALLOW_PLAINTEXT=yes.',
+  );
+  process.exit(1);
+}
 
 const config = {
   host: process.env.FTP_HOST,
@@ -103,6 +115,27 @@ if (!existsSync(OUT)) {
   process.exit(1);
 }
 
+// Un build fait sans les clés Supabase produit un site qui *paraît* marcher :
+// compte simulé, sauvegardes dans le navigateur, rien qui suive le compte. On
+// vérifie donc dans les fichiers à envoyer que la configuration est bien là,
+// plutôt que de faire confiance à l'environnement du build.
+{
+  const chunks = join(OUT, '_next', 'static', 'chunks');
+  const found = existsSync(chunks)
+    && readdirSync(chunks, { recursive: true })
+      .filter((f) => String(f).endsWith('.js'))
+      .some((f) => readFileSync(join(chunks, String(f)), 'utf8').includes('.supabase.co'));
+  if (!found && process.env.ALLOW_DEMO_DEPLOY !== 'yes') {
+    console.error(
+      'Erreur : le build de out/ ne porte aucune configuration Supabase — ' +
+        'compte simulé et sauvegardes locales. Rebuild avec ' +
+        'NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY, ou assume ' +
+        'la démonstration avec ALLOW_DEMO_DEPLOY=yes.',
+    );
+    process.exit(1);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Transport SFTP (recommandé) — cluster121 expose SSH/SFTP sur le port 22.
 // Le FTP simple fait transiter le mot de passe et le site en clair : quiconque
@@ -119,6 +152,14 @@ if (protocol === 'sftp') {
     }
     for (const e of await sftp.list(dir)) {
       const p = `${dir}/${e.name}`;
+      // Un lien symbolique se supprime, il ne se descend pas : y recurser
+      // sortirait de la cible sans que le contrôle lexical du chemin le voie.
+      // Vérifié le 18/08/2026 : la cible n'en contient aucun, ce filet vaut
+      // pour le jour où l'hébergeur ou un tiers en pose un.
+      if (e.type === 'l') {
+        await sftp.delete(p).catch(() => {});
+        continue;
+      }
       if (e.type === 'd') {
         await clearRemoteSftp(p);
         await sftp.rmdir(p);
@@ -172,6 +213,11 @@ async function clearRemote(dir) {
   for (const e of list) {
     if (e.name === '.' || e.name === '..') continue;
     const p = `${dir}/${e.name}`;
+    if (e.isSymbolicLink) {
+      // Même raison qu'en SFTP : on supprime le lien, on ne le suit pas.
+      await client.remove(p).catch(() => {});
+      continue;
+    }
     if (e.isDirectory) {
       await clearRemote(p);
       await client.removeEmptyDir(p).catch((err) => {

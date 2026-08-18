@@ -74,6 +74,10 @@ export interface RenderedItem {
   intent?: string;
   text: string;
   moduleLabel?: string;
+  /** Module d'origine (insertions et remplacements). */
+  moduleId?: string;
+  /** Rang de l'insertion dans son module : les ancres de défilement en dépendent. */
+  insertionIndex?: number;
 }
 
 /**
@@ -174,6 +178,8 @@ export function compose(
           anchor: ins.anchor,
           text: ins.text,
           moduleLabel: mod.label,
+          moduleId: mod.id,
+          insertionIndex: i,
         });
       });
     }
@@ -190,6 +196,7 @@ export function compose(
         anchor: mod.fallback.anchor,
         text: mod.fallback.text,
         moduleLabel: mod.label,
+        moduleId: mod.id,
       });
     }
   }

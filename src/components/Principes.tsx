@@ -1,9 +1,19 @@
 "use client";
 
-import { type DragEvent, useEffect, useMemo, useState } from "react";
+import {
+  type DragEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { fontVars } from "@/lib/branding";
-import { linkifyTerms } from "@/lib/glossary";
-import { chunks } from "@/lib/markup";
+import Prose from "@/components/Prose";
+import {
+  type DeclarationPayload,
+  normalizeDeclaration,
+} from "@/lib/declaration";
 import { getSupabase } from "@/lib/supabase";
 import { COMPOSER, PRINCIPES_UI, type Locale } from "@/lib/i18n";
 
@@ -21,19 +31,6 @@ export interface PrincipesData {
   meta: Record<string, string>;
   intro: string;
   principles: Principle[];
-}
-
-function paras(
-  text: string,
-  onTermClick: (key: string) => void,
-  keyBase = "t",
-  locale: Locale = "fr",
-) {
-  return chunks(text).map((p, i) => (
-    <p key={i} className="mt-2 leading-relaxed">
-      {linkifyTerms(p, onTermClick, `${keyBase}-${i}`, locale)}
-    </p>
-  ));
 }
 
 export default function Principes({
@@ -77,7 +74,15 @@ export default function Principes({
   // celle du serveur, on n'écrit RIEN dessus (sinon le brouillon affiché — qui
   // peut être celui de la personne précédente sur un poste partagé — écrase ou
   // remplit le compte qui vient de se connecter).
-  const [remote, setRemote] = useState<"idle" | "loading" | "ready">("idle");
+  // « error » est un état à part entière : confondre une lecture ratée avec un
+  // compte sans Déclaration, c'est autoriser l'écrasement du document distant
+  // par un brouillon vide (revue adverse du 18/08/2026).
+  const [remote, setRemote] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
   // Brouillon anonyme non vide face à un compte sans Déclaration : on demande
   // avant de rattacher, on ne recopie pas d'office.
   const [offerAttach, setOfferAttach] = useState(false);
@@ -105,6 +110,7 @@ export default function Principes({
   const [account, setAccount] = useState(false);
   const [gate, setGate] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
   const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
@@ -250,6 +256,9 @@ export default function Principes({
       return;
     }
     let alive = true;
+    // Capturé avant l'appel : dans la réponse Supabase, `data` désigne la ligne
+    // lue et masquerait la propriété `data` du composant.
+    const builtinIds = data.principles.map((x) => x.id);
     setRemote("loading");
     setOfferAttach(false);
     supabase
@@ -257,8 +266,14 @@ export default function Principes({
       .select("payload")
       .eq("user_id", userId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (!alive) return;
+        if (error) {
+          // Ni lecture ni écriture : on ne sait pas ce que le compte contient,
+          // donc on n'y touche pas. L'autosauvegarde reste bloquée.
+          setRemote("error");
+          return;
+        }
         if (!data?.payload) {
           // Compte sans Déclaration. Si un brouillon anonyme est à l'écran, on
           // ne le verse pas d'office dans ce compte : on propose.
@@ -266,22 +281,14 @@ export default function Principes({
           setRemote("ready");
           return;
         }
-        const p = data.payload as {
-          removed?: string[];
-          custom?: { id: string; title: string; text: string }[];
-          order?: string[];
-          raisonEtre?: string;
-          devise?: string;
-          ratifiers?: string;
-          signatories?: string;
-        };
-        if (Array.isArray(p.removed)) setRemoved(new Set(p.removed));
-        if (Array.isArray(p.custom)) setCustom(p.custom);
-        if (Array.isArray(p.order)) setOrder(p.order);
-        if (typeof p.raisonEtre === "string") setRaisonEtre(p.raisonEtre);
-        if (typeof p.devise === "string") setDevise(p.devise);
-        if (typeof p.ratifiers === "string") setRatifiers(p.ratifiers);
-        if (typeof p.signatories === "string") setSignatories(p.signatories);
+        const p = normalizeDeclaration(data.payload, builtinIds);
+        setRemoved(new Set(p.removed));
+        setCustom(p.custom);
+        setOrder(p.order);
+        setRaisonEtre(p.raisonEtre);
+        setDevise(p.devise);
+        setRatifiers(p.ratifiers);
+        setSignatories(p.signatories);
         setRemote("ready");
       });
     return () => {
@@ -292,6 +299,42 @@ export default function Principes({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, userId]);
 
+  // File d'écriture de la Déclaration : une requête en vol au plus, la dernière
+  // valeur en attente. L'état est rendu visible (`saveState`) — une sauvegarde
+  // qui échoue en silence laisse croire que le compte porte le document.
+  const enVol = useRef(false);
+  const enAttente = useRef<DeclarationPayload | null>(null);
+  const enfile = useCallback(
+    async (payload: DeclarationPayload) => {
+      if (!supabase || !userId) return;
+      enAttente.current = payload;
+      if (enVol.current) return;
+      enVol.current = true;
+      setSaveState("saving");
+      try {
+        while (enAttente.current) {
+          const courant = enAttente.current;
+          enAttente.current = null;
+          const { error } = await supabase.from("declarations").upsert({
+            user_id: userId,
+            payload: courant,
+            updated_at: new Date().toISOString(),
+          });
+          if (error) {
+            // La valeur perdue ici n'est pas perdue pour de bon : le payload
+            // dérive de l'état, la frappe suivante la remet dans la file.
+            setSaveState("error");
+            return;
+          }
+        }
+        setSaveState("saved");
+      } finally {
+        enVol.current = false;
+      }
+    },
+    [supabase, userId],
+  );
+
   // Sauvegarde différée dans le compte à chaque changement (connecté).
   // Trois verrous avant d'écrire : le chargement local est fini, la Déclaration
   // du compte a été lue (`remote === "ready"`), et aucun rattachement n'est en
@@ -299,15 +342,14 @@ export default function Principes({
   useEffect(() => {
     if (!supabase || !userId || !loaded) return;
     if (remote !== "ready" || offerAttach) return;
-    const t = setTimeout(async () => {
-      await supabase.from("declarations").upsert({
-        user_id: userId,
-        payload: declarationPayload,
-        updated_at: new Date().toISOString(),
-      });
+    const t = setTimeout(() => {
+      // Sérialisé : une écriture à la fois, la dernière valeur connue en
+      // attente. Sans cela, deux upserts concurrents pouvaient revenir dans le
+      // désordre et restaurer un état ancien (revue adverse du 18/08/2026).
+      enfile(declarationPayload);
     }, 1500);
     return () => clearTimeout(t);
-  }, [supabase, userId, loaded, remote, offerAttach, declarationPayload]);
+  }, [supabase, userId, loaded, remote, offerAttach, declarationPayload, enfile]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -388,6 +430,7 @@ export default function Principes({
 
   const doPdf = async () => {
     setPdfBusy(true);
+    setPdfError(false);
     try {
       const items = orderedIds
         .filter((id) => !(builtinById.has(id) && removed.has(id)))
@@ -426,6 +469,11 @@ export default function Principes({
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+    } catch {
+      // Sans ce catch, le bouton reprenait son état normal et rien n'arrivait :
+      // c'est ainsi que l'export de la Déclaration a échoué en silence pendant
+      // des semaines (police italique non résoluble).
+      setPdfError(true);
     } finally {
       setPdfBusy(false);
     }
@@ -444,6 +492,36 @@ export default function Principes({
       className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
       style={fontVars(font)}
     >
+      {/* Ce que le compte fait de la Déclaration ne reste pas muet : lecture
+          ratée, écriture ratée et export raté se disent, chacun avec la
+          conséquence exacte pour la personne. */}
+      {remote === "error" && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
+        >
+          {t.loadFailed}
+        </p>
+      )}
+      {saveState === "error" && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
+        >
+          {t.saveFailed}
+        </p>
+      )}
+      {pdfError && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
+        >
+          {t.pdfFailed}
+        </p>
+      )}
+      <p aria-live="polite" className="sr-only">
+        {saveState === "saving" ? t.saving : saveState === "saved" ? t.saved : ""}
+      </p>
       {offerAttach && (
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           <p className="font-medium">
@@ -656,9 +734,9 @@ export default function Principes({
                       </div>
                     </div>
                     {p
-                      ? paras(p.text, onTermClick, id, locale)
+                      ? <Prose text={p.text} onTermClick={onTermClick} locale={locale} keyBase={id} />
                       : c!.text
-                        ? paras(c!.text, onTermClick, id, locale)
+                        ? <Prose text={c!.text} onTermClick={onTermClick} locale={locale} keyBase={id} />
                         : null}
                     {c && (
                       <p className="mt-1 text-[0.7rem] uppercase tracking-wide text-violet-500">

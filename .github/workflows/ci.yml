@@ -43,5 +43,10 @@ jobs:
 
       # L'artefact réellement déployé est l'export statique : sans ce build, la
       # CI peut rester verte alors que la génération statique échoue.
+      # Le build de CI n'a pas les clés Supabase et n'est jamais déployé : il
+      # assume le mode démonstration, que `src/lib/supabase.ts` exige désormais
+      # d'énoncer. Le script de déploiement, lui, refuse un bundle sans backend.
       - name: Build static export
         run: npm run build
+        env:
+          NEXT_PUBLIC_ALLOW_DEMO_MODE: 'true' 
