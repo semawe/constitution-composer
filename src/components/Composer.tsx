@@ -366,6 +366,9 @@ export default function Composer({
         font,
         logo: logo || undefined,
         locale,
+        // Le PDF rend ce que l'écran montre : les notes d'intention suivent
+        // l'interrupteur, elles ne disparaissent plus en silence à l'export.
+        showIntent,
         date: new Date().toLocaleDateString(t.dateLocale, {
           day: "2-digit",
           month: "long",

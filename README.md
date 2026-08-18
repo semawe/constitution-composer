@@ -126,6 +126,38 @@ run. Generation without that guard would protect nothing, since nobody would run
 
 ---
 
+## Tests
+
+`npm test` runs the Vitest suite (also run in CI, along with `fond:check`, the type check, the
+lint and a full static build). What each file guards:
+
+- **`src/lib/constitution.test.ts` — the composition engine.** `compose()`, `toggleModule()` and
+  `normalizeActive()` on a synthetic fixture (default / requires / conflicts / fallback /
+  conditional insertion), then the real content in **both languages**: every insertion comes out
+  exactly once and inside its anchor block, the bare framework still carries every mandatory
+  replacement, and checking one more module never removes a section already composed.
+- **`src/lib/pdf.test.tsx` — the export.** Everything `compose()` produces must reach the PDF
+  document: block headings, intent notes, insertions, mandatory replacements, organisation values,
+  license and notice — with no markup leaking through (a stray `*` or a raw `- ` means the export
+  failed to read a pattern) and nothing from an unchecked module left behind. The other export,
+  the Principles document, is covered the same way, signature lists included. The tests walk the
+  document element tree instead of rendering a PDF: fonts and a browser are not needed, and what
+  is checked is the presence of the content, not the layout. A section silently missing from the
+  document an organisation adopts is the worst defect this app can produce, hence the emphasis.
+- **`src/lib/fond.test.ts` — fidelity to the canonical Constitution.** Article titles, intent
+  notes and the terms the source defines in bold are compared against
+  `vendor/holacracy-constitution`, in both directions: a retouch here or an advance upstream both
+  turn it red. Requires the submodule (`git submodule update --init --recursive`) — the file says
+  so rather than skipping. Also compares the FR and EN content structurally: an insertion added on
+  one side only would otherwise produce an English Constitution missing a section, without
+  breaking anything.
+- **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
+
+Tests are named in French and sit next to the module they cover, following the conventions of the
+other Sémawé applications.
+
+---
+
 ## Self-hosting
 
 The app compiles to a static export (`out/`). You can host it on any static hosting (Vercel, Netlify, GitHub Pages, any Apache/Nginx server).

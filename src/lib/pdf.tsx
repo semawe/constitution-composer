@@ -105,6 +105,16 @@ const styles = StyleSheet.create({
   },
   para: { marginBottom: 6 },
   bold: { fontWeight: 700 },
+  italic: { fontStyle: "italic" },
+  intent: {
+    fontStyle: "italic",
+    fontSize: 10,
+    color: COLOR.muted,
+    borderLeftWidth: 2,
+    borderLeftColor: COLOR.rule,
+    paddingLeft: 8,
+    marginBottom: 8,
+  },
   listItem: { flexDirection: "row", marginBottom: 2, paddingLeft: 8 },
   listMarker: { width: 16 },
   listBody: { flex: 1 },
@@ -156,16 +166,26 @@ const styles = StyleSheet.create({
   },
 });
 
+// Même découpage en ligne que `renderInline` du Composer (gras **…**, italique
+// *…*) : sans le second motif, les astérisques de l'italique passaient telles
+// quelles dans le PDF — visible sur les cinq « Pistes », la posture du Scribe et
+// les mentions « Brouillon ». L'écran et l'export doivent lire le même balisage.
 function runs(text: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <Text key={i} style={styles.bold}>
-        {part.slice(2, -2)}
-      </Text>
-    ) : (
-      <Text key={i}>{part}</Text>
-    ),
-  );
+  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return (
+        <Text key={i} style={styles.bold}>
+          {part.slice(2, -2)}
+        </Text>
+      );
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2)
+      return (
+        <Text key={i} style={styles.italic}>
+          {part.slice(1, -1)}
+        </Text>
+      );
+    return <Text key={i}>{part}</Text>;
+  });
 }
 
 function paragraphs(text: string) {
@@ -200,7 +220,12 @@ function paragraphs(text: string) {
   });
 }
 
-function ComposedDoc({
+/**
+ * Exporté pour être éprouvé : c'est la seule couture par laquelle un test peut
+ * vérifier que tout ce que `compose()` produit atteint bien le document, sans
+ * faire tourner le moteur PDF (qui réclame les polices et un réseau).
+ */
+export function ComposedDoc({
   data,
   active,
   title,
@@ -210,6 +235,7 @@ function ComposedDoc({
   font,
   logo,
   locale = "fr",
+  showIntent = true,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
@@ -220,6 +246,8 @@ function ComposedDoc({
   font?: string;
   logo?: string;
   locale?: Locale;
+  /** Notes d'intention : l'export suit l'interrupteur de l'écran (affiché par défaut). */
+  showIntent?: boolean;
 }) {
   const t = COMPOSER[locale];
   const items = compose(data, active);
@@ -246,6 +274,9 @@ function ComposedDoc({
             return (
               <View key={it.key}>
                 {it.heading && <Text style={styles.h2}>{it.heading}</Text>}
+                {showIntent && it.intent ? (
+                  <Text style={styles.intent}>{it.intent}</Text>
+                ) : null}
                 {paragraphs(it.text)}
                 {it.key === "block:preambule" && values.trim() && (
                   <View>
@@ -310,7 +341,8 @@ function SignatureList({ names }: { names: string[] }) {
   );
 }
 
-function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
+/** Exporté pour la même raison que `ComposedDoc` : c'est la couture d'épreuve. */
+export function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
   const t = PRINCIPES_UI[d.locale ?? "fr"];
   const fam = PDF_FONTS[d.font ?? "source-serif"] ?? "Source Serif 4";
   return (
@@ -391,6 +423,7 @@ export async function generateComposedPdfBlob(
     font?: string;
     logo?: string;
     locale?: Locale;
+    showIntent?: boolean;
   },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
@@ -407,6 +440,7 @@ export async function generateComposedPdfBlob(
       font={opts?.font}
       logo={opts?.logo}
       locale={opts?.locale}
+      showIntent={opts?.showIntent}
     />,
   ).toBlob();
 }

@@ -10,6 +10,7 @@ import {
   toggleModule,
 } from "./constitution";
 import real from "../data/constitution.fr.json";
+import realEn from "../data/constitution.en.json";
 
 // ---------------------------------------------------------------------------
 // Fixture synthétique : 3 blocs, 4 modules couvrant default / requires /
@@ -199,13 +200,19 @@ describe("requiredByActive / modulesForAnchor", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Intégrité du JSON réel : toute référence pointe vers quelque chose qui existe.
+// Intégrité et composition sur le fond réel, dans les deux langues : toute
+// référence pointe vers quelque chose qui existe, et le document composé sort
+// complet. La version anglaise se compose avec le même moteur — la laisser hors
+// couverture, c'est ne protéger qu'une des deux Constitutions produites.
 // ---------------------------------------------------------------------------
 
-describe("constitution.fr.json : intégrité", () => {
-  const d = real as unknown as ConstitutionData;
+describe.each([
+  ["fr", real as unknown as ConstitutionData],
+  ["en", realEn as unknown as ConstitutionData],
+])("constitution.%s.json : intégrité et composition", (_lang, d) => {
   const moduleIds = new Set(d.modules.map((m) => m.id));
   const anchors = new Set(d.blocks.map((b) => b.anchor));
+  const tousLesModules = () => normalizeActive(d, d.modules.map((m) => m.id));
 
   it("requires et conflicts référencent des modules existants", () => {
     for (const m of d.modules) {
@@ -256,6 +263,87 @@ describe("constitution.fr.json : intégrité", () => {
           expect(active, `${id} en conflit avec ${c}`).not.toContain(c);
         }
       }
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Composition complète : ce que le moteur doit produire quel que soit l'état.
+  // -------------------------------------------------------------------------
+
+  it("tous les modules actifs : chaque insertion sort, et une seule fois", () => {
+    const active = tousLesModules();
+    const items = compose(d, active);
+    expect(new Set(items.map((i) => i.key)).size, "clés dupliquées").toBe(items.length);
+
+    for (const m of d.modules) {
+      m.insertions.forEach((ins, i) => {
+        const attendu = !ins.whenActive?.some((id) => !active.has(id));
+        const sorties = items.filter((it) => it.key === `ins:${m.id}:${i}`);
+        expect(sorties.length, `${m.id} insertion ${i}`).toBe(attendu ? 1 : 0);
+      });
+    }
+    // Aucun remplacement obligatoire quand tout est coché.
+    expect(items.filter((i) => i.kind === "fallback")).toEqual([]);
+  });
+
+  it("aucun module actif : le socle sort entier, avec tous les remplacements", () => {
+    const items = compose(d, new Set());
+    expect(items.filter((i) => i.kind === "block").map((i) => i.anchor)).toEqual(
+      d.blocks.map((b) => b.anchor),
+    );
+    expect(items.filter((i) => i.kind === "insertion")).toEqual([]);
+    expect(items.filter((i) => i.kind === "fallback").map((i) => i.key).sort()).toEqual(
+      d.modules.filter((m) => m.fallback).map((m) => `fb:${m.id}`).sort(),
+    );
+  });
+
+  it("chaque insertion sort après son bloc d'ancrage, avant le bloc suivant", () => {
+    const items = compose(d, tousLesModules());
+    const blocs = d.blocks.map((b) => b.anchor);
+    let courant = -1;
+    for (const item of items) {
+      if (item.kind === "block") {
+        courant = blocs.indexOf(item.anchor);
+        continue;
+      }
+      expect(blocs.indexOf(item.anchor), `${item.key} hors de son bloc`).toBe(courant);
+    }
+  });
+
+  it("cocher un module de plus n'enlève aucune section déjà composée", () => {
+    // Le fond ne déclare aucun conflit à ce jour ; si l'un apparaît, le cas est
+    // écarté explicitement plutôt que de rougir à tort.
+    const avant = defaultActive(d);
+    const textesAvant = new Set(compose(d, avant).map((i) => i.text));
+    for (const m of d.modules) {
+      if (avant.has(m.id)) continue;
+      const apres = toggleModule(d, avant, m.id);
+      const perdus = [...avant].filter((id) => !apres.has(id));
+      if (perdus.length) continue;
+      const textesApres = new Set(compose(d, apres).map((i) => i.text));
+      for (const t of textesAvant)
+        expect(textesApres, `activer ${m.id} a fait disparaître une section`).toContain(t);
+    }
+  });
+
+  it("chaque bloc et chaque module porte un identifiant unique", () => {
+    expect(new Set(d.blocks.map((b) => b.id)).size).toBe(d.blocks.length);
+    expect(new Set(d.blocks.map((b) => b.anchor)).size).toBe(d.blocks.length);
+    expect(moduleIds.size).toBe(d.modules.length);
+  });
+
+  it("aucun bloc ni aucune insertion n'est vide", () => {
+    for (const b of d.blocks) {
+      expect(b.heading.trim(), `titre du bloc ${b.id}`).not.toBe("");
+      expect(b.text.trim(), `texte du bloc ${b.id}`).not.toBe("");
+    }
+    for (const m of d.modules) {
+      expect(m.label.trim(), `libellé du module ${m.id}`).not.toBe("");
+      m.insertions.forEach((ins, i) => {
+        expect(ins.text.trim(), `${m.id} insertion ${i} vide`).not.toBe("");
+      });
+      if (m.fallback)
+        expect(m.fallback.text.trim(), `${m.id} remplacement vide`).not.toBe("");
     }
   });
 });
