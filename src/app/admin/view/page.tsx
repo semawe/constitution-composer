@@ -1,9 +1,10 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminUser } from "@/lib/admin";
+import Prose from "@/components/Prose";
 import {
   compose,
   normalizeActive,
@@ -39,48 +40,6 @@ interface DeclPayload {
   devise?: string;
   ratifiers?: string;
   signatories?: string;
-}
-
-function inline(s: string, kb: string): ReactNode[] {
-  return s.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={`${kb}-${i}`} className="font-semibold text-slate-900">
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      <span key={`${kb}-${i}`}>{part}</span>
-    ),
-  );
-}
-function prose(text: string, kb: string): ReactNode[] {
-  return text.split(/\n\n/).map((chunk, i) => {
-    const lines = chunk.split("\n");
-    if (lines.length > 1 && lines.every((l) => /^- /.test(l.trim()))) {
-      return (
-        <ul key={i} className="mb-3 ml-5 list-disc space-y-1">
-          {lines.map((l, j) => (
-            <li key={j}>{inline(l.trim().replace(/^- /, ""), `${kb}-${i}-${j}`)}</li>
-          ))}
-        </ul>
-      );
-    }
-    if (lines.length > 1 && lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
-      return (
-        <ol key={i} className="mb-3 ml-5 list-decimal space-y-1">
-          {lines.map((l, j) => (
-            <li key={j}>
-              {inline(l.trim().replace(/^\d+\.\s/, ""), `${kb}-${i}-${j}`)}
-            </li>
-          ))}
-        </ol>
-      );
-    }
-    return (
-      <p key={i} className="mb-3 leading-relaxed">
-        {inline(chunk, `${kb}-${i}`)}
-      </p>
-    );
-  });
 }
 
 type State =
@@ -245,7 +204,7 @@ export default function AdminViewPage() {
                   {it.warning ? `Règle par défaut : ${it.moduleLabel}` : it.moduleLabel}
                 </p>
               )}
-              {prose(it.text, it.key)}
+              <Prose text={it.text} keyBase={it.key} />
             </div>
           </section>
         ))}
@@ -267,7 +226,7 @@ export default function AdminViewPage() {
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Raison d&apos;Être
               </p>
-              {prose(decl.raisonEtre, "re")}
+              <Prose text={decl.raisonEtre} keyBase="re" />
             </div>
           )}
           <p className="mt-4 italic text-slate-600">{principes.intro}</p>
@@ -276,7 +235,7 @@ export default function AdminViewPage() {
               <h2 className="font-serif text-lg font-semibold text-slate-900">
                 {it.n}. {it.title}
               </h2>
-              {it.text ? prose(it.text, `d${it.n}`) : null}
+              {it.text ? <Prose text={it.text} keyBase={`d${it.n}`} /> : null}
             </section>
           ))}
           <h2 className="mt-8 font-serif text-xl font-semibold text-slate-900">

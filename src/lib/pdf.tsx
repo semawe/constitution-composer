@@ -13,6 +13,7 @@ import {
   pdf,
 } from "@react-pdf/renderer";
 import { type ConstitutionData, type Tier, compose } from "./constitution";
+import { parseBlocks, parseInline } from "./markup";
 import { COMPOSER, PRINCIPES_UI, type Locale } from "./i18n";
 
 // Polices du document, auto-hébergées dans /public/fonts (mêmes fichiers que
@@ -166,56 +167,48 @@ const styles = StyleSheet.create({
   },
 });
 
-// Même découpage en ligne que `renderInline` du Composer (gras **…**, italique
-// *…*) : sans le second motif, les astérisques de l'italique passaient telles
-// quelles dans le PDF — visible sur les cinq « Pistes », la posture du Scribe et
-// les mentions « Brouillon ». L'écran et l'export doivent lire le même balisage.
+// Gras et italique lus par la grammaire commune (`src/lib/markup.ts`), la même
+// que le rendu HTML : c'est la copie divergente de cet analyseur qui faisait
+// sortir les astérisques de l'italique en clair dans le PDF.
 function runs(text: string) {
-  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**"))
+  return parseInline(text).map((seg, i) => {
+    if (seg.emphasis === "bold")
       return (
         <Text key={i} style={styles.bold}>
-          {part.slice(2, -2)}
+          {seg.text}
         </Text>
       );
-    if (part.startsWith("*") && part.endsWith("*") && part.length > 2)
+    if (seg.emphasis === "italic")
       return (
         <Text key={i} style={styles.italic}>
-          {part.slice(1, -1)}
+          {seg.text}
         </Text>
       );
-    return <Text key={i}>{part}</Text>;
+    return <Text key={i}>{seg.text}</Text>;
   });
 }
 
 function paragraphs(text: string) {
-  return text.split(/\n\n/).map((chunk, i) => {
-    const lines = chunk.split("\n");
-    const isBullet = lines.length > 1 && lines.every((l) => /^- /.test(l.trim()));
-    const isNum = lines.length > 1 && lines.every((l) => /^\d+\.\s/.test(l.trim()));
-    if (isBullet || isNum) {
+  return parseBlocks(text).map((bloc, i) => {
+    if (bloc.kind === "paragraph")
       return (
-        <View key={i} style={styles.para}>
-          {lines.map((l, j) => {
-            const t = l.trim();
-            const marker = isBullet ? "•" : `${t.match(/^(\d+)\./)?.[1]}.`;
-            const body = isBullet
-              ? t.replace(/^- /, "")
-              : t.replace(/^\d+\.\s/, "");
-            return (
-              <View key={j} style={styles.listItem}>
-                <Text style={styles.listMarker}>{marker}</Text>
-                <Text style={styles.listBody}>{runs(body)}</Text>
-              </View>
-            );
-          })}
-        </View>
+        <Text key={i} style={styles.para}>
+          {runs(bloc.text)}
+        </Text>
       );
-    }
+    const items =
+      bloc.kind === "bullets"
+        ? bloc.items.map((texte) => ({ marker: "\u2022", texte }))
+        : bloc.items.map((item) => ({ marker: item.marker, texte: item.text }));
     return (
-      <Text key={i} style={styles.para}>
-        {runs(chunk)}
-      </Text>
+      <View key={i} style={styles.para}>
+        {items.map((item, j) => (
+          <View key={j} style={styles.listItem}>
+            <Text style={styles.listMarker}>{item.marker}</Text>
+            <Text style={styles.listBody}>{runs(item.texte)}</Text>
+          </View>
+        ))}
+      </View>
     );
   });
 }

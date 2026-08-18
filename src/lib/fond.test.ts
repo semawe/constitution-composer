@@ -22,6 +22,8 @@ import {
 } from "./constitution";
 import frJson from "../data/constitution.fr.json";
 import enJson from "../data/constitution.en.json";
+import principesFr from "../data/principes.fr.json";
+import principesEn from "../data/principes.en.json";
 
 type Lang = "fr" | "en";
 
@@ -100,6 +102,21 @@ function termesCanoniques(markdown: string): string[] {
   ];
 }
 
+/** Chaque texte du fond, nommé, pour dire lequel est en cause quand ça rougit. */
+function textesDuFond(data: ConstitutionData): [string, string][] {
+  return [
+    ...data.blocks.map((b) => [`bloc ${b.id}`, b.text] as [string, string]),
+    ...data.modules.flatMap((m) => [
+      ...m.insertions.map(
+        (ins, i) => [`${m.id} insertion ${i}`, ins.text] as [string, string],
+      ),
+      ...(m.fallback
+        ? [[`${m.id} remplacement`, m.fallback.text] as [string, string]]
+        : []),
+    ]),
+  ];
+}
+
 /** Tout le texte qu'une composition peut produire, modules compris. */
 function texteMaximal(data: ConstitutionData): string {
   const tous = normalizeActive(data, data.modules.map((m) => m.id));
@@ -143,6 +160,35 @@ describe.each(FONDS)("fidélité du fond à la source canonique (%s)", (lang, da
         mots(attendue!),
       );
     });
+  });
+
+  it("aucun bloc du fond n'est un item de liste isolé", () => {
+    // Un « - » ou un « 1. » seul dans son bloc n'est pas reconnu comme liste
+    // (parseBlocks) : il sortirait en paragraphe, marqueur visible, sans qu'un
+    // saut de ligne permette à la garde de l'export de le voir passer.
+    for (const [nom, texte] of textesDuFond(data)) {
+      for (const chunk of texte.split("\n\n")) {
+        if (chunk.split("\n").length > 1) continue;
+        expect(chunk.trim(), `${nom} : item de liste isolé`).not.toMatch(
+          /^(?:-\s|\d+\.\s)/,
+        );
+      }
+    }
+  });
+
+  it("les listes numérotées du fond se suivent de 1 à n", () => {
+    // Le HTML laisse <ol> numéroter, le PDF rend le numéro écrit : les deux ne
+    // peuvent afficher des numéros différents que si le fond numérote de travers.
+    for (const [nom, texte] of textesDuFond(data)) {
+      for (const chunk of texte.split("\n\n")) {
+        const lignes = chunk.split("\n").map((l) => l.trim());
+        if (lignes.length < 2 || !lignes.every((l) => /^\d+\.\s/.test(l))) continue;
+        const numeros = lignes.map((l) => Number(/^(\d+)\./.exec(l)![1]));
+        expect(numeros, `${nom} : numérotation`).toEqual(
+          numeros.map((_, i) => i + 1),
+        );
+      }
+    }
   });
 
   it("chaque terme défini par la source existe dans le document composable", () => {
@@ -193,6 +239,23 @@ describe("parité structurelle FR/EN du fond", () => {
         fallback: m.fallback?.anchor ?? null,
       }));
     expect(forme(en)).toEqual(forme(fr));
+  });
+
+  it("le fond des principes ne porte aucun balisage que son rendu ne lit pas", () => {
+    // La page Principes rend ses textes en paragraphes seulement (pas de liste,
+    // pas d'emphase) : c'est légitime tant que le fond n'en porte pas. Le jour
+    // où un gras arrive, il sortirait en astérisques — ce test le dit avant.
+    const textes = [
+      principesFr.intro,
+      ...principesFr.principles.flatMap((p) => [p.text, p.warning]),
+      principesEn.intro,
+      ...principesEn.principles.flatMap((p) => [p.text, p.warning]),
+    ];
+    for (const texte of textes) {
+      expect(texte, "balisage dans le fond des principes").not.toMatch(
+        /\*|^(?:-\s|\d+\.\s)/m,
+      );
+    }
   });
 
   it("aucun texte du fond n'est resté en français côté anglais", () => {

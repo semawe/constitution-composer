@@ -4,7 +4,7 @@ import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars, safeLogo } from "@/lib/branding";
-import { linkifyTerms } from "@/lib/glossary";
+import Prose from "@/components/Prose";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
@@ -98,82 +98,6 @@ const TIER_UI: Record<
     chip: "",
   },
 };
-
-type TermClick = (key: string) => void;
-
-function renderInline(
-  s: string,
-  keyBase: string,
-  onTermClick: TermClick,
-  locale: Locale = "fr",
-) {
-  return s.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**"))
-      return (
-        <strong key={`${keyBase}-${i}`} className="font-semibold text-slate-900">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    if (part.startsWith("*") && part.endsWith("*") && part.length > 2)
-      return (
-        <em key={`${keyBase}-${i}`} className="italic">
-          {part.slice(1, -1)}
-        </em>
-      );
-    return (
-      <span key={`${keyBase}-${i}`}>
-        {linkifyTerms(part, onTermClick, `${keyBase}-${i}`, locale)}
-      </span>
-    );
-  });
-}
-
-function Prose({
-  text,
-  onTermClick,
-  locale = "fr",
-}: {
-  text: string;
-  onTermClick: TermClick;
-  locale?: Locale;
-}) {
-  return (
-    <>
-      {text.split(/\n\n/).map((chunk, i) => {
-        const lines = chunk.split("\n");
-        // Liste à puces : toutes les lignes commencent par "- ".
-        if (lines.length > 1 && lines.every((l) => /^- /.test(l.trim()))) {
-          return (
-            <ul key={i} className="mb-3 ml-5 list-disc space-y-1 last:mb-0">
-              {lines.map((l, j) => (
-                <li key={j} className="leading-relaxed">
-                  {renderInline(l.trim().replace(/^- /, ""), `p${i}-${j}`, onTermClick, locale)}
-                </li>
-              ))}
-            </ul>
-          );
-        }
-        // Liste numérotée : toutes les lignes commencent par "1. ", "2. "…
-        if (lines.length > 1 && lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
-          return (
-            <ol key={i} className="mb-3 ml-5 list-decimal space-y-1 last:mb-0">
-              {lines.map((l, j) => (
-                <li key={j} className="leading-relaxed">
-                  {renderInline(l.trim().replace(/^\d+\.\s/, ""), `p${i}-${j}`, onTermClick, locale)}
-                </li>
-              ))}
-            </ol>
-          );
-        }
-        return (
-          <p key={i} className="mb-3 leading-relaxed last:mb-0">
-            {renderInline(chunk, `p${i}`, onTermClick, locale)}
-          </p>
-        );
-      })}
-    </>
-  );
-}
 
 interface Branding {
   logo: string;

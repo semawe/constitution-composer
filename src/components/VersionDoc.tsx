@@ -1,54 +1,12 @@
-import { type ReactNode } from "react";
 import Link from "next/link";
 import { compose, type ConstitutionData } from "@/lib/constitution";
 import { fontVars } from "@/lib/branding";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
+import Prose from "@/components/Prose";
 import type { Locale } from "@/lib/i18n";
 import { REPO_V6_URL, v5Href } from "@/lib/links";
 
 // Rendu Markdown léger (gras + listes), identique au visualiseur /admin/view.
-function inline(s: string, kb: string): ReactNode[] {
-  return s.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={`${kb}-${i}`} className="font-semibold text-slate-900">
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      <span key={`${kb}-${i}`}>{part}</span>
-    ),
-  );
-}
-function prose(text: string, kb: string): ReactNode[] {
-  return text.split(/\n\n/).map((chunk, i) => {
-    const lines = chunk.split("\n");
-    if (lines.length > 1 && lines.every((l) => /^- /.test(l.trim()))) {
-      return (
-        <ul key={i} className="mb-3 ml-5 list-disc space-y-1">
-          {lines.map((l, j) => (
-            <li key={j}>{inline(l.trim().replace(/^- /, ""), `${kb}-${i}-${j}`)}</li>
-          ))}
-        </ul>
-      );
-    }
-    if (lines.length > 1 && lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
-      return (
-        <ol key={i} className="mb-3 ml-5 list-decimal space-y-1">
-          {lines.map((l, j) => (
-            <li key={j}>
-              {inline(l.trim().replace(/^\d+\.\s/, ""), `${kb}-${i}-${j}`)}
-            </li>
-          ))}
-        </ol>
-      );
-    }
-    return (
-      <p key={i} className="mb-3 leading-relaxed">
-        {inline(chunk, `${kb}-${i}`)}
-      </p>
-    );
-  });
-}
-
 export interface VersionDocProps {
   data: ConstitutionData;
   active: Set<string>;
@@ -130,7 +88,7 @@ export default function VersionDoc({
                       : it.moduleLabel}
                   </p>
                 )}
-                {prose(it.text, it.key)}
+                <Prose text={it.text} keyBase={it.key} />
               </div>
             </section>
           ))}
