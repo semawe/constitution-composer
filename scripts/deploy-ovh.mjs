@@ -17,6 +17,7 @@
 
 import { Client } from 'basic-ftp';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
@@ -113,6 +114,41 @@ try {
 if (!existsSync(OUT)) {
   console.error('Erreur : dossier out/ introuvable. Lance d’abord `npm run build`.');
   process.exit(1);
+}
+
+// Le build doit être celui du commit courant. Deux fois le 19/08, un déploiement
+// a servi le bon code sous une étiquette périmée parce que le build précédait le
+// commit — le tampon en ligne mentait, et c'est lui qui sert à savoir ce qui
+// tourne. Un simple oubli d'ordre, que rien ne signalait.
+{
+  let tete = null;
+  try {
+    tete = execSync("git rev-parse --short HEAD", { cwd: resolve(__dirname, "..") })
+      .toString()
+      .trim();
+  } catch (err) {
+    // Un échec muet ici rendrait la garde décorative : on dit pourquoi elle ne
+    // s'applique pas plutôt que de laisser croire qu'elle a vérifié.
+    console.warn(
+      `Attention : commit courant illisible (${err.message.split("\n")[0]}) — ` +
+        "la correspondance entre out/ et le dépôt n'a pas été vérifiée.",
+    );
+  }
+  if (tete) {
+    const pages = readdirSync(OUT).filter((f) => f.endsWith(".html"));
+    const estampille = pages.some((f) =>
+      readFileSync(join(OUT, f), "utf8").includes(tete),
+    );
+    if (!estampille && process.env.ALLOW_STALE_BUILD !== "yes") {
+      console.error(
+        `Erreur : out/ ne porte pas le commit courant (${tete}). Le build est ` +
+          "antérieur au dernier commit, et le tampon affiché en ligne serait faux.\n" +
+          "  npm run build\n" +
+          "puis relance le déploiement (ou ALLOW_STALE_BUILD=yes si c'est voulu).",
+      );
+      process.exit(1);
+    }
+  }
 }
 
 // Un build fait sans les clés Supabase produit un site qui *paraît* marcher :
