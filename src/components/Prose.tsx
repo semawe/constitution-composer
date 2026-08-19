@@ -15,17 +15,23 @@ import type { Locale } from "@/lib/i18n";
 
 type TermClick = (key: string) => void;
 
-function Inline({
-  text,
-  keyBase,
-  onTermClick,
-  locale,
-}: {
-  text: string;
-  keyBase: string;
-  onTermClick?: TermClick;
-  locale: Locale;
-}) {
+/**
+ * Rendu des segments d'emphase d'une ligne.
+ *
+ * Fonction appelée directement, et non composant monté en JSX : le relevé des
+ * termes déjà glosés (`seen`) doit se remplir et mourir dans un seul passage de
+ * rendu. Confié à un composant enfant, il survivait au passage — React peut
+ * rejouer un rendu, et le relevé, déjà plein, ne soulignait plus rien : 67
+ * termes glosés côté serveur, 3 après hydratation. Ici, tout le texte d'un bloc
+ * est résolu dans le corps de `Prose`, avant qu'aucun élément ne soit monté.
+ */
+function inline(
+  text: string,
+  keyBase: string,
+  locale: Locale,
+  onTermClick?: TermClick,
+  seen?: Set<string>,
+): ReactNode {
   return (
     <>
       {parseInline(text).map((seg, i) => {
@@ -45,7 +51,7 @@ function Inline({
         return (
           <span key={key}>
             {onTermClick
-              ? linkifyTerms(seg.text, onTermClick, key, locale)
+              ? linkifyTerms(seg.text, onTermClick, key, locale, seen)
               : seg.text}
           </span>
         );
@@ -66,6 +72,13 @@ export function Prose({
   locale?: Locale;
   keyBase?: string;
 }): ReactNode {
+  // Un relevé par bloc de texte : un terme défini n'est souligné qu'à sa
+  // première apparition. Le fond emploie ses termes à chaque phrase ; sans cette
+  // borne, le corps constitutionnel portait deux à quatre pointillés par phrase
+  // (277 sur la page), et la texture dominante devenait le soulignement plutôt
+  // que le texte. La page /lite, qui ne glose pas, se lit nettement mieux —
+  // c'est la comparaison qui a tranché.
+  const seen = onTermClick ? new Set<string>() : undefined;
   return (
     <>
       {parseBlocks(text).map((bloc, i) => {
@@ -74,12 +87,7 @@ export function Prose({
             <ul key={i} className="mb-3 ml-5 list-disc space-y-1 last:mb-0">
               {bloc.items.map((item, j) => (
                 <li key={j} className="leading-relaxed">
-                  <Inline
-                    text={item}
-                    keyBase={`${keyBase}${i}-${j}`}
-                    onTermClick={onTermClick}
-                    locale={locale}
-                  />
+                  {inline(item, `${keyBase}${i}-${j}`, locale, onTermClick, seen)}
                 </li>
               ))}
             </ul>
@@ -89,24 +97,20 @@ export function Prose({
             <ol key={i} className="mb-3 ml-5 list-decimal space-y-1 last:mb-0">
               {bloc.items.map((item, j) => (
                 <li key={j} className="leading-relaxed">
-                  <Inline
-                    text={item.text}
-                    keyBase={`${keyBase}${i}-${j}`}
-                    onTermClick={onTermClick}
-                    locale={locale}
-                  />
+                  {inline(
+                    item.text,
+                    `${keyBase}${i}-${j}`,
+                    locale,
+                    onTermClick,
+                    seen,
+                  )}
                 </li>
               ))}
             </ol>
           );
         return (
           <p key={i} className="mb-3 leading-relaxed last:mb-0">
-            <Inline
-              text={bloc.text}
-              keyBase={`${keyBase}${i}`}
-              onTermClick={onTermClick}
-              locale={locale}
-            />
+            {inline(bloc.text, `${keyBase}${i}`, locale, onTermClick, seen)}
           </p>
         );
       })}

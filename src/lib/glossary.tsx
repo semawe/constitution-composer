@@ -59,6 +59,18 @@ export function linkifyTerms(
   onTermClick: (key: string) => void,
   keyBase: string,
   locale: Locale = "fr",
+  /**
+   * Termes déjà glosés dans la même unité de lecture (un article, insertions
+   * comprises). Fourni, il limite le soulignement à la première occurrence.
+   *
+   * Le fond emploie ses termes définis à chaque phrase : sans cette borne, le
+   * corps constitutionnel portait deux à quatre pointillés par phrase, et la
+   * texture dominante de la page devenait le soulignement plutôt que le texte.
+   * La page /lite, qui ne glose pas, se lit nettement mieux — c'est la
+   * comparaison qui a tranché. Gloser une fois par article garde la définition
+   * à portée sans la répéter.
+   */
+  seen?: Set<string>,
 ): ReactNode[] {
   const { byTerm, re: TERM_RE } = INDEX[locale];
   const out: ReactNode[] = [];
@@ -69,16 +81,25 @@ export function linkifyTerms(
   while ((m = TERM_RE.exec(text)) !== null) {
     const t = byTerm.get(m[1]);
     if (!t) continue;
+    if (seen) {
+      if (seen.has(t.key)) continue;
+      seen.add(t.key);
+    }
     if (m.index > last) out.push(text.slice(last, m.index));
     out.push(
-      <span
+      // Un bouton et non un `span` cliquable : le renvoi au glossaire était
+      // hors d'atteinte au clavier, et l'infobulle `title` seule ne dit rien
+      // à un lecteur d'écran.
+      <button
         key={`${keyBase}-g${i++}`}
+        type="button"
         onClick={() => onTermClick(t.key)}
         title={t.definition}
-        className="cursor-help border-b border-dotted border-slate-400/70 transition hover:border-slate-600"
+        aria-label={`${m[0]} : ${t.definition}`}
+        className="cursor-help border-b border-dotted border-slate-400/70 text-left transition hover:border-slate-600"
       >
         {m[0]}
-      </span>,
+      </button>,
     );
     last = m.index + m[0].length;
   }

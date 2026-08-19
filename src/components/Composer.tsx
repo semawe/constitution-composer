@@ -65,7 +65,7 @@ const COACHES: Coach[] = (() => {
 
 const TIER_UI: Record<
   Tier | "warning",
-  { dot: string; bar: string; tag: string; tint: string; chip: string }
+  { dot: string; bar: string; tag: string; tint: string; chip: string; label: string }
 > = {
   core: {
     dot: "bg-slate-400",
@@ -73,6 +73,7 @@ const TIER_UI: Record<
     tag: "bg-slate-100 text-slate-600 ring-slate-200",
     tint: "",
     chip: "hover:border-slate-400 hover:text-slate-700",
+    label: "text-slate-500",
   },
   retirable: {
     dot: "bg-teal-500",
@@ -80,6 +81,7 @@ const TIER_UI: Record<
     tag: "bg-teal-50 text-teal-700 ring-teal-200",
     tint: "bg-teal-50/50",
     chip: "hover:border-teal-400 hover:text-teal-700",
+    label: "text-teal-700",
   },
   extension: {
     dot: "bg-violet-500",
@@ -87,6 +89,7 @@ const TIER_UI: Record<
     tag: "bg-violet-50 text-violet-700 ring-violet-200",
     tint: "bg-violet-50/50",
     chip: "hover:border-violet-400 hover:text-violet-700",
+    label: "text-violet-700",
   },
   pedagogique: {
     dot: "bg-amber-400",
@@ -94,6 +97,7 @@ const TIER_UI: Record<
     tag: "bg-amber-50 text-amber-700 ring-amber-200",
     tint: "bg-amber-50/40",
     chip: "hover:border-amber-400 hover:text-amber-700",
+    label: "text-amber-700",
   },
   app: {
     dot: "bg-rose-500",
@@ -101,6 +105,7 @@ const TIER_UI: Record<
     tag: "bg-rose-50 text-rose-700 ring-rose-200",
     tint: "bg-rose-50/50",
     chip: "hover:border-rose-400 hover:text-rose-700",
+    label: "text-rose-700",
   },
   warning: {
     dot: "bg-amber-500",
@@ -108,6 +113,7 @@ const TIER_UI: Record<
     tag: "bg-amber-50 text-amber-700 ring-amber-200",
     tint: "bg-amber-50/60",
     chip: "",
+    label: "text-amber-700",
   },
 };
 
@@ -1181,6 +1187,10 @@ export default function Composer({
                 <AnimatePresence initial={false}>
                   {composedFor(block.anchor).map((item) => {
                     const ui = item.warning ? TIER_UI.warning : TIER_UI[item.tier];
+                    const tinted =
+                      item.warning ||
+                      item.kind === "fallback" ||
+                      item.tier === "pedagogique";
                     const domId =
                       item.kind === "fallback"
                         ? `fb-${item.moduleId}`
@@ -1194,14 +1204,28 @@ export default function Composer({
                         animate={{ opacity: 1, height: "auto", y: 0 }}
                         exit={{ opacity: 0, height: 0, y: -6 }}
                         transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                        className={`mt-4 scroll-mt-24 overflow-hidden rounded-r-md border-l-4 ${ui.bar} ${ui.tint} py-3 pl-4 pr-3`}
+                        className={`mt-5 scroll-mt-24 overflow-hidden border-l-2 ${ui.bar} ${
+                          // La teinte de fond ne sert que là où le texte change
+                          // de registre : une piste pédagogique est un
+                          // commentaire, une règle par défaut un avertissement.
+                          // Sur les modules, elle faisait de la page une pile de
+                          // boîtes colorées — quatorze actives par défaut sur
+                          // dix-neuf — là où la promesse est de composer « au fil
+                          // du texte ». Le liseré de teinte et le libellé disent
+                          // l'appartenance ; le texte reste sur le fond de la page.
+                          tinted ? `rounded-r-md ${ui.tint} py-3 pl-4 pr-3` : "py-1 pl-5"
+                        }`}
                       >
                         <span
-                          className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${ui.tag}`}
+                          className={`mb-1.5 inline-block text-[0.7rem] font-medium uppercase tracking-wider ${
+                            tinted
+                              ? `rounded-full px-2 py-0.5 normal-case tracking-normal ring-1 ring-inset ${ui.tag}`
+                              : ui.label
+                          }`}
                         >
                           {item.kind === "fallback"
                             ? `⚠ ${t.defaultRule(item.moduleLabel ?? "")}`
-                            : `${item.tier === "retirable" ? "" : "+ "}${item.moduleLabel}`}
+                            : item.moduleLabel}
                         </span>
                         <div className="text-[0.98rem]">
                           <Prose
