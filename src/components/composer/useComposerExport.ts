@@ -112,5 +112,23 @@ export function useComposerExport({
 
   // Sauvegarde la composition avant la redirection Google (restaurée au retour).
 
-  return { pdfBusy, pdfError, booking, setBooking, doGeneratePdf, handlePdf };
+  /**
+   * Fait descendre le moteur PDF sans rien produire. Appelé au survol ou au focus
+   * du bouton d'export : l'import est mis en cache par le navigateur, donc le clic
+   * n'attend plus le réseau. Silencieux par construction — un préchargement qui
+   * échoue ne doit rien dire, le clic réessaiera et parlera, lui.
+   */
+  const precharger = () => {
+    void import("@/lib/pdf").catch(() => {});
+  };
+
+  return {
+    pdfBusy,
+    pdfError,
+    booking,
+    setBooking,
+    doGeneratePdf,
+    handlePdf,
+    precharger,
+  };
 }

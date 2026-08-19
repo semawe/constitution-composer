@@ -22,6 +22,17 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 // bouchon, le test ne mesurerait pas ce que React rend, mais ce que l'animation
 // n'a pas fini de retirer. Les animations elles-mêmes restent hors couverture,
 // et c'est dit.
+// Compte les fois où le moteur PDF est réellement demandé. `vi.hoisted` parce que
+// la fabrique de `vi.mock` est hissée au-dessus des déclarations du module.
+const moteurPdf = vi.hoisted(() => ({ demandes: 0 }));
+vi.mock("@/lib/pdf", async () => {
+  moteurPdf.demandes += 1;
+  return {
+    generateComposedPdfBlob: async () => new Blob(["%PDF-"]),
+    generatePrincipesPdfBlob: async () => new Blob(["%PDF-"]),
+  };
+});
+
 vi.mock("framer-motion", async () => {
   const React = await import("react");
   const nue = (balise: string) =>
@@ -208,6 +219,22 @@ describe("le document composé, à l'écran", () => {
     } finally {
       Element.prototype.scrollIntoView = vrai;
     }
+  });
+  it("s'approcher du bouton d'export fait descendre le moteur PDF", async () => {
+    // Le chunk de @react-pdf pèse ~468 Ko gzip et ne partait qu'au clic : sur
+    // connexion lente, l'attente était longue sous un simple « Génération… ».
+    const utilisateur = userEvent.setup();
+    monter();
+    const bouton = screen.getByRole("button", {
+      name: new RegExp(t.pdfDownload),
+    });
+    // Rien n'a été demandé au montage : c'est tout l'intérêt du chargement différé.
+    expect(moteurPdf.demandes).toBe(0);
+
+    await utilisateur.hover(bouton);
+
+    // Le survol suffit à le faire descendre. Au clic, il est déjà là.
+    await waitFor(() => expect(moteurPdf.demandes).toBe(1));
   });
 });
 

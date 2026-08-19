@@ -26,6 +26,7 @@ export function ComposerEntete({
   setShowIntent,
   pdfBusy,
   onPdf,
+  precharger,
   logo,
   onLogoChange,
   font,
@@ -49,6 +50,8 @@ export function ComposerEntete({
   setShowIntent: (v: boolean) => void;
   pdfBusy: boolean;
   onPdf: () => void;
+  /** Demande le moteur PDF avant qu'on en ait besoin. */
+  precharger: () => void;
   logo: string;
   onLogoChange: (e: ChangeEvent<HTMLInputElement>) => void;
   font: string;
@@ -202,6 +205,12 @@ export function ComposerEntete({
             </div>
             <button
               onClick={onPdf}
+              // Le moteur PDF (~468 Ko gzip) ne descend qu'au premier export.
+              // On le demande dès que la personne s'approche du bouton : au clic,
+              // il est souvent déjà là, et le premier chargement de la page n'a
+              // rien porté de plus.
+              onPointerEnter={precharger}
+              onFocus={precharger}
               disabled={pdfBusy}
               className="inline-flex items-center gap-2 rounded-full btn-ink px-4 py-2 text-sm font-medium transition disabled:opacity-60"
             >

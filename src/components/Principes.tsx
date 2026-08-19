@@ -507,6 +507,11 @@ export default function Principes({
     // L'autosauvegarde suit : le payload dérive de l'état, la référence y entre.
   };
 
+  /** Fait descendre le moteur PDF avant le clic (voir useComposerExport). */
+  const precharger = () => {
+    void import("@/lib/pdf").catch(() => {});
+  };
+
   const doPdf = async () => {
     setPdfBusy(true);
     setPdfError(false);
@@ -669,6 +674,8 @@ export default function Principes({
           </p>
           <button
             onClick={handlePdf}
+            onPointerEnter={precharger}
+            onFocus={precharger}
             disabled={pdfBusy}
             className="inline-flex items-center gap-2 rounded-full btn-ink px-4 py-2 text-sm font-medium transition disabled:opacity-60"
           >

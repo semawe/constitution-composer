@@ -110,6 +110,7 @@ export default function Composer({
     setBooking,
     doGeneratePdf,
     handlePdf,
+    precharger,
   } = exportCtl;
 
 
@@ -314,6 +315,7 @@ export default function Composer({
           setShowIntent={setShowIntent}
           pdfBusy={pdfBusy}
           onPdf={handlePdf}
+          precharger={precharger}
           logo={logo}
           onLogoChange={(e) => chargerLogo(e, setLogo)}
           font={font}
