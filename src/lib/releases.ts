@@ -52,6 +52,36 @@ export function currentContentRef(locale: Locale): ContentRef {
   };
 }
 
+const MOIS: Record<Locale, string[]> = {
+  fr: [
+    "janvier", "février", "mars", "avril", "mai", "juin",
+    "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+  ],
+  en: [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ],
+};
+
+/**
+ * Le nom lisible d'une release : « 19 août 2026 », pas « 2026-08-19 ».
+ *
+ * Formaté à la main plutôt que par `toLocaleDateString` : un identifiant de
+ * release est une date civile, pas un instant, et la passer par `Date` la
+ * décalerait d'un jour selon le fuseau de qui regarde. Un identifiant qui n'est
+ * pas une date (label posé à la main) se rend tel quel.
+ */
+export function releaseLabel(id: string, locale: Locale): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:-\d+)?$/.exec(id);
+  if (!m) return id;
+  const [, annee, mois, jour] = m;
+  const nom = MOIS[locale][Number(mois) - 1];
+  const j = String(Number(jour));
+  return locale === "fr"
+    ? `${j} ${nom} ${annee}`
+    : `${nom} ${j}, ${annee}`;
+}
+
 /** Empreinte courte, pour le pied de page du PDF : lisible, et suffisante à comparer. */
 export function shortSha(sha256: string): string {
   return sha256.slice(0, 12);

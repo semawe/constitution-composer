@@ -20,9 +20,9 @@ import {
 } from "@/lib/constitution";
 import {
   type ContentRef,
-  CURRENT_RELEASE,
   currentContentRef,
   isOutdated,
+  releaseLabel,
   resolveContent,
 } from "@/lib/releases";
 import { getSupabase } from "@/lib/supabase";
@@ -561,11 +561,11 @@ export default function Composer({
     const resolution = resolveContent(v.payload.content);
     setAFiger(null);
     if (resolution.statut === "release-absente") {
-      setReleaseMsg(t.releaseMissing(resolution.release));
+      setReleaseMsg(t.releaseMissing(releaseLabel(resolution.release, locale)));
       return;
     }
     if (resolution.statut === "empreinte-divergente") {
-      setReleaseMsg(t.releaseMismatch(resolution.release));
+      setReleaseMsg(t.releaseMismatch(releaseLabel(resolution.release, locale)));
       return;
     }
     const fond =
@@ -579,7 +579,9 @@ export default function Composer({
       setAFiger(v);
     } else {
       setReleaseMsg(
-        isOutdated(v.payload.content) ? t.releasePinned(resolution.release) : null,
+        isOutdated(v.payload.content)
+          ? t.releasePinned(releaseLabel(resolution.release, locale))
+          : null,
       );
     }
     // Le payload vient de la base : il peut être ancien (modules disparus),
@@ -602,7 +604,7 @@ export default function Composer({
       await refreshVersions();
       setAFiger(null);
       setContentRef(currentContentRef(locale));
-      setReleaseMsg(t.releasePinned(CURRENT_RELEASE));
+      setReleaseMsg(null);
     } catch {
       setVersionMsg(t.versionActionFailed);
     }

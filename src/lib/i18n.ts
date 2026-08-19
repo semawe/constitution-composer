@@ -124,17 +124,17 @@ export const COMPOSER = {
     pdfFailed:
       "Le PDF n'a pas pu être produit. Réessayez ; votre composition est intacte à l'écran.",
     defaultRule: (label: string) => `Règle par défaut : « ${label} » non activé`,
-    releasePinned: (release: string) =>
-      `Version figée sur le texte du ${release}. C'est ce texte-là qui s'affiche et qui s'exporte, pas le plus récent.`,
+    releasePinned: (date: string) =>
+      `Vous relisez cette version telle que vous l'avez enregistrée, avec la Constitution du ${date}. La Constitution a évolué depuis ; ce document, lui, ne change pas.`,
     releaseNotPinned:
-      "Cette version a été enregistrée avant que les textes ne soient archivés : elle n'est figée sur aucun. Le texte affiché est le texte actuel.",
-    releasePinAction: "Figer sur le texte actuel",
-    releaseMissing: (release: string) =>
-      `Le texte du ${release}, sur lequel cette version est figée, n'est plus dans l'application. Elle n'a pas été ouverte : l'ouvrir afficherait un autre document que le vôtre.`,
-    releaseMismatch: (release: string) =>
-      `L'archive du texte du ${release} ne correspond plus à cette version. Elle n'a pas été ouverte, pour ne pas vous montrer un document qui ne serait pas le vôtre.`,
-    pdfContentRef: (release: string, sha: string) =>
-      `Texte du ${release} · empreinte ${sha}`,
+      "Cette version est ancienne : l'application n'a pas gardé trace de la Constitution avec laquelle vous l'aviez composée. Elle s'affiche donc avec la Constitution d'aujourd'hui.",
+    releasePinAction: "L'enregistrer avec la Constitution d'aujourd'hui",
+    releaseMissing: (date: string) =>
+      `Cette version a été composée avec la Constitution du ${date}, que l'application n'a plus. Elle n'a pas été ouverte : vous auriez lu un autre texte que le vôtre.`,
+    releaseMismatch: (date: string) =>
+      `La Constitution du ${date} conservée par l'application ne correspond plus à cette version. Elle n'a pas été ouverte, pour ne pas vous montrer un texte qui n'est pas le vôtre.`,
+    pdfContentRef: (date: string, sha: string) =>
+      `Constitution du ${date} · réf. ${sha}`,
     reinsert: (label: string) => `Réinsérer : ${label}`,
     addModuleHere: "Ajouter un module ici",
     legend: "Légende",
@@ -251,17 +251,17 @@ export const COMPOSER = {
     pdfFailed:
       "The PDF could not be produced. Try again; your composition is untouched on screen.",
     defaultRule: (label: string) => `Default rule: “${label}” not enabled`,
-    releasePinned: (release: string) =>
-      `Version pinned to the ${release} text. That is the text shown and exported, not the latest one.`,
+    releasePinned: (date: string) =>
+      `You are reading this version exactly as you saved it, with the Constitution of ${date}. The Constitution has changed since; this document has not.`,
     releaseNotPinned:
-      "This version was saved before texts were archived: it is pinned to none. The text shown is the current one.",
-    releasePinAction: "Pin to the current text",
-    releaseMissing: (release: string) =>
-      `The ${release} text this version is pinned to is no longer in the app. It was not opened: opening it would show a document other than yours.`,
-    releaseMismatch: (release: string) =>
-      `The archive of the ${release} text no longer matches this version. It was not opened, so as not to show you a document that would not be yours.`,
-    pdfContentRef: (release: string, sha: string) =>
-      `${release} text · digest ${sha}`,
+      "This version is an old one: the app did not record which Constitution you composed it with. It is therefore shown with today's Constitution.",
+    releasePinAction: "Save it with today's Constitution",
+    releaseMissing: (date: string) =>
+      `This version was composed with the Constitution of ${date}, which the app no longer has. It was not opened: you would have read a text other than your own.`,
+    releaseMismatch: (date: string) =>
+      `The Constitution of ${date} kept by the app no longer matches this version. It was not opened, so as not to show you a text that is not yours.`,
+    pdfContentRef: (date: string, sha: string) =>
+      `Constitution of ${date} · ref. ${sha}`,
     reinsert: (label: string) => `Reinsert: ${label}`,
     addModuleHere: "Add a module here",
     legend: "Legend",

@@ -17,6 +17,7 @@ import {
   normalizeActive,
 } from "./constitution";
 import { COMPOSER, type Locale, PRINCIPES_UI } from "./i18n";
+import { releaseLabel } from "./releases";
 import frJson from "../data/constitution.fr.json";
 import enJson from "../data/constitution.en.json";
 import principesFr from "../data/principes.fr.json";
@@ -208,7 +209,9 @@ describe.each(FONDS)("export du document composé (%s)", (locale, data) => {
         contentRef: { release: "2026-08-19", sha256: "abcdef0123456789".repeat(4) },
       }),
     );
-    expect(rendu).toContain(needle(t.pdfContentRef("2026-08-19", "abcdef012345")));
+    expect(rendu).toContain(
+      needle(t.pdfContentRef(releaseLabel("2026-08-19", locale), "abcdef012345")),
+    );
   });
 
   it("sans référence de texte, le pied de page n'invente rien", () => {

@@ -8,6 +8,7 @@ import {
   type ContentRef,
   currentContentRef,
   isOutdated,
+  releaseLabel,
   releaseSha,
   resolveContent,
   shortSha,
@@ -111,6 +112,17 @@ describe("état d'une référence", () => {
 
   it("une composition sans référence n'est pas « dépassée » : elle n'est pas figée", () => {
     expect(isOutdated(undefined)).toBe(false);
+  });
+
+  it("une release se lit comme une date, dans la langue de qui regarde", () => {
+    // Ce qui s'affiche à l'utilisateur ne doit pas être un identifiant technique.
+    expect(releaseLabel("2026-08-19", "fr")).toBe("19 août 2026");
+    expect(releaseLabel("2026-08-19", "en")).toBe("August 19, 2026");
+    expect(releaseLabel("2026-01-01", "fr")).toBe("1 janvier 2026");
+    // Deux releases le même jour portent la même date : l'empreinte les sépare.
+    expect(releaseLabel("2026-08-19-2", "fr")).toBe("19 août 2026");
+    // Un identifiant posé à la main n'est pas une date : il se rend tel quel.
+    expect(releaseLabel("v6-alpha-gel", "fr")).toBe("v6-alpha-gel");
   });
 
   it("l'empreinte courte reste comparable à l'œil", () => {

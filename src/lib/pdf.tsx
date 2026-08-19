@@ -14,7 +14,7 @@ import {
 } from "@react-pdf/renderer";
 import { type ConstitutionData, type Tier, compose } from "./constitution";
 import { parseBlocks, parseInline } from "./markup";
-import { shortSha } from "./releases";
+import { releaseLabel, shortSha } from "./releases";
 import { COMPOSER, PRINCIPES_UI, type Locale } from "./i18n";
 
 // Polices du document, auto-hébergées dans /public/fonts (mêmes fichiers que
@@ -329,7 +329,7 @@ export function ComposedDoc({
           <Text style={styles.footerText}>
             {t.pdfFooter(data.meta.license, data.meta.notice)}
             {contentRef
-              ? ` — ${t.pdfContentRef(contentRef.release, shortSha(contentRef.sha256))}`
+              ? ` — ${t.pdfContentRef(releaseLabel(contentRef.release, locale), shortSha(contentRef.sha256))}`
               : ""}
           </Text>
         </View>
