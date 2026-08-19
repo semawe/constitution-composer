@@ -16,7 +16,7 @@ import {
   defaultActive,
   normalizeActive,
 } from "./constitution";
-import { COMPOSER, type Locale, PRINCIPES_UI } from "./i18n";
+import { COMPOSER, type Locale, PRINCIPES_UI, UI } from "./i18n";
 import { releaseLabel } from "./releases";
 import frJson from "../data/constitution.fr.json";
 import enJson from "../data/constitution.en.json";
@@ -191,12 +191,17 @@ describe.each(FONDS)("export du document composé (%s)", (locale, data) => {
     }
   });
 
-  it("l'en-tête porte le titre, la version et la date, le pied la licence et la mention", () => {
+  it("l'en-tête porte le titre, l'édition et la date, le pied la licence et la mention", () => {
     const rendu = flatten(
       doc(locale, data, defaultActive(data), { date: "18 août 2026" }),
     );
     expect(rendu).toContain("Constitution de l'Organisation");
-    expect(rendu).toContain(data.meta.version.toUpperCase());
+    // L'en-tête portait `meta.version`, soit « V6-ALPHA » : un numéro qui
+    // donnait au document l'air d'être la prochaine Constitution officielle.
+    // Il nomme désormais l'édition, et le sous-titre dit d'où elle est tirée.
+    expect(rendu).toContain(t.editionKicker.toUpperCase());
+    expect(rendu).not.toContain(data.meta.version.toUpperCase());
+    expect(rendu).toContain(needle(UI[locale].derivation));
     expect(rendu).toContain(`${t.pdfComposedOn} 18 août 2026`);
     expect(rendu).toContain(needle(t.pdfFooter(data.meta.license, data.meta.notice)));
   });

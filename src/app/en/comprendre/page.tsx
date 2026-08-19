@@ -5,7 +5,7 @@ import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 export const metadata: Metadata = {
   title: "Understanding the Holacracy Constitution",
   description:
-    "What the Holacracy Constitution is, how to adopt it in modular form, and frequently asked questions.",
+    "What the Holacracy Constitution is, how to adopt it in modular form, and frequently asked questions about the Sémawé edition.",
   alternates: {
     canonical: "https://constitution-composer.com/en/comprendre",
     languages: { fr: "https://constitution-composer.com/comprendre" },
@@ -26,8 +26,12 @@ const QA = [
     a: "To have a Constitution ready to ratify, and a Declaration of Principles signable by the ratifiers.",
   },
   {
-    q: "What is the difference between v5.0 and v6?",
-    a: "Version 5.0 is the last official release by HolacracyOne. Version 6 (alpha) is a work in progress with structural simplifications. The English Composer uses v5.0; the French Composer uses v6 alpha.",
+    q: "Is the text offered here the official Constitution?",
+    a: "No. HolacracyOne publishes the official Constitution, currently version 5.0. The text offered here is a Sémawé edition derived from that 5.0: it exists to explore reductions and additions the official text does not carry. To adopt the reference version, HolacracyOne is authoritative.",
+  },
+  {
+    q: "How does this relate to HolacracyOne's own tool?",
+    a: "HolacracyOne offers its own composer on the official 5.0 Constitution. The two tools coexist without overlapping: this one works on stratification (Micro, Lite, Full) and on extensions that 5.0 does not provide for.",
   },
 ];
 

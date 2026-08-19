@@ -3,7 +3,7 @@ import { compose, type ConstitutionData } from "@/lib/constitution";
 import { fontVars } from "@/lib/branding";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 import Prose from "@/components/Prose";
-import type { Locale } from "@/lib/i18n";
+import { type Locale, UI } from "@/lib/i18n";
 import { REPO_V6_URL, v5Href } from "@/lib/links";
 
 // Rendu Markdown léger (gras + listes), identique au visualiseur /admin/view.
@@ -39,11 +39,11 @@ export default function VersionDoc({
   const L =
     locale === "en"
       ? {
-          source: "Source (v6 alpha) on GitHub",
+          source: "The source text on GitHub",
           v5: "For the official, stable 5.0 version of Holacracy",
         }
       : {
-          source: "Code source (v6 alpha) sur GitHub",
+          source: "Le texte source sur GitHub",
           v5: "Pour la version stable et officielle 5.0 de Holacracy",
         };
 
@@ -58,6 +58,9 @@ export default function VersionDoc({
           {data.meta.title}
         </h1>
         <p className="mt-3 text-lg leading-relaxed text-slate-600">{tagline}</p>
+        <p className="mt-3 max-w-2xl text-xs leading-relaxed text-slate-500">
+          {UI[locale].derivation}
+        </p>
 
         <Link
           href={ctaHref}

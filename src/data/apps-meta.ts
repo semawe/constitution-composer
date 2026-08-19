@@ -46,9 +46,9 @@ const META: AppMeta[] = [
     id: "representant-cercle",
     tagline: "Élire un représentant qui porte les Tensions du Cercle vers son Super-Cercle.",
     longDescription:
-      "Par défaut, la Constitution v6 ne prévoit pas de remontée formelle des Tensions depuis un Cercle vers son Super-Cercle. L'extension Représentant de Cercle ajoute ce rôle élu : choisi par le Cercle lui-même via le Processus d'Élection Intégrative, il siège aux Réunions de Gouvernance du Super-Cercle pour y porter les préoccupations qui dépassent le Cercle. C'est un mécanisme de tension ascendante, symétrique au Lead Link descendant.",
+      "Par défaut, le socle de cette édition ne prévoit pas de remontée formelle des Tensions depuis un Cercle vers son Super-Cercle. L'extension Représentant de Cercle ajoute ce rôle élu : choisi par le Cercle lui-même via le Processus d'Élection Intégrative, il siège aux Réunions de Gouvernance du Super-Cercle pour y porter les préoccupations qui dépassent le Cercle. C'est un mécanisme de tension ascendante, symétrique au Lead Link descendant.",
     origin:
-      "Présent dans les versions antérieures de la Constitution Holacracy, il a été rendu optionnel en v6 pour alléger les structures plates. Cette extension le réintroduit explicitement pour les organisations qui en ont besoin.",
+      "Présent dans les versions antérieures de la Constitution Holacracy, il a été sorti du socle de cette édition pour alléger les structures plates. Cette extension le réintroduit explicitement pour les organisations qui en ont besoin.",
     creator: "HolacracyOne",
     organizations: [
       "Organisations Holacracy avec plusieurs niveaux de cercles imbriqués",

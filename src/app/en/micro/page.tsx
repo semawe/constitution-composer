@@ -6,9 +6,9 @@ import raw from "@/data/constitution.en.json";
 const data = raw as unknown as ConstitutionData;
 
 export const metadata: Metadata = {
-  title: "Holacracy Constitution v6 [Alpha] — Micro version",
+  title: "Micro Constitution · Sémawé edition",
   description:
-    "The Micro version of the Holacracy Constitution v6 [Alpha]: the irreducible core only, with no removable block, extension, or app.",
+    "The Micro version of the Sémawé edition: the irreducible core only, with no removable block, extension, or app. Unofficial version, derived from the Holacracy Constitution 5.0.",
   alternates: {
     canonical: "https://constitution-composer.com/en/micro",
     languages: { fr: "https://constitution-composer.com/micro" },

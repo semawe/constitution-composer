@@ -9,7 +9,7 @@ const constitution = constitutionRaw as unknown as ConstitutionData;
 const principes = principesRaw as unknown as PrincipesData;
 
 export const metadata: Metadata = {
-  title: "Composer: Holacracy Constitution v6 alpha",
+  title: "Compose your Constitution · Sémawé edition",
   robots: { index: false, follow: true },
   alternates: {
     canonical: "https://constitution-composer.com/en/composer",

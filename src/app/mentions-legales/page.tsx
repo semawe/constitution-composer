@@ -105,6 +105,15 @@ export default function MentionsLegalesPage() {
             de leurs licences respectives, indiquées à la source. Les éléments
             graphiques et la marque Sémawé restent la propriété de Sémawé.
           </p>
+          <p>
+            Holacracy® est une marque déposée de HolacracyOne LLC. Sémawé
+            n&apos;est ni affilié à HolacracyOne, ni mandaté par elle. Le texte
+            composé sur ce site est une édition Sémawé, dérivée de la
+            Constitution Holacracy 5.0 : il ne constitue pas une nouvelle
+            version officielle de la Constitution, et n&apos;engage pas
+            HolacracyOne. La version officielle de référence est publiée par
+            HolacracyOne.
+          </p>
         </section>
 
         <section className="mt-10">

@@ -38,7 +38,7 @@ import {
   deleteComposition,
 } from "@/lib/compositions";
 import type { Session, User } from "@supabase/supabase-js";
-import { COMPOSER, type Locale } from "@/lib/i18n";
+import { COMPOSER, type Locale, UI } from "@/lib/i18n";
 
 // Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
 // Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
@@ -986,7 +986,7 @@ export default function Composer({
         <IntroBanner locale={locale} />
         <header className="mb-8 border-b border-slate-200 pb-6">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-            {data.meta.version}
+            {t.editionKicker}
           </p>
           {logo && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -1005,7 +1005,13 @@ export default function Composer({
             style={titleColor ? { color: titleColor } : undefined}
             className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-3xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
           />
-          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+          {/* Sous-titre du document : de quoi ce texte est dérivé, et ce qu'il
+              n'est pas. Il suit le titre même quand l'utilisateur renomme sa
+              Constitution — c'est l'édition qui est qualifiée, pas le nom. */}
+          <p className="mt-2 max-w-2xl text-xs leading-relaxed text-slate-500">
+            {UI[locale].derivation}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
             <span>{t.titleHint}</span>
             <span className="flex items-center gap-1.5">
               {t.fontLabel}
@@ -1304,11 +1310,7 @@ export default function Composer({
               alt="Sémawé"
               className="hidden h-10 w-auto shrink-0 dark:block"
             />
-            <span>
-              Composé avec le Composeur de Constitution de Sémawé, diffusé sous
-              licence {data.meta.license}, dérivé de la Constitution Holacracy.{" "}
-              {data.meta.notice}
-            </span>
+            <span>{t.pdfFooter(data.meta.license, data.meta.notice)}</span>
           </footer>
         </article>
         </main>

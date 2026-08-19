@@ -110,6 +110,14 @@ export default function LegalNoticePage() {
             under their own licences, stated at the source. Graphic assets and
             the Sémawé trademark remain the property of Sémawé.
           </p>
+          <p>
+            Holacracy® is a registered trademark of HolacracyOne LLC. Sémawé is
+            neither affiliated with HolacracyOne nor mandated by it. The text
+            composed on this site is a Sémawé edition derived from the Holacracy
+            Constitution 5.0: it is not a new official version of the
+            Constitution, and it does not bind HolacracyOne. The official
+            reference version is published by HolacracyOne.
+          </p>
         </section>
 
         <section className="mt-10">

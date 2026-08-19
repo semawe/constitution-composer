@@ -15,7 +15,7 @@ import {
 import { type ConstitutionData, type Tier, compose } from "./constitution";
 import { parseBlocks, parseInline } from "./markup";
 import { releaseLabel, shortSha } from "./releases";
-import { COMPOSER, PRINCIPES_UI, type Locale } from "./i18n";
+import { COMPOSER, PRINCIPES_UI, type Locale, UI } from "./i18n";
 
 // Polices du document, auto-hébergées dans /public/fonts (mêmes fichiers que
 // les @font-face de globals.css). Enregistrées à la demande, une seule fois.
@@ -110,6 +110,14 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: COLOR.muted,
     marginBottom: 18,
+  },
+  /** Sous-titre du document : dérivation et non-officialité, sous le titre. */
+  derivation: {
+    fontFamily: "Helvetica",
+    fontSize: 8,
+    color: COLOR.muted,
+    lineHeight: 1.4,
+    marginBottom: 10,
   },
   h2: {
     fontWeight: 700,
@@ -279,10 +287,11 @@ export function ComposedDoc({
           // eslint-disable-next-line jsx-a11y/alt-text
           <Image style={styles.docLogo} src={logo} />
         ) : null}
-        <Text style={styles.kicker}>{(data.meta.version ?? "").toUpperCase()}</Text>
+        <Text style={styles.kicker}>{t.editionKicker.toUpperCase()}</Text>
         <Text style={[styles.title, titleColor ? { color: titleColor } : {}]}>
           {title}
         </Text>
+        <Text style={styles.derivation}>{UI[locale].derivation}</Text>
         {date && (
           <Text style={styles.date}>
             {t.pdfComposedOn} {date}
@@ -374,7 +383,8 @@ function SignatureList({ names }: { names: string[] }) {
 
 /** Exporté pour la même raison que `ComposedDoc` : c'est la couture d'épreuve. */
 export function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
-  const t = PRINCIPES_UI[d.locale ?? "fr"];
+  const locale = d.locale ?? "fr";
+  const t = PRINCIPES_UI[locale];
   const fam = PDF_FONTS[d.font ?? "source-serif"] ?? "Source Serif 4";
   const italic = italicFace(d.font);
   return (
@@ -384,10 +394,11 @@ export function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
           // eslint-disable-next-line jsx-a11y/alt-text
           <Image style={styles.docLogo} src={d.logo} />
         ) : null}
-        <Text style={styles.kicker}>{(d.meta.version ?? "").toUpperCase()}</Text>
+        <Text style={styles.kicker}>{t.editionKicker.toUpperCase()}</Text>
         <Text style={[styles.title, d.titleColor ? { color: d.titleColor } : {}]}>
           {d.meta.title}
         </Text>
+        <Text style={styles.derivation}>{UI[locale].derivation}</Text>
         {d.devise ? (
           <Text style={[styles.devise, { fontFamily: italic }]}>« {d.devise} »</Text>
         ) : null}

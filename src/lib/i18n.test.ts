@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { APP_UI, COMPOSER, GLOSSAIRE_UI, MARKETPLACE, PRINCIPES_UI, UI } from "./i18n";
+import {
+  APP_UI,
+  COMPOSER,
+  GLOSSAIRE_UI,
+  INTRO_BANNER,
+  MARKETPLACE,
+  PRINCIPES_UI,
+  UI,
+} from "./i18n";
 import { glossary } from "./glossary";
 import constitutionFr from "../data/constitution.fr.json";
 import constitutionEn from "../data/constitution.en.json";
@@ -27,6 +35,9 @@ const DICTS: [string, { fr: unknown; en: unknown }][] = [
   ["MARKETPLACE", MARKETPLACE],
   ["PRINCIPES_UI", PRINCIPES_UI],
   ["GLOSSAIRE_UI", GLOSSAIRE_UI],
+  // Le bandeau d'introduction manquait à cette liste : c'est le premier texte
+  // que lit un visiteur, et rien ne l'aurait empêché de rester en français.
+  ["INTRO_BANNER", INTRO_BANNER],
 ];
 
 describe("dictionnaires i18n : parité FR/EN", () => {

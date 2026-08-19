@@ -6,9 +6,9 @@ import raw from "@/data/constitution.fr.json";
 const data = raw as ConstitutionData;
 
 export const metadata: Metadata = {
-  title: "Constitution Holacracy v6 [Alpha] — version Lite",
+  title: "Constitution Lite · édition Sémawé",
   description:
-    "La version Lite de la Constitution Holacracy v6 [Alpha] : le socle plus tous les blocs retirables cochés par défaut, sans extension ni application.",
+    "La version Lite de l'édition Sémawé : le socle plus tous les blocs retirables cochés par défaut, sans extension ni application. Version non officielle, dérivée de la Constitution Holacracy 5.0.",
   alternates: {
     canonical: "https://constitution-composer.com/lite",
     languages: { en: "https://constitution-composer.com/en/lite" },

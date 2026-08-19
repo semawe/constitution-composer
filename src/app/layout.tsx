@@ -3,9 +3,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://constitution-composer.com"),
-  title: "Composer sa Constitution : Holacracy v6",
+  title: "Constitution Holacracy à la carte · édition Sémawé",
   description:
-    "Composez votre propre Constitution à partir d'un socle, à la carte.",
+    "Composez votre propre Constitution à partir d'un socle, à la carte. Édition Sémawé non officielle, dérivée de la Constitution Holacracy 5.0.",
   // "./" : canonical résolue par page (la racine -> /, /admin -> /admin).
   alternates: {
     canonical: "./",
@@ -18,17 +18,17 @@ export const metadata: Metadata = {
     type: "website",
     url: "./",
     siteName: "Constitution Composer",
-    title: "Composer sa Constitution : Holacracy v6",
+    title: "Constitution Holacracy à la carte · édition Sémawé",
     description:
-      "Composez votre propre Constitution à partir d'un socle, à la carte.",
+      "Composez votre propre Constitution à partir d'un socle, à la carte. Édition Sémawé non officielle, dérivée de la Constitution Holacracy 5.0.",
     locale: "fr_FR",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Composer sa Constitution : Holacracy v6",
+    title: "Constitution Holacracy à la carte · édition Sémawé",
     description:
-      "Composez votre propre Constitution à partir d'un socle, à la carte.",
+      "Composez votre propre Constitution à partir d'un socle, à la carte. Édition Sémawé non officielle, dérivée de la Constitution Holacracy 5.0.",
   },
 };
 

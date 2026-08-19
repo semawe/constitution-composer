@@ -15,6 +15,7 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
   const pathname = usePathname();
   const locale = localeProp ?? getLocaleFromPath(pathname);
   const t = UI[locale].nav;
+  const brand = UI[locale].brand;
   const otherLocale = locale === "fr" ? "en" : "fr";
   const otherPath = toOtherLocale(pathname);
 
@@ -28,14 +29,48 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-background/85 backdrop-blur">
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Link href={locale === "en" ? "/en" : "/"} className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-600 text-sm text-white">
-            ⬡
-          </span>
-          <span className="text-sm font-medium text-slate-800">
-            Constitution Composer
-          </span>
-        </Link>
+        {/* Co-marquage : le produit porte sa marque, et l'éditeur est nommé dès
+            l'en-tête plutôt qu'au seul pied de page. Le logo Sémawé est une
+            ancre distincte — imbriquer deux liens serait du HTML invalide. */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href={locale === "en" ? "/en" : "/"}
+            className="flex items-center gap-2"
+          >
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-600 text-sm text-white">
+              ⬡
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-sm font-medium text-slate-800">
+                {brand.product}
+              </span>
+              <span className="text-[0.65rem] text-slate-400">
+                {brand.byline}
+              </span>
+            </span>
+          </Link>
+          <span aria-hidden className="hidden h-6 w-px bg-slate-200 sm:block" />
+          <a
+            href={SEMAWE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={brand.semaweAlt}
+            className="hidden shrink-0 sm:block"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-semawe-light.png"
+              alt={brand.semaweAlt}
+              className="h-5 w-auto dark:hidden"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-semawe-dark.png"
+              alt={brand.semaweAlt}
+              className="hidden h-5 w-auto dark:block"
+            />
+          </a>
+        </div>
         <div className="flex items-center gap-1 text-sm text-slate-500 sm:gap-4">
           {NAV.map((item) => (
             <Link

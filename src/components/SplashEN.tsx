@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
+import { UI } from "@/lib/i18n";
+import { SEMAWE_URL, v5Href } from "@/lib/links";
+
+const T = UI.en;
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -77,9 +81,9 @@ export default function SplashEN() {
             variants={fadeUp}
             initial={reduce ? false : "hidden"}
             animate="show"
-            className="inline-block rounded-md bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700"
+            className="inline-block rounded-md border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
           >
-            Holacracy · Constitution v6 alpha
+            {T.unofficial}
           </motion.span>
           <motion.h1
             variants={fadeUp}
@@ -170,6 +174,63 @@ export default function SplashEN() {
               </p>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* L'éditeur, nommé et situé. La mention de non-officialité vit ici en
+          clair, à hauteur de lecture, et non seulement en pied de page. */}
+      <section className="border-t border-slate-200 bg-slate-50/60 dark:bg-slate-800/20">
+        <div className="mx-auto max-w-5xl px-4 py-14">
+          <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+            {T.author.kicker}
+          </p>
+          <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
+            <a
+              href={SEMAWE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-semawe-light.png"
+                alt={T.brand.semaweAlt}
+                className="h-14 w-auto dark:hidden"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-semawe-dark.png"
+                alt={T.brand.semaweAlt}
+                className="hidden h-14 w-auto dark:block"
+              />
+            </a>
+            <div className="max-w-2xl">
+              <h2 className="font-serif text-2xl font-medium text-slate-900">
+                {T.author.title}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                {T.author.body}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                <a
+                  href={SEMAWE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-teal-700 transition hover:text-teal-800"
+                >
+                  {T.author.semaweLink} ↗
+                </a>
+                <a
+                  href={v5Href("en")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 transition hover:text-slate-800"
+                >
+                  {T.footer.v5Label} ↗
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

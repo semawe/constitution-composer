@@ -11,6 +11,10 @@ import r_2026_08_19_constitution_fr_json from "@/data/releases/2026-08-19/consti
 import r_2026_08_19_principes_fr_json from "@/data/releases/2026-08-19/principes.fr.json";
 import r_2026_08_19_constitution_en_json from "@/data/releases/2026-08-19/constitution.en.json";
 import r_2026_08_19_principes_en_json from "@/data/releases/2026-08-19/principes.en.json";
+import r_2026_08_19_2_constitution_fr_json from "@/data/releases/2026-08-19-2/constitution.fr.json";
+import r_2026_08_19_2_principes_fr_json from "@/data/releases/2026-08-19-2/principes.fr.json";
+import r_2026_08_19_2_constitution_en_json from "@/data/releases/2026-08-19-2/constitution.en.json";
+import r_2026_08_19_2_principes_en_json from "@/data/releases/2026-08-19-2/principes.en.json";
 
 export interface ArchivedRelease {
   id: string;
@@ -32,6 +36,18 @@ export const ARCHIVED_RELEASES: ArchivedRelease[] = [
     principes: {
       fr: r_2026_08_19_principes_fr_json as unknown as PrincipesData,
       en: r_2026_08_19_principes_en_json as unknown as PrincipesData,
+    },
+  },
+  {
+    id: "2026-08-19-2",
+    sha256: {"constitution.fr.json":"95b6c816060b803f3e84bc5a49547c4d8e8aef9fad6c128e1eab99198bcfe2dd","principes.fr.json":"39eb3aa974b582c3ce616efdb65cd9ff23f157282969c4f8e4fd5e42aa5cd243","constitution.en.json":"b37cbca7c52ad1ebbab40c3263d0d9fb5e02ed0f5604d969b99f18982a108b7d","principes.en.json":"0af3a34b7075a6b7b00e088dfb4b4a8429b1a7ee9838ccf34b591fdd60fae0e2"},
+    constitution: {
+      fr: r_2026_08_19_2_constitution_fr_json as unknown as ConstitutionData,
+      en: r_2026_08_19_2_constitution_en_json as unknown as ConstitutionData,
+    },
+    principes: {
+      fr: r_2026_08_19_2_principes_fr_json as unknown as PrincipesData,
+      en: r_2026_08_19_2_principes_en_json as unknown as PrincipesData,
     },
   },
 ];

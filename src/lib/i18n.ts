@@ -30,6 +30,34 @@ export const UI = {
       v5Label: "Constitution 5.0 officielle",
       legal: "Mentions légales",
     },
+    brand: {
+      product: "Constitution Composer",
+      byline: "un outil Sémawé",
+      semaweAlt: "Sémawé",
+    },
+    /**
+     * La mention que HolacracyOne demande de rendre visible (échange du
+     * 18/08/2026) : que cet outil n'est pas officiel primait, pour Olivier
+     * Compagne, sur le fait qu'il soit expérimental. Elle est courte parce
+     * qu'elle s'affiche au-dessus du titre, à l'écran comme dans le PDF.
+     */
+    unofficial: "Un outil Sémawé · non affilié à HolacracyOne",
+    /**
+     * La phrase longue, qui dit de quoi ce texte est dérivé et ce qu'il n'est
+     * pas. Elle vit ici, et non dans le `meta` des fonds, pour une raison de
+     * fond : une composition sauvegardée est rendue avec le fond archivé de son
+     * époque (cf. `releases.ts`). Portée par la donnée, la mention manquerait
+     * aux documents enregistrés avant ce changement — précisément ceux qui
+     * portent encore l'ancien titre.
+     */
+    derivation:
+      "Version non officielle éditée par Sémawé, dérivée de la Constitution Holacracy® 5.0 de HolacracyOne LLC. Elle ne constitue pas une nouvelle version officielle de la Constitution.",
+    author: {
+      kicker: "L'éditeur",
+      title: "Qui édite cet outil",
+      body: "Constitution Composer est édité par Sémawé, société coopérative qui accompagne des organisations en Holacratie. Le texte proposé ici est une composition de Sémawé, dérivée de la Constitution Holacracy® 5.0 publiée par HolacracyOne. Il n'a pas valeur de version officielle : pour le texte de référence, HolacracyOne fait foi.",
+      semaweLink: "Découvrir Sémawé",
+    },
   },
   en: {
     nav: {
@@ -47,6 +75,20 @@ export const UI = {
       createdByMid: ", grounded in the experience of",
       v5Label: "Official 5.0 Constitution",
       legal: "Legal notice",
+    },
+    brand: {
+      product: "Constitution Composer",
+      byline: "a Sémawé tool",
+      semaweAlt: "Sémawé",
+    },
+    unofficial: "A Sémawé tool · not affiliated with HolacracyOne",
+    derivation:
+      "Unofficial version published by Sémawé, derived from the Holacracy® Constitution 5.0 by HolacracyOne LLC. It is not a new official version of the Constitution.",
+    author: {
+      kicker: "The publisher",
+      title: "Who publishes this tool",
+      body: "Constitution Composer is published by Sémawé, a French worker cooperative that supports organizations practising Holacracy. The text offered here is a Sémawé composition, derived from the Holacracy® Constitution 5.0 published by HolacracyOne. It carries no official standing: for the reference text, HolacracyOne is authoritative.",
+      semaweLink: "Discover Sémawé",
     },
   },
 } satisfies Record<Locale, unknown>;
@@ -154,8 +196,17 @@ export const COMPOSER = {
     pdfComposedOn: "Composé le",
     pdfValuesHeading: "Valeurs et principes",
     pdfDefaultRule: (label: string) => `Règle par défaut : « ${label} » non activé`,
+    // Le `notice` du fond porte déjà la dérivation et la non-officialité : ce
+    // pied de page ne les redit pas, il nomme l'outil et la licence.
     pdfFooter: (license: string, notice: string) =>
-      `Composé avec le Composeur de Constitution de Sémawé, diffusé sous licence ${license}, dérivé de la Constitution Holacracy. ${notice}`,
+      `Composé avec Constitution Composer, un outil Sémawé, sous licence ${license}. ${notice}`,
+    /**
+     * Ligne posée au-dessus du titre du document, à l'écran comme dans le PDF.
+     * Elle remplace l'affichage brut de `meta.version`, qui sortait
+     * « v6-alpha » : un numéro de version qui donnait au texte l'air d'être la
+     * prochaine Constitution officielle de HolacracyOne.
+     */
+    editionKicker: "Édition Sémawé · version non officielle",
     liteFull: "Lite complète",
     blocksRetirable: (kept: number, total: number) =>
       `${kept}/${total} blocs retirables`,
@@ -289,7 +340,8 @@ export const COMPOSER = {
     pdfValuesHeading: "Values and principles",
     pdfDefaultRule: (label: string) => `Default rule: “${label}” not enabled`,
     pdfFooter: (license: string, notice: string) =>
-      `Composed with Sémawé's Constitution Composer, released under ${license}, derived from the Holacracy Constitution. ${notice}`,
+      `Composed with Constitution Composer, a Sémawé tool, under the ${license} licence. ${notice}`,
+    editionKicker: "Sémawé edition · unofficial version",
     liteFull: "Full Lite",
     blocksRetirable: (kept: number, total: number) =>
       `${kept}/${total} removable blocks`,
@@ -480,8 +532,9 @@ export const PRINCIPES_UI = {
     namesPlaceholder: "Un nom et prénom par ligne.",
     namesHint:
       "Ces noms apparaîtront avec une ligne de signature dans le PDF de la Déclaration.",
+    editionKicker: "Édition Sémawé · version non officielle",
     footer: (license: string, notice: string) =>
-      `Déclaration de Principes composée avec le Composeur de Sémawé, diffusée sous licence ${license}, dérivée de la Constitution Holacracy. ${notice}`,
+      `Déclaration de Principes composée avec Constitution Composer, un outil Sémawé, sous licence ${license}. ${notice}`,
     attachTitle: "Cette Déclaration n'est pas encore rattachée à votre compte.",
     attachBody:
       "Elle a été rédigée avant votre connexion, sur ce navigateur. Voulez-vous l'enregistrer dans votre compte, ou repartir d'une Déclaration vierge ?",
@@ -540,8 +593,9 @@ export const PRINCIPES_UI = {
     namesPlaceholder: "One first and last name per line.",
     namesHint:
       "These names will appear with a signature line in the Declaration PDF.",
+    editionKicker: "Sémawé edition · unofficial version",
     footer: (license: string, notice: string) =>
-      `Declaration of Principles composed with Sémawé's Composer, released under ${license}, derived from the Holacracy Constitution. ${notice}`,
+      `Declaration of Principles composed with Constitution Composer, a Sémawé tool, under the ${license} licence. ${notice}`,
     attachTitle: "This Declaration is not attached to your account yet.",
     attachBody:
       "It was drafted before you signed in, on this browser. Would you like to save it to your account, or start from a blank Declaration?",
@@ -573,7 +627,7 @@ export const INTRO_BANNER = {
     ariaLabel: "Présentation de l'outil",
     ariaClose: "Masquer la présentation",
     title: "Composez la Constitution de votre organisation",
-    body: "Cet outil assemble une Constitution Holacracy v6 sur mesure : un socle complet, des blocs que vous conservez ou retirez, des extensions que vous activez au fil du texte. Le résultat s'exporte en PDF prêt à ratifier, à l'identité de votre organisation.",
+    body: "Cet outil assemble une Constitution sur mesure : un socle complet, des blocs que vous conservez ou retirez, des extensions que vous activez au fil du texte. Le résultat s'exporte en PDF prêt à ratifier, à l'identité de votre organisation. Le texte est une édition Sémawé, dérivée de la Constitution Holacracy 5.0 : ce n'est pas une version officielle.",
     howTitle: "Comment ça marche",
     steps: [
       "Lisez le texte : le socle est déjà en place, chaque module se coche ou se décoche à l'endroit où il s'insère.",
@@ -585,7 +639,7 @@ export const INTRO_BANNER = {
     ariaLabel: "Tool introduction",
     ariaClose: "Dismiss introduction",
     title: "Compose your organization's Constitution",
-    body: "This tool assembles a custom Holacracy v6 Constitution: an irreducible core, blocks you keep or remove, extensions you activate as you read. The result exports as a PDF ready to ratify, with your organization's identity.",
+    body: "This tool assembles a custom Constitution: an irreducible core, blocks you keep or remove, extensions you activate as you read. The result exports as a PDF ready to ratify, with your organization's identity. The text is a Sémawé edition derived from the Holacracy Constitution 5.0: it is not an official version.",
     howTitle: "How it works",
     steps: [
       "Read the text: the core is already in place; each module can be checked or unchecked right where it inserts.",

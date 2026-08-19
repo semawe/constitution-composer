@@ -44,8 +44,9 @@ const svg = `
   <text x="96" y="200" font-family="Georgia, serif" font-size="30" letter-spacing="6" fill="#64748b">CONSTITUTION-COMPOSER.COM</text>
   <text x="96" y="300" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="#f1f5f9">Composez votre</text>
   <text x="96" y="385" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="#f1f5f9">Constitution</text>
-  <text x="96" y="455" font-family="Georgia, serif" font-size="34" fill="#94a3b8">Holacracy v6 · socle + modules à la carte</text>
+  <text x="96" y="455" font-family="Georgia, serif" font-size="34" fill="#94a3b8">Édition Sémawé · socle + modules à la carte</text>
   <text x="96" y="505" font-family="Georgia, serif" font-size="34" fill="#94a3b8">PDF prêt à ratifier, à votre identité</text>
+  <text x="96" y="556" font-family="Georgia, serif" font-size="24" fill="#64748b">Version non officielle, dérivée de la Constitution Holacracy 5.0</text>
 </svg>`;
 
 await sharp(Buffer.from(svg)).png().toFile(out);

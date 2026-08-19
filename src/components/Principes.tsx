@@ -23,7 +23,7 @@ import {
   normalizeDeclaration,
 } from "@/lib/declaration";
 import { getSupabase } from "@/lib/supabase";
-import { COMPOSER, PRINCIPES_UI, type Locale } from "@/lib/i18n";
+import { COMPOSER, PRINCIPES_UI, type Locale, UI } from "@/lib/i18n";
 
 const LS_PRINCIPES = "cc_principes";
 
@@ -636,7 +636,7 @@ export default function Principes({
           />
         )}
         <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-          {data.meta.version}
+          {t.editionKicker}
         </p>
         <h1
           className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl"
@@ -644,7 +644,10 @@ export default function Principes({
         >
           {data.meta.title}
         </h1>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+        <p className="mt-2 max-w-2xl text-xs leading-relaxed text-slate-500">
+          {UI[locale].derivation}
+        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-slate-500">
             {t.kept(activeCount)}
           </p>
