@@ -33,26 +33,6 @@ const FONT_FILE: Record<string, string> = {
   inter: "inter",
   "ibm-plex": "ibm-plex",
 };
-/**
- * Face italique effective. Aucune des cinq polices embarquées n'a de variante
- * italique (elles sont enregistrées en 400 et 700 seulement) et @react-pdf ne
- * synthétise pas l'oblique : demander `fontStyle: "italic"` le fait JETER
- * (« Could not resolve font … fontStyle italic »), ce qui interrompt l'export
- * sans rien produire. On bascule donc sur les faces italiques intégrées au
- * format PDF, qui ne demandent aucun enregistrement. Le jour où les fichiers
- * italiques des cinq familles sont embarqués, c'est ici que ça se règle.
- */
-const ITALIC_FACE: Record<string, string> = {
-  "source-serif": "Times-Italic",
-  "eb-garamond": "Times-Italic",
-  lora: "Times-Italic",
-  inter: "Helvetica-Oblique",
-  "ibm-plex": "Helvetica-Oblique",
-};
-function italicFace(font?: string): string {
-  return ITALIC_FACE[font ?? "source-serif"] ?? "Times-Italic";
-}
-
 let fontsRegistered = false;
 function ensureFonts() {
   if (fontsRegistered) return;
@@ -63,6 +43,13 @@ function ensureFonts() {
       fonts: [
         { src: `/fonts/${file}-400.woff`, fontWeight: 400 },
         { src: `/fonts/${file}-700.woff`, fontWeight: 700 },
+        // L'italique de chaque famille est embarqué depuis le 19/08/2026. Avant,
+        // aucune variante italique n'était enregistrée et @react-pdf jetait sur
+        // `fontStyle: "italic"` — l'export de la Déclaration ne sortait pas du
+        // tout, et le document composé le suivait dès qu'un texte en italique y
+        // entrait. Le contournement (renvoyer l'italique vers Times-Italic ou
+        // Helvetica-Oblique) a disparu avec cette ligne.
+        { src: `/fonts/${file}-400-italic.woff`, fontWeight: 400, fontStyle: "italic" },
       ],
     });
   }
@@ -197,7 +184,7 @@ const styles = StyleSheet.create({
 // Gras et italique lus par la grammaire commune (`src/lib/markup.ts`), la même
 // que le rendu HTML : c'est la copie divergente de cet analyseur qui faisait
 // sortir les astérisques de l'italique en clair dans le PDF.
-function runs(text: string, italic: string) {
+function runs(text: string) {
   return parseInline(text).map((seg, i) => {
     if (seg.emphasis === "bold")
       return (
@@ -207,7 +194,7 @@ function runs(text: string, italic: string) {
       );
     if (seg.emphasis === "italic")
       return (
-        <Text key={i} style={{ fontFamily: italic }}>
+        <Text key={i} style={{ fontStyle: "italic" }}>
           {seg.text}
         </Text>
       );
@@ -215,12 +202,12 @@ function runs(text: string, italic: string) {
   });
 }
 
-function paragraphs(text: string, italic: string) {
+function paragraphs(text: string) {
   return parseBlocks(text).map((bloc, i) => {
     if (bloc.kind === "paragraph")
       return (
         <Text key={i} style={styles.para}>
-          {runs(bloc.text, italic)}
+          {runs(bloc.text)}
         </Text>
       );
     const items =
@@ -232,7 +219,7 @@ function paragraphs(text: string, italic: string) {
         {items.map((item, j) => (
           <View key={j} style={styles.listItem}>
             <Text style={styles.listMarker}>{item.marker}</Text>
-            <Text style={styles.listBody}>{runs(item.texte, italic)}</Text>
+            <Text style={styles.listBody}>{runs(item.texte)}</Text>
           </View>
         ))}
       </View>
@@ -279,7 +266,6 @@ export function ComposedDoc({
   const t = COMPOSER[locale];
   const items = compose(data, active);
   const fam = PDF_FONTS[font ?? "source-serif"] ?? "Source Serif 4";
-  const italic = italicFace(font);
   return (
     <Document title={title}>
       <Page size="A4" style={[styles.page, { fontFamily: fam }]}>
@@ -304,15 +290,15 @@ export function ComposedDoc({
               <View key={it.key}>
                 {it.heading && <Text style={styles.h2}>{it.heading}</Text>}
                 {showIntent && it.intent ? (
-                  <Text style={[styles.intent, { fontFamily: italic }]}>
+                  <Text style={[styles.intent, { fontStyle: "italic" }]}>
                     {it.intent}
                   </Text>
                 ) : null}
-                {paragraphs(it.text, italic)}
+                {paragraphs(it.text)}
                 {it.key === "block:preambule" && values.trim() && (
                   <View>
                     <Text style={styles.valuesHeading}>{t.pdfValuesHeading}</Text>
-                    {paragraphs(values, italic)}
+                    {paragraphs(values)}
                   </View>
                 )}
               </View>
@@ -327,7 +313,7 @@ export function ComposedDoc({
           return (
             <View key={it.key} style={[styles.insertion, { borderLeftColor: color }]}>
               <Text style={[styles.tag, { color }]}>{tag}</Text>
-              {paragraphs(it.text, italic)}
+              {paragraphs(it.text)}
             </View>
           );
         })}
@@ -386,7 +372,6 @@ export function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
   const locale = d.locale ?? "fr";
   const t = PRINCIPES_UI[locale];
   const fam = PDF_FONTS[d.font ?? "source-serif"] ?? "Source Serif 4";
-  const italic = italicFace(d.font);
   return (
     <Document title={d.meta.title}>
       <Page size="A4" style={[styles.page, { fontFamily: fam }]}>
@@ -400,27 +385,27 @@ export function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
         </Text>
         <Text style={styles.derivation}>{UI[locale].derivation}</Text>
         {d.devise ? (
-          <Text style={[styles.devise, { fontFamily: italic }]}>« {d.devise} »</Text>
+          <Text style={[styles.devise, { fontStyle: "italic" }]}>« {d.devise} »</Text>
         ) : null}
         {d.raisonEtre ? (
           <View>
             <Text style={styles.valuesHeading}>{t.pdfPurpose}</Text>
-            {paragraphs(d.raisonEtre, italic)}
+            {paragraphs(d.raisonEtre)}
           </View>
         ) : null}
-        <Text style={[styles.intro, { fontFamily: italic }]}>{d.intro}</Text>
+        <Text style={[styles.intro, { fontStyle: "italic" }]}>{d.intro}</Text>
 
         {d.items.map((it, i) => (
           <View key={i}>
             <Text style={styles.h3}>
               {it.n}. {it.title}
             </Text>
-            {it.text ? paragraphs(it.text, italic) : null}
+            {it.text ? paragraphs(it.text) : null}
           </View>
         ))}
 
         <Text style={styles.h2}>{t.adoption}</Text>
-        {paragraphs(d.adoptionText, italic)}
+        {paragraphs(d.adoptionText)}
         {d.ratifiers.length > 0 && (
           <View>
             <Text style={styles.signHeading}>

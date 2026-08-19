@@ -14,8 +14,8 @@
 // des polices. Ce qu'il ne couvre pas : le chargement des polices par le
 // navigateur (`ensureFonts()` les sert depuis /fonts, hors de portée ici) — d'où
 // l'enregistrement ci-dessous, qui reproduit exactement les mêmes descripteurs
-// (400 et 700, sans italique). Un italique non résoluble rougit donc ici comme
-// il échouerait chez l'utilisateur.
+// (400, 700 et l'italique embarquée depuis le 19/08). Un italique non résoluble
+// rougit donc ici comme il échouerait chez l'utilisateur.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -52,16 +52,23 @@ beforeAll(() => {
   for (const [family, file] of FAMILIES) {
     // Les fichiers sont ceux servis par l'application : s'ils manquent, le
     // dire ici plutôt que de laisser @react-pdf échouer sur autre chose.
-    for (const weight of [400, 700])
+    for (const variante of ["400", "700", "400-italic"])
       expect(
-        () => readFileSync(fontPath(`${file}-${weight}.woff`)),
-        `public/fonts/${file}-${weight}.woff manquante`,
+        () => readFileSync(fontPath(`${file}-${variante}.woff`)),
+        `public/fonts/${file}-${variante}.woff manquante`,
       ).not.toThrow();
     Font.register({
       family,
       fonts: [
         { src: fontPath(`${file}-400.woff`), fontWeight: 400 },
         { src: fontPath(`${file}-700.woff`), fontWeight: 700 },
+        // La même table que `ensureFonts()`, italique comprise depuis le 19/08 :
+        // c'est ce qui rend ce test capable de voir un italique non résoluble.
+        {
+          src: fontPath(`${file}-400-italic.woff`),
+          fontWeight: 400,
+          fontStyle: "italic",
+        },
       ],
     });
   }
