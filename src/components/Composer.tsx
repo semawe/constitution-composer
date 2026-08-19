@@ -1,11 +1,23 @@
 "use client";
 
-import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars, safeLogo } from "@/lib/branding";
 import { ComposerModales } from "@/components/composer/ComposerModales";
 import { ComposerDocument } from "@/components/composer/ComposerDocument";
+import { useComposerCompte } from "@/components/composer/useComposerCompte";
+import {
+  type VersionAppliquee,
+  useComposerVersions,
+} from "@/components/composer/useComposerVersions";
 import { ComposerPanel } from "@/components/composer/ComposerPanel";
 import {
   isGatedTier,
@@ -23,24 +35,11 @@ import {
 } from "@/lib/constitution";
 import {
   type ContentRef,
-  CURRENT_RELEASE,
   currentContentRef,
-  isOutdated,
-  releaseLabel,
-  resolveContent,
 } from "@/lib/releases";
 import { getSupabase } from "@/lib/supabase";
 import {
-  MAX_COMPOSITIONS,
-  type SavedComposition,
-  listCompositions,
-  migrateComposition,
-  repinComposition,
-  saveComposition,
-  renameComposition,
-  deleteComposition,
 } from "@/lib/compositions";
-import type { Session, User } from "@supabase/supabase-js";
 import { COMPOSER, type Locale, UI } from "@/lib/i18n";
 
 // Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
@@ -95,9 +94,6 @@ export default function Composer({
   const [contentRef, setContentRef] = useState<ContentRef | null>(() =>
     currentContentRef(locale),
   );
-  const [releaseMsg, setReleaseMsg] = useState<string | null>(null);
-  const [aFiger, setAFiger] = useState<SavedComposition | null>(null);
-  const [aRejouer, setARejouer] = useState<SavedComposition | null>(null);
   // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
     defaultActive(data),
@@ -106,20 +102,7 @@ export default function Composer({
   const [pdfBusy, setPdfBusy] = useState(false);
   const [title, setTitle] = useState(data.meta.title);
   const [values, setValues] = useState("");
-  const [account, setAccount] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [needsCompany, setNeedsCompany] = useState(false);
-  const [company, setCompany] = useState("");
-  const [gate, setGate] = useState<
-    null | "modules" | "pdf" | "save" | "account"
-  >(null);
-  const [email, setEmail] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [versions, setVersions] = useState<SavedComposition[]>([]);
-  const [versionMsg, setVersionMsg] = useState<string | null>(null);
-  const [versionsUnread, setVersionsUnread] = useState(false);
   const [pdfError, setPdfError] = useState(false);
-  const [versionBusy, setVersionBusy] = useState(false);
   const { logo, setLogo, font, setFont, titleColor, setTitleColor } = branding;
   const t = COMPOSER[locale];
 
@@ -176,41 +159,6 @@ export default function Composer({
   }, [data.blocks]);
 
   // Session Supabase (Lot 3). Sans clés Supabase → repli sur le compte simulé.
-  useEffect(() => {
-    if (!supabase) {
-      try {
-        // repli compte simulé lu dans localStorage après montage.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (localStorage.getItem("cc_account") === "1") setAccount(true);
-      } catch {}
-      return;
-    }
-    const apply = (session: Session | null) => {
-      const u = session?.user ?? null;
-      setUser(u);
-      setAccount(!!u);
-      setNeedsCompany(!!u && !u.user_metadata?.company);
-      // Miroir des infos utilisateur dans `profiles` (pour l'écran admin).
-      if (u) {
-        supabase
-          .from("profiles")
-          .upsert({
-            id: u.id,
-            email: u.email,
-            full_name: u.user_metadata?.full_name ?? null,
-            company: u.user_metadata?.company ?? null,
-            updated_at: new Date().toISOString(),
-          })
-          .then(() => {});
-      }
-    };
-    supabase.auth.getSession().then(({ data }) => apply(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((e, session) => {
-      if (e === "SIGNED_IN") track("connexion");
-      apply(session);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, [supabase]);
 
   // Brouillon local. Il couvre deux besoins : le retour de redirection Google
   // (round-trip OAuth) et, surtout, le simple rechargement de page — sans lui,
@@ -333,69 +281,33 @@ export default function Composer({
     } catch {}
   };
 
-  // Connexion Google réelle (Supabase). Sans Supabase → compte simulé (repli).
-  const signInGoogle = async () => {
-    if (!supabase) {
-      setAccount(true);
-      try {
-        localStorage.setItem("cc_account", "1");
-      } catch {}
-      const reason = gate;
-      setGate(null);
-      if (reason === "pdf") doGeneratePdf();
-      return;
-    }
-    persistComposerState();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + window.location.pathname },
-    });
-  };
-
-  // Connexion par lien magique (sans compte Google).
-  const signInOtp = async () => {
-    const addr = email.trim();
-    if (!addr) return;
-    if (!supabase) {
-      signInGoogle();
-      return;
-    }
-    persistComposerState();
-    await supabase.auth.signInWithOtp({
-      email: addr,
-      options: { emailRedirectTo: window.location.origin + window.location.pathname },
-    });
-    setOtpSent(true);
-  };
-
-  // Onboarding : Google ne fournit pas l'entreprise → on la collecte une fois.
-  const submitCompany = async () => {
-    if (!supabase || !company.trim()) return;
-    await supabase.auth.updateUser({ data: { company: company.trim() } });
-    setNeedsCompany(false);
-  };
-
-  // La chrome du Composer (App.tsx) peut demander l'ouverture de la connexion
-  // via un événement, sans remonter tout l'état d'auth.
-  useEffect(() => {
-    const open = () => setGate((g) => g ?? "account");
-    window.addEventListener("cc:open-signin", open);
-    return () => window.removeEventListener("cc:open-signin", open);
-  }, []);
-
-  const signOut = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
-      setUser(null);
-      setAccount(false);
-      setNeedsCompany(false);
-    } else {
-      setAccount(false);
-      try {
-        localStorage.removeItem("cc_account");
-      } catch {}
-    }
-  };
+  // Le compte, sa session et ses portes vivent dans leur hook (#1057). Le
+  // Composer n'en garde que ce qu'il montre, et ce qu'il fait juste après une
+  // connexion réussie (reprendre l'export qui l'avait déclenchée).
+  const compte = useComposerCompte({
+    supabase,
+    onAvantRedirection: persistComposerState,
+    onConnexionSimulee: (raison) => {
+      if (raison === "pdf") doGeneratePdf();
+    },
+  });
+  const {
+    account,
+    user,
+    gate,
+    setGate,
+    email,
+    setEmail,
+    otpSent,
+    needsCompany,
+    setNeedsCompany,
+    company,
+    setCompany,
+    signInGoogle,
+    signInOtp,
+    submitCompany,
+    signOut,
+  } = compte;
 
   const toggle = (id: string) => {
     const mod = data.modules.find((m) => m.id === id);
@@ -451,167 +363,58 @@ export default function Composer({
   }, [active, reduce]);
 
   // Mes versions (Phase B) : charge la liste dès qu'un compte est actif.
-  useEffect(() => {
-    if (!account) {
-      // remise à zéro de la liste à la déconnexion, sur changement de
-      // dépendance.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVersions([]);
-      return;
-    }
-    let alive = true;
-    listCompositions()
-      .then((rows) => alive && setVersions(rows))
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, [account]);
 
-  const refreshVersions = () =>
-    listCompositions()
-      .then((rows) => {
-        setVersions(rows);
-        setVersionsUnread(false);
-      })
-      // Sans ce message, une lecture ratée s'affichait « 0/5 » : indistinguable
-      // d'un compte sans version, donc une invitation à tout resaisir.
-      .catch(() => setVersionsUnread(true));
+  /** Pose sur le document ce qu'une version ouverte (ou rejouée) rend. */
+  const appliquerVersion = useCallback(
+    ({ fond, contentRef: ref, payload }: VersionAppliquee) => {
+      setData(fond);
+      setContentRef(ref);
+      // Le payload vient de la base : ancien, incohérent ou forgé. Il passe par
+      // la frontière d'entrée avant d'atteindre le moteur.
+      setActive(normalizeActive(fond, payload.active ?? []));
+      setTitle(payload.title ?? fond.meta.title);
+      setValues(payload.values ?? "");
+      setTitleColor(payload.titleColor ?? "");
+      setFont(payload.font ?? "source-serif");
+      setLogo(safeLogo(payload.logo));
+    },
+    [setFont, setLogo, setTitleColor],
+  );
 
-  const handleSaveVersion = async () => {
-    if (!account) {
-      setGate("save");
-      track("gate", { contexte: "save" });
-      return;
-    }
-    if (versions.length >= MAX_COMPOSITIONS) {
-      setVersionMsg(t.limitReached(MAX_COMPOSITIONS));
-      return;
-    }
-    setVersionBusy(true);
-    setVersionMsg(null);
-    try {
-      await saveComposition(
-        (title || t.untitled).trim(),
-        {
-          title,
-          values,
-          active: [...active],
-          titleColor: titleColor || undefined,
-          font,
-          logo: logo || undefined,
-        },
-        locale,
-      );
-      await refreshVersions();
-      setVersionMsg(t.saved);
-      track("sauvegarde_version");
-    } catch {
-      setVersionMsg(t.saveFailed);
-    } finally {
-      setVersionBusy(false);
-    }
-  };
-
-  const handleLoadVersion = (v: SavedComposition) => {
-    // De quel texte cette version est-elle faite ? Tant que ce n'est pas
-    // tranché, on n'ouvre rien : composer avec le fond courant un document
-    // enregistré sur un autre texte, c'est en changer le contenu en silence.
-    const resolution = resolveContent(v.payload.content);
-    setAFiger(null);
-    setARejouer(null);
-    if (resolution.statut === "release-absente") {
-      setReleaseMsg(t.releaseMissing(releaseLabel(resolution.release, locale)));
-      return;
-    }
-    if (resolution.statut === "empreinte-divergente") {
-      setReleaseMsg(t.releaseMismatch(releaseLabel(resolution.release, locale)));
-      return;
-    }
-    const fond =
-      resolution.statut === "resolue" ? resolution.data : fondCourant;
-    setData(fond);
-    setContentRef(v.payload.content ?? null);
-    if (resolution.statut === "non-figee") {
-      // Version d'avant l'archivage : on l'ouvre sur le texte du jour, on le dit,
-      // et on propose de la figer — d'un clic, pas d'une manipulation.
-      setReleaseMsg(t.releaseNotPinned);
-      setAFiger(v);
-    } else if (isOutdated(v.payload.content)) {
-      setReleaseMsg(t.releasePinned(releaseLabel(resolution.release, locale)));
-      // Relire son document tel qu'il a été adopté, ou en repartir sur le texte
-      // du jour : ce sont deux besoins, et le second ne doit pas écraser le
-      // premier. D'où une création, proposée ici, plutôt qu'une conversion.
-      setARejouer(v);
-    } else {
-      setReleaseMsg(null);
-    }
-    // Le payload vient de la base : il peut être ancien (modules disparus),
-    // incohérent (prérequis manquants) ou forgé. On le normalise avant de le
-    // donner au moteur — contre le fond que la version désigne.
-    setActive(normalizeActive(fond, v.payload.active ?? []));
-    setTitle(v.payload.title ?? fond.meta.title);
-    setValues(v.payload.values ?? "");
-    setTitleColor(v.payload.titleColor ?? "");
-    setFont(v.payload.font ?? "source-serif");
-    setLogo(safeLogo(v.payload.logo));
-    setVersionMsg(t.loaded(v.name));
-  };
-
-  /** Fige une version d'avant l'archivage sur le texte du jour, à la demande. */
-  const handlePinVersion = async (v: SavedComposition) => {
-    try {
-      await repinComposition(v.id, v.payload, locale);
-      await refreshVersions();
-      setAFiger(null);
-      setContentRef(currentContentRef(locale));
-      setReleaseMsg(null);
-    } catch {
-      setVersionMsg(t.versionActionFailed);
-    }
-  };
-
-  /** Crée une version de celle-ci sur le texte du jour. L'originale ne bouge pas. */
-  const handleMigrateVersion = async (v: SavedComposition) => {
-    const nom = t.releaseMigrateName(v.name, releaseLabel(CURRENT_RELEASE, locale));
-    try {
-      const creee = await migrateComposition(v, nom, locale);
-      await refreshVersions();
-      setARejouer(null);
-      setReleaseMsg(t.releaseMigrated(creee.name));
-      setContentRef(currentContentRef(locale));
-      setData(fondCourant);
-      setActive(normalizeActive(fondCourant, creee.payload.active ?? []));
-    } catch (error) {
-      setReleaseMsg(
-        error instanceof Error && error.message === "LIMIT"
-          ? t.releaseMigrateFull(MAX_COMPOSITIONS)
-          : t.versionActionFailed,
-      );
-    }
-  };
-
-  const handleRenameVersion = async (v: SavedComposition) => {
-    const name = window.prompt(t.renamePrompt, v.name);
-    if (!name || !name.trim()) return;
-    try {
-      await renameComposition(v.id, name.trim());
-      await refreshVersions();
-    } catch {
-      setVersionMsg(t.versionActionFailed);
-    }
-  };
-
-  const handleDeleteVersion = async (v: SavedComposition) => {
-    if (!window.confirm(t.confirmDelete(v.name))) return;
-    try {
-      await deleteComposition(v.id);
-      await refreshVersions();
-      setVersionMsg(null);
-    } catch {
-      setVersionMsg(t.versionActionFailed);
-    }
-  };
+  // Les versions enregistrées vivent dans leur hook (#1057) : liste, messages, et
+  // les six gestes qui les manipulent. Le Composer n'en garde que ce qu'il
+  // affiche, et la façon dont une version ouverte se pose sur le document.
+  const versionsCtl = useComposerVersions({
+    t,
+    locale,
+    account,
+    fondCourant,
+    onGate: (raison) => setGate(raison),
+    onApply: appliquerVersion,
+    composition: () => ({
+      title,
+      values,
+      active: [...active],
+      titleColor: titleColor || undefined,
+      font,
+      logo: logo || undefined,
+    }),
+  });
+  const {
+    versions,
+    versionMsg,
+    versionsUnread,
+    versionBusy,
+    releaseMsg,
+    aFiger,
+    aRejouer,
+    handleSaveVersion,
+    handleLoadVersion,
+    handleRenameVersion,
+    handleDeleteVersion,
+    handlePinVersion,
+    handleMigrateVersion,
+  } = versionsCtl;
 
   // Modules inactifs qui portent un remplacement obligatoire = trous comblés.
   const gaps = data.modules.filter((m) => !active.has(m.id) && m.fallback);
