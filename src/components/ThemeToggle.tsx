@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { type Locale, UI } from "@/lib/i18n";
 
 // Sélecteur de thème. Dark par défaut ; le choix est persisté dans localStorage
 // (clé cc-theme) et appliqué avant le paint par un script inline dans layout.tsx
@@ -22,8 +23,10 @@ function isDark() {
   return document.documentElement.classList.contains("dark");
 }
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ locale = "fr" }: { locale?: Locale }) {
   const dark = useSyncExternalStore(subscribe, isDark, () => true);
+  const theme = UI[locale].theme;
+  const label = dark ? theme.toLight : theme.toDark;
 
   const toggle = useCallback(() => {
     const next = !isDark();
@@ -37,8 +40,8 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      aria-label={dark ? "Passer en clair" : "Passer en sombre"}
-      title={dark ? "Passer en clair" : "Passer en sombre"}
+      aria-label={label}
+      title={label}
       className="rounded-full p-1.5 text-muted transition hover:bg-surface-muted hover:text-body"
     >
       {dark ? (

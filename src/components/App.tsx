@@ -244,7 +244,7 @@ export default function App({
               </svg>
               {t.switchLang}
             </Link>
-            <ThemeToggle />
+            <ThemeToggle locale={locale} />
           </div>
         </div>
         <div className="no-scrollbar -mx-2 flex items-center gap-1 overflow-x-auto px-2 pb-2 sm:hidden">

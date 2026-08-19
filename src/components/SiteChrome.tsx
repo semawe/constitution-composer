@@ -95,7 +95,7 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
           >
             {otherLocale.toUpperCase()}
           </Link>
-          <ThemeToggle />
+          <ThemeToggle locale={locale} />
         </div>
       </nav>
     </header>

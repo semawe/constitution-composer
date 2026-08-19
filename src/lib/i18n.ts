@@ -35,6 +35,10 @@ export const UI = {
       byline: "un outil Sémawé",
       semaweAlt: "Sémawé",
     },
+    theme: {
+      toLight: "Passer en clair",
+      toDark: "Passer en sombre",
+    },
     /**
      * La mention que HolacracyOne demande de rendre visible (échange du
      * 18/08/2026) : que cet outil n'est pas officiel primait, pour Olivier
@@ -80,6 +84,10 @@ export const UI = {
       product: "Constitution Composer",
       byline: "a Sémawé tool",
       semaweAlt: "Sémawé",
+    },
+    theme: {
+      toLight: "Switch to light mode",
+      toDark: "Switch to dark mode",
     },
     unofficial: "A Sémawé tool · not affiliated with HolacracyOne",
     derivation:
