@@ -6,8 +6,10 @@ import {
   normalizeActive,
   requiredByActive,
 } from "@/lib/constitution";
+import { type ChangeEvent } from "react";
 import { type COMPOSER } from "@/lib/i18n";
 import { MAX_COMPOSITIONS, type SavedComposition } from "@/lib/compositions";
+import { ComposerIdentite } from "@/components/composer/ComposerIdentite";
 import {
   Legend,
   ModuleToggle,
@@ -15,24 +17,42 @@ import {
   isGatedTier,
 } from "@/components/composer/pieces";
 
-// Le panneau de commandes du Composer : sommaire, modules par tier, versions
-// enregistrées. Sorti de `Composer.tsx` (tâche #1057).
+// L'atelier du Composer : identité visuelle, modules par tier, versions
+// enregistrées. Sorti de `Composer.tsx` (tâche #1057), redécoupé ensuite.
 //
 // Il ne compose rien : il pilote. Tout ce qu'il affiche vient de ses propriétés,
 // groupées par sujet pour qu'on voie d'un coup d'œil ce qu'il lit du document, des
 // versions et du compte.
+//
+// Le sommaire l'a quitté pour la marge du texte (`ComposerSommaire`) : il ouvrait
+// la marche, six lignes avant la première commande, et ses 182 px étaient
+// l'essentiel du débordement qui obligeait le rail à sa propre barre de
+// défilement. Replier les tiers avait fait la moitié du chemin ; ce départ fait
+// l'autre. Un repère de lecture n'est pas une commande d'atelier.
+//
+// L'identité visuelle l'a rejoint, venue du fronton du document, qui n'a à porter
+// que ce dont le document est fait. Elle ouvre le rail parce qu'on y touche une
+// fois — et reste repliée pour la même raison.
 
 type Ui = (typeof COMPOSER)["fr"];
 
 export interface PanelDoc {
   active: ReadonlySet<string>;
-  activeId: string;
   toggle: (id: string) => void;
   setActive: (s: ReadonlySet<string>) => void;
-  goTo: (id: string) => void;
   gaps: Module[];
   tierLabel: Record<string, string>;
   modulesByTier: (tier: Tier) => Module[];
+}
+
+export interface PanelIdentite {
+  logo: string;
+  onLogoChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  setLogo: (v: string) => void;
+  font: string;
+  setFont: (v: string) => void;
+  titleColor: string;
+  setTitleColor: (v: string) => void;
 }
 
 export interface PanelVersions {
@@ -58,23 +78,16 @@ export function ComposerPanel({
   doc,
   versions,
   compte,
+  identite,
 }: {
   data: ConstitutionData;
   t: Ui;
   doc: PanelDoc;
   versions: PanelVersions;
   compte: { account: boolean; onGate: (g: "modules" | "save") => void };
+  identite: PanelIdentite;
 }) {
-  const {
-    active,
-    activeId,
-    toggle,
-    setActive,
-    goTo,
-    gaps,
-    tierLabel,
-    modulesByTier,
-  } = doc;
+  const { active, toggle, setActive, gaps, tierLabel, modulesByTier } = doc;
   const { account } = compte;
   const setGate = compte.onGate;
   const versionMsg = versions.message;
@@ -116,29 +129,41 @@ export function ComposerPanel({
 
   return (
     <div className="thin-scroll max-h-[calc(100vh-4rem)] overflow-y-auto pr-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-        {t.toc}
-      </h2>
-      <nav className="mt-2 space-y-0.5">
-        {data.blocks.map((b) => {
-          const on = activeId === b.id;
-          return (
-            <button
-              key={b.id}
-              onClick={() => goTo(b.id)}
-              className={`block w-full border-l-2 py-1 pl-3 text-left leading-snug transition ${
-                on
-                  ? "border-teal-500 bg-teal-50/50"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-              }`}
-            >
-              <span className={`block text-[0.82rem] ${on ? "font-medium text-teal-800" : "text-slate-500 hover:text-slate-700"}`}>
-                {b.heading}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
+      {/* Identité visuelle en volet, dans le même dessin que les tiers plus bas :
+          l'atelier a une seule grammaire de repli. */}
+      <details className="group/id">
+        <summary className="flex cursor-pointer list-none items-center gap-2 rounded py-0.5">
+          <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            {t.identity}
+          </span>
+          <svg
+            viewBox="0 0 16 16"
+            className="ml-auto h-3 w-3 shrink-0 text-slate-400 transition group-open/id:rotate-90"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M6 3.5L10.5 8L6 12.5"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </summary>
+        <div className="mt-2">
+          <ComposerIdentite
+            t={t}
+            logo={identite.logo}
+            onLogoChange={identite.onLogoChange}
+            setLogo={identite.setLogo}
+            font={identite.font}
+            setFont={identite.setFont}
+            titleColor={identite.titleColor}
+            setTitleColor={identite.setTitleColor}
+          />
+        </div>
+      </details>
 
       <h2 className="mt-7 text-sm font-semibold uppercase tracking-wide text-slate-500">
         {t.composerLabel}
@@ -151,7 +176,11 @@ export function ComposerPanel({
         </p>
       )}
 
-      <div className="mt-4 flex gap-2 text-xs">
+      {/* `flex-wrap` et `whitespace-nowrap` : le rail s'est resserré pour laisser
+          sa colonne au sommaire, et les libellés se coupaient en deux au milieu
+          (« Tout / activer »). La rangée passe à la ligne entre les boutons, pas
+          dedans. */}
+      <div className="mt-4 flex flex-wrap gap-2 text-xs">
         <button
           onClick={() => {
             if (!account && data.modules.some((m) => isGatedTier(m.tier))) {
@@ -160,20 +189,20 @@ export function ComposerPanel({
             }
             setActive(normalizeActive(data, data.modules.map((m) => m.id)));
           }}
-          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
         >
           {t.activateAll}
         </button>
         <button
           onClick={() => setActive(defaultActive(data))}
-          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
           title={t.baseLiteTitle}
         >
           {t.baseLite}
         </button>
         <button
           onClick={() => setActive(new Set())}
-          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
           title={t.coreOnlyTitle}
         >
           {t.coreOnly}

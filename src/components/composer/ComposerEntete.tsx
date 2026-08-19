@@ -1,6 +1,4 @@
-import { type ChangeEvent } from "react";
 import { type ConstitutionData } from "@/lib/constitution";
-import { FONT_OPTIONS } from "@/lib/branding";
 import { COMPOSER, UI, type Locale } from "@/lib/i18n";
 
 // L'en-tête du document composé : titre éditable, identité visuelle (logo,
@@ -28,12 +26,7 @@ export function ComposerEntete({
   onPdf,
   precharger,
   logo,
-  onLogoChange,
-  font,
-  setFont,
   titleColor,
-  setTitleColor,
-  setLogo,
   actifs,
   reduce,
   compte,
@@ -53,12 +46,7 @@ export function ComposerEntete({
   /** Demande le moteur PDF avant qu'on en ait besoin. */
   precharger: () => void;
   logo: string;
-  onLogoChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  font: string;
-  setFont: (v: string) => void;
   titleColor: string;
-  setTitleColor: (v: string) => void;
-  setLogo: (v: string) => void;
   /** Nombre de modules actifs, pour le décompte de la jauge. */
   actifs: number;
   /** Réglage système « animations réduites » : la jauge ne glisse pas. */
@@ -101,97 +89,6 @@ export function ComposerEntete({
             </p>
             <p className="mt-2 text-xs text-slate-400">{t.titleHint}</p>
 
-            {/* Identité visuelle en volet. L'en-tête empilait cinq registres en
-                cent pixels : surtitre, titre éditable, ligne de dérivation, puis
-                police / logo / couleur en onze pixels, puis l'avancement, la case
-                des notes et l'export. Les réglages d'atelier n'appartiennent pas
-                au fronton du document — on y touche une fois, au début, et le
-                document se lit ensuite. Repliés, ils cessent de disputer
-                l'attention au titre ; le volet dit ce qu'il contient et où ça
-                s'applique. */}
-            <details className="group/id mt-3">
-              <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400 transition hover:text-slate-600">
-                {t.identity}
-                <svg
-                  viewBox="0 0 16 16"
-                  className="h-3 w-3 transition group-open/id:rotate-90"
-                  fill="none"
-                  aria-hidden
-                >
-                  <path
-                    d="M6 3.5L10.5 8L6 12.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </summary>
-              <p className="mt-2 text-xs text-slate-400">{t.identityHint}</p>
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-              <span className="flex items-center gap-1.5">
-                {t.fontLabel}
-                <select
-                  value={font}
-                  onChange={(e) => setFont(e.target.value)}
-                  aria-label="Police du document"
-                  className="rounded border border-slate-200 bg-transparent px-1.5 py-0.5 outline-none focus:border-slate-400"
-                >
-                  {FONT_OPTIONS.map((f) => (
-                    <option key={f.key} value={f.key}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
-              </span>
-              <span className="flex items-center gap-1.5">
-                Logo
-                <label className="cursor-pointer underline transition hover:text-slate-600">
-                  {logo ? t.logoChange : t.logoAdd}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={onLogoChange}
-                    className="hidden"
-                  />
-                </label>
-                {logo && (
-                  <button
-                    onClick={() => setLogo("")}
-                    className="underline transition hover:text-slate-600"
-                  >
-                    {t.logoRemove}
-                  </button>
-                )}
-              </span>
-              <span className="flex items-center gap-1.5">
-                {t.colorLabel}
-                <input
-                  type="color"
-                  value={titleColor || "#0f172a"}
-                  onChange={(e) => setTitleColor(e.target.value)}
-                  aria-label="Couleur du titre"
-                  className="h-5 w-6 cursor-pointer rounded border border-slate-300 bg-transparent p-0"
-                />
-                <input
-                  type="text"
-                  value={titleColor}
-                  onChange={(e) => setTitleColor(e.target.value)}
-                  placeholder="#0f172a"
-                  spellCheck={false}
-                  className="w-20 rounded border border-slate-200 bg-transparent px-1.5 py-0.5 font-mono outline-none focus:border-slate-400"
-                />
-                {titleColor && (
-                  <button
-                    onClick={() => setTitleColor("")}
-                    className="underline transition hover:text-slate-600"
-                  >
-                    {t.colorReset}
-                  </button>
-                )}
-              </span>
-              </div>
-            </details>
 
             <div className="mt-5">
               <div className="flex items-center justify-between text-xs">

@@ -11,6 +11,7 @@ import { ComposerDocument } from "@/components/composer/ComposerDocument";
 import { ComposerEntete } from "@/components/composer/ComposerEntete";
 import { ComposerModales } from "@/components/composer/ComposerModales";
 import { ComposerPanel } from "@/components/composer/ComposerPanel";
+import { ComposerSommaire } from "@/components/composer/ComposerSommaire";
 import { ComposerTiroir } from "@/components/composer/ComposerTiroir";
 import { COACHES } from "@/components/composer/coachs";
 import { chargerLogo } from "@/components/composer/logo";
@@ -225,16 +226,18 @@ export default function Composer({
     versionLabel,
   } = vue;
 
-  const panel = (
+  const sommaire = (
+    <ComposerSommaire data={data} t={t} activeId={activeId} goTo={goTo} />
+  );
+
+  const atelier = (
     <ComposerPanel
       data={data}
       t={t}
       doc={{
         active,
-        activeId,
         toggle,
         setActive,
-        goTo,
         gaps,
         tierLabel,
         modulesByTier,
@@ -256,6 +259,15 @@ export default function Composer({
         onMigrate: handleMigrateVersion,
       }}
       compte={{ account, onGate: setGate }}
+      identite={{
+        logo,
+        onLogoChange: (e) => chargerLogo(e, setLogo),
+        setLogo,
+        font,
+        setFont,
+        titleColor,
+        setTitleColor,
+      }}
     />
   );
 
@@ -290,17 +302,29 @@ export default function Composer({
           allers-retours), et c'est le texte qui porte sa propre mesure : une
           colonne de ~66 caractères, plus une marge où les libellés de modules
           vont se poser. Colonne et marge : le geste éditorial, pas une colonne
-          centrée dans du vide. */}
-      <div className="mx-auto flex max-w-[96rem] gap-8 px-4 py-8 sm:px-6 lg:gap-12 lg:px-8 xl:gap-16">
-        {/* Panneau (desktop) */}
-        <aside className="hidden w-72 shrink-0 lg:block xl:w-80">
-          <div className="sticky top-16">{panel}</div>
-        </aside>
+          centrée dans du vide.
+
+          Trois zones à partir de 1 024 px, et non deux : l'atelier à gauche (ce
+          qu'on règle), le document au centre avec sa marge d'annotation, le
+          sommaire à droite (ce qu'on parcourt). Le sommaire ouvrait le rail, six
+          lignes avant la première commande, et ses 182 px étaient l'essentiel du
+          débordement qui obligeait le rail à sa propre barre de défilement. Dans
+          la marge, il donne à celle-ci sa seconde raison d'être : elle porte les
+          libellés des modules insérés et lui, au lieu de 176 px pour un libellé.
+
+          Les largeurs vivent en jetons dans `globals.css` — la somme des trois
+          colonnes et de leurs écarts doit tenir dans la coquille à chaque
+          palier, sinon la marge d'annotation se fait rogner. Les écarts se
+          resserrent par rapport à la mise en page à deux colonnes : trois
+          colonnes ne tiennent pas avec 64 px entre chacune. */}
+      <div className="cc-atelier mx-auto max-w-[96rem] px-4 py-8 sm:px-6 lg:px-8">
+        {/* Atelier (desktop) */}
+        <aside className="hidden lg:sticky lg:top-16 lg:block">{atelier}</aside>
 
         {/* Document : la police choisie surcharge --font-serif/--font-sans
             pour tout ce qui est dedans (titre, intertitres, corps). */}
         <main
-          className="min-w-0 flex-1"
+          className="min-w-0"
           style={fontVars(font)}
         >
         {/* La colonne du document, posée une fois pour le fronton, le bandeau et
@@ -327,12 +351,7 @@ export default function Composer({
           onPdf={handlePdf}
           precharger={precharger}
           logo={logo}
-          onLogoChange={(e) => chargerLogo(e, setLogo)}
-          font={font}
-          setFont={setFont}
           titleColor={titleColor}
-          setTitleColor={setTitleColor}
-          setLogo={setLogo}
           actifs={active.size}
           reduce={Boolean(reduce)}
           compte={{
@@ -360,6 +379,11 @@ export default function Composer({
         />
         </div>
         </main>
+
+        {/* Sommaire (desktop) : dans la marge, du côté où l'œil revient. */}
+        <div className="thin-scroll hidden max-h-[calc(100vh-4rem)] overflow-y-auto lg:sticky lg:top-16 lg:block">
+          {sommaire}
+        </div>
       </div>
 
       <ComposerTiroir
@@ -367,7 +391,8 @@ export default function Composer({
         onClose={() => setMobileOpen(false)}
         fermer={t.close}
       >
-        {panel}
+        {sommaire}
+        <div className="mt-6 border-t border-slate-200 pt-4">{atelier}</div>
       </ComposerTiroir>
 
       <ComposerModales
