@@ -55,12 +55,14 @@ export function ComposerDocument({
   onBook: () => void;
 }) {
   return (
-        // `doc-measure` (globals.css) borne la colonne de texte à ~66
-        // caractères ; `mx-auto` la centre dans la largeur disponible. Élargir
-        // la coquille sans borner la mesure aurait juste allongé les lignes ;
-        // borner la mesure sans centrer la colonne l'aurait collée à gauche avec
-        // un vide de 560 px à droite. Centrée, elle se lit comme une page.
-        <article className="doc-prose doc-measure mx-auto text-[1.05rem] text-slate-800">
+        // La colonne (mesure + marge) est posée en amont, dans `Composer.tsx`,
+        // pour que le fronton et le corps s'y alignent. Ici, `doc-measure` borne
+        // le texte suivi à ~66 caractères : le cap est passé de l'article à ses
+        // éléments pour dégager la marge d'annotation. Élargir la coquille sans
+        // borner la mesure n'aurait fait qu'allonger les lignes ; borner la mesure
+        // sans rien mettre à côté laissait 560 px de vide à droite. La marge n'est
+        // plus du vide : elle porte les libellés.
+        <article className="text-slate-800">
           {data.blocks.map((block) => {
             return (
               // Pas d'entrée animée sur le corps constitutionnel. Elle
@@ -75,7 +77,7 @@ export function ComposerDocument({
                 id={block.id}
                 className="mb-10 scroll-mt-24"
               >
-                <h2 className="mb-3 font-serif text-2xl font-semibold text-slate-900">
+                <h2 className="doc-measure mb-3 font-serif text-2xl font-semibold text-slate-900">
                   {block.heading}
                 </h2>
                 <AnimatePresence initial={false}>
@@ -84,14 +86,16 @@ export function ComposerDocument({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mb-4 overflow-hidden border-l-2 border-slate-200 pl-3 text-sm italic text-slate-500"
+                      className="doc-measure mb-4 overflow-hidden border-l-2 border-slate-200 pl-3 text-sm italic text-slate-500"
                     >
                       {block.intent}
                     </motion.p>
                   )}
                 </AnimatePresence>
 
-                <Prose text={block.text} onTermClick={onTermClick} locale={locale} />
+                <div className="doc-measure">
+                  <Prose text={block.text} onTermClick={onTermClick} locale={locale} />
+                </div>
 
                 {/* Insertions actives et remplacements obligatoires, dans
                     l'ordre où le moteur les compose : une seule passe sur sa
@@ -125,30 +129,41 @@ export function ComposerDocument({
                           // dix-neuf — là où la promesse est de composer « au fil
                           // du texte ». Le liseré de teinte et le libellé disent
                           // l'appartenance ; le texte reste sur le fond de la page.
-                          tinted ? `rounded-r-md ${ui.tint} py-3 pl-4 pr-3` : "py-1 pl-5"
+                          tinted
+                            ? `doc-measure rounded-r-md ${ui.tint} py-3 pl-4 pr-3`
+                            : "doc-annote py-1"
                         }`}
                       >
-                        {/* Le libellé reste au-dessus du passage, et non dans la
-                            marge que l'élargissement dégage. La marge demanderait
-                            un positionnement absolu, incompatible avec
+                        {/* Au-delà de 1 280 px, le libellé d'un module passe dans
+                            la marge que l'élargissement dégage, au lieu de
+                            précéder son passage dans le fil : le texte
+                            constitutionnel redevient continu et l'appartenance se
+                            lit sans interrompre la lecture. Par une grille, non
+                            par un positionnement absolu — c'est ce qui le rendait
+                            impossible, l'absolu étant rogné par
                             l'`overflow-hidden` dont l'animation de hauteur a
-                            besoin pour ne pas déborder quand on décoche : c'est
-                            cette animation qui tient la promesse « on coche, on
-                            voit ce que ça change ». Une vraie annotation en marge
-                            se ferait par une grille au niveau de l'article, pas
-                            au niveau du bloc — chantier à part. */}
+                            besoin au décochage. Deux colonnes de grille ne
+                            sortent pas de la boîte.
+
+                            Les passages teintés gardent leur pastille dans leur
+                            encadré : une piste pédagogique ou une règle par
+                            défaut n'annote pas le texte, elle s'y substitue. */}
                         <span
                           className={`mb-1.5 inline-block text-[0.7rem] font-medium uppercase tracking-wider ${
                             tinted
                               ? `rounded-full px-2 py-0.5 normal-case tracking-normal ring-1 ring-inset ${ui.tag}`
-                              : ui.label
+                              : `doc-annote-marge leading-snug ${ui.label}`
                           }`}
                         >
                           {item.kind === "fallback"
                             ? `⚠ ${t.defaultRule(item.moduleLabel ?? "")}`
                             : item.moduleLabel}
                         </span>
-                        <div className="text-[0.98rem]">
+                        <div
+                          className={`text-[0.98rem] ${
+                            tinted ? "" : "doc-annote-texte pl-5"
+                          }`}
+                        >
                           <Prose
                             text={item.text}
                             onTermClick={onTermClick}
@@ -168,7 +183,7 @@ export function ComposerDocument({
                     id={`reins-${m.id}`}
                     onClick={() => toggle(m.id)}
                     title={t.reinsert(m.label)}
-                    className="group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
+                    className="doc-measure group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
                   >
                     <span className="h-px flex-1 bg-slate-200" />
                     <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
@@ -179,19 +194,23 @@ export function ComposerDocument({
                 ))}
 
                 {block.id === "preambule" && (
-                  <PreambleValues values={values} setValues={setValues} />
+                  <div className="doc-measure">
+                    <PreambleValues values={values} setValues={setValues} />
+                  </div>
                 )}
 
                 {/* "+" entre paragraphes : extensions / apps activables ancrées ici */}
-                <InsertDivider
-                  modules={availableChips(block.anchor)}
-                  onActivate={toggle}
-                  ui={t}
-                />
+                <div className="doc-measure">
+                  <InsertDivider
+                    modules={availableChips(block.anchor)}
+                    onActivate={toggle}
+                    ui={t}
+                  />
+                </div>
 
                 {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
                 {inactiveAdvanced(block.anchor).length > 0 && (
-                  <div className="mt-5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-[0.85rem] text-violet-900">
+                  <div className="doc-measure mt-5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-[0.85rem] text-violet-900">
                     <span className="font-semibold">Ce tier ne couvre pas :</span>{" "}
                     {inactiveAdvanced(block.anchor).map((m, i, arr) => (
                       <span key={m.id}>
@@ -218,7 +237,7 @@ export function ComposerDocument({
           })}
 
           {coaches.length > 0 && (
-            <div className="mt-12 rounded-2xl border border-slate-200 bg-gradient-to-br from-teal-50 to-violet-50 p-6">
+            <div className="doc-measure mt-12 rounded-2xl border border-slate-200 bg-gradient-to-br from-teal-50 to-violet-50 p-6">
               <h2 className="font-serif text-xl font-semibold text-slate-900">
                 Aller plus loin avec un coach
               </h2>
@@ -245,7 +264,7 @@ export function ComposerDocument({
             </div>
           )}
 
-          <footer className="mt-10 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
+          <footer className="doc-measure mt-10 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-semawe-light.png"

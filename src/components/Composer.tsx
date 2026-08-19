@@ -303,7 +303,16 @@ export default function Composer({
           className="min-w-0 flex-1"
           style={fontVars(font)}
         >
-        <IntroBanner locale={locale} />
+        {/* La colonne du document, posée une fois pour le fronton, le bandeau et
+            le corps. La mesure est en `66ch` — les cinq polices n'ont pas la même
+            largeur de caractère — mais `ch` se résout dans la police *et* la
+            taille de l'élément : deux colonnes calculées séparément se centraient
+            sur 559 et 586 px, et leurs bords gauches se décalaient. Une seule
+            colonne, un seul calcul, et tout s'aligne. */}
+        <div className="doc-prose doc-colonne text-[1.05rem]">
+        <div className="doc-measure">
+          <IntroBanner locale={locale} />
+        </div>
         <ComposerEntete
           t={t}
           locale={locale}
@@ -349,6 +358,7 @@ export default function Composer({
           coaches={COACHES}
           onBook={() => setBooking(true)}
         />
+        </div>
         </main>
       </div>
 

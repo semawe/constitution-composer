@@ -85,8 +85,87 @@ body {
    caractères en Inter pour 78 en EB Garamond. La borne suit la police choisie.
    La largeur restante n'est pas perdue : elle donne au panneau de composition
    sa place sans comprimer la lecture, et laisse respirer les deux. */
+/* La mesure du corps, et la marge qui la borde.
+
+   `66ch` et non une largeur fixe : les cinq polices du document ont des
+   largeurs de caractère très différentes, et une borne en `rem` donnerait 66
+   caractères en Inter pour 78 en EB Garamond. Le `ch` se résout dans la police
+   de l'élément, donc la mesure suit le choix de l'utilisateur.
+
+   `--cc-marge` est la marge d'annotation, où passent les libellés des modules
+   insérés. Elle n'existe qu'à partir de 1 280 px ; en dessous, le libellé
+   reprend sa place au-dessus de son passage, ce que donne le flux normal. */
+:root {
+  --cc-mesure: 66ch;
+  /* Marge et gouttière nulles en dessous de 1 280 px : la colonne y vaut
+     exactement la mesure, et rien ne la décale du centre. */
+  --cc-marge: 0rem;
+  --cc-gouttiere: 0rem;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --cc-marge: 11rem;
+    --cc-gouttiere: 2rem;
+  }
+}
+
 .doc-measure {
-  max-width: 66ch;
+  max-width: var(--cc-mesure);
+}
+
+/* La colonne du document : la mesure, plus sa marge. Elle reste centrée dans la
+   largeur disponible — une mesure bornée mais collée à gauche laissait 560 px de
+   vide à droite, et c'était pire que l'état de départ. La différence est que ce
+   qui borde le texte à droite n'est plus du vide : c'est la marge, et elle
+   porte les libellés. */
+.doc-colonne {
+  max-width: calc(var(--cc-mesure) + var(--cc-gouttiere) + var(--cc-marge));
+  margin-inline: auto;
+}
+
+/* Un passage annoté : son texte dans la mesure, son libellé dans la marge.
+
+   Une grille, et non un positionnement absolu. C'est ce qui rendait la marge
+   inaccessible : un libellé absolu serait rogné par l'`overflow-hidden` dont
+   l'animation de hauteur a besoin pour ne pas déborder au décochage — et c'est
+   cette animation qui tient la promesse « on coche, on voit ce que ça change ».
+   Deux colonnes de grille ne sortent pas de la boîte : rien n'est rogné,
+   l'animation garde son clipping, et le texte constitutionnel redevient continu.
+   Il n'a pas fallu de grille au niveau de l'article : celle du bloc suffit,
+   puisque le bloc fait déjà la largeur de la colonne. */
+@media (min-width: 1280px) {
+  .doc-annote {
+    display: grid;
+    grid-template-columns: minmax(0, var(--cc-mesure)) minmax(0, var(--cc-marge));
+    column-gap: var(--cc-gouttiere);
+  }
+  .doc-annote > .doc-annote-texte {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .doc-annote > .doc-annote-marge {
+    grid-column: 2;
+    grid-row: 1;
+    margin-bottom: 0;
+    align-self: start;
+  }
+}
+
+/* Le titre du document se dimensionne sur la boîte qu'on lui donne, et non par
+   paliers de police. Un `sm:text-4xl` fixe coupait « Constitution Lite · édition
+   Sémawé » au milieu — un titre qui se lit tronqué se lit faux — et le défaut
+   revient à chaque resserrement de colonne : la mesure vient justement de passer
+   à 66 caractères, soit 568 px pour un titre qui en demande 601. `cqi` mesure la
+   boîte réelle, donc le titre tient aussi bien dans les 343 px d'un téléphone.
+   Le facteur 5,5 % laisse de la marge : la valeur par défaut fait 34 caractères,
+   soit environ 16,7 largeurs de cadratin dans cette police. */
+.doc-titre-boite {
+  container-type: inline-size;
+}
+.doc-titre {
+  font-size: clamp(1.125rem, 5.5cqi, 2.1rem);
 }
 
 
