@@ -33,14 +33,10 @@ import {
   currentContentRef,
 } from "@/lib/releases";
 import { getSupabase } from "@/lib/supabase";
-import {
-} from "@/lib/compositions";
 import { COMPOSER, type Locale } from "@/lib/i18n";
 
 // Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
 // Apps et l'export (PDF/copie/sauvegarde) requièrent un compte.
-
-
 
 interface Branding {
   logo: string;
@@ -85,8 +81,6 @@ export default function Composer({
   const reduce = useReducedMotion();
   const supabase = useMemo(() => getSupabase(), []);
 
-
-
   // L'export vit dans son hook (#1057) : il connaît le document, le compte
   // (l'export est derrière le mur) et la proposition de session offerte qui suit
   // un export réussi. Le composant n'en garde que l'état d'attente et l'erreur.
@@ -112,7 +106,6 @@ export default function Composer({
     handlePdf,
     precharger,
   } = exportCtl;
-
 
   // Le brouillon et la navigation dans le document vivent dans leur hook (#1057) :
   // lecture au montage, persistance différée, surlignage du sommaire au
@@ -155,7 +148,6 @@ export default function Composer({
     submitCompany,
     signOut,
   } = compte;
-
 
   /** Pose sur le document ce qu'une version ouverte (ou rejouée) rend. */
   const appliquerVersion = useCallback(
