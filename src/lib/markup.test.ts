@@ -1,5 +1,5 @@
 // La grammaire du balisage est désormais partagée par tous les rendus (HTML du
-// Composer, des pages /lite et /micro, du visualiseur d'administration, et PDF).
+// Composer, des pages /lite et /micro, et PDF).
 // Ce qui se casse ici se casse partout à la fois : c'est le prix de la
 // mutualisation, et la raison de la couvrir directement.
 

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Constitution Holacracy à la carte · édition Sémawé",
   description:
     "Composez votre propre Constitution à partir d'un socle, à la carte. Édition Sémawé non officielle, dérivée de la Constitution Holacracy 5.0.",
-  // "./" : canonical résolue par page (la racine -> /, /admin -> /admin).
+  // "./" : canonical résolue par page (la racine -> /, /composer -> /composer).
   alternates: {
     canonical: "./",
     languages: {

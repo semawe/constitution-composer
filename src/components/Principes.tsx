@@ -241,7 +241,7 @@ export default function Principes({
   ]);
 
   // Rattachement au compte : la Déclaration est aussi stockée dans Supabase
-  // (visible côté admin) dès que l'utilisateur est connecté.
+  // dès que l'utilisateur est connecté, pour la retrouver sur ses appareils.
   const declarationPayload = useMemo(
     () => ({
       // La référence suit le document : ce qui est sauvegardé dit de quels

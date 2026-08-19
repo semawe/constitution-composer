@@ -25,7 +25,6 @@ const Marketplace = dynamic(() => import("@/components/Marketplace"), {
 });
 import type { ConstitutionData } from "@/lib/constitution";
 import { getSupabase } from "@/lib/supabase";
-import { isAdminUser } from "@/lib/admin";
 import { APP_UI, type Locale } from "@/lib/i18n";
 
 const LS_BRANDING = "cc-branding";
@@ -73,7 +72,6 @@ export default function App({
     }, 60);
   };
 
-  const [isAdmin, setIsAdmin] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [userName, setUserName] = useState("");
   useEffect(() => {
@@ -83,10 +81,8 @@ export default function App({
       u: {
         email?: string;
         user_metadata?: Record<string, unknown>;
-        app_metadata?: Record<string, unknown> | null;
       } | null,
     ) => {
-      setIsAdmin(isAdminUser(u));
       setSignedIn(!!u);
       const name =
         (u?.user_metadata?.given_name as string) ||
@@ -194,14 +190,6 @@ export default function App({
       >
         {t.tabs.appstore}
       </button>
-      {isAdmin && (
-        <a
-          href="/admin/"
-          className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-muted transition hover:bg-surface-muted"
-        >
-          Admin
-        </a>
-      )}
     </>
   );
 

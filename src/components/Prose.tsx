@@ -3,9 +3,9 @@ import { parseBlocks, parseInline } from "@/lib/markup";
 import { linkifyTerms } from "@/lib/glossary";
 import type { Locale } from "@/lib/i18n";
 
-// Rendu HTML du fond : le seul. Le Composer, les pages /lite et /micro et le
-// visualiseur d'administration en tenaient chacun une copie, et les copies
-// avaient dérivé. La grammaire vit dans `src/lib/markup.ts`, la mise en forme
+// Rendu HTML du fond : le seul. Le Composer et les pages /lite et /micro en
+// tenaient chacun une copie, et les copies avaient dérivé. La grammaire vit
+// dans `src/lib/markup.ts`, la mise en forme
 // ici, et le PDF (`src/lib/pdf.tsx`) rend la même grammaire à sa façon.
 //
 // Pas de directive « use client » : sans `onTermClick`, ce composant ne porte

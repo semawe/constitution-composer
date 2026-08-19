@@ -3,13 +3,13 @@
  * Régénère le fond servi par le Composer depuis la source canonique de la
  * Constitution (sous-module `vendor/holacracy-constitution`).
  *
- *   node scripts/fond.mjs            régénère src/data/principes.{fr,en}.json
+ *   node scripts/fond.mjs            synchronise les six JSON de fond
  *   node scripts/fond.mjs --check    ne réécrit rien, sort en 1 si ça a divergé
  *
- * Le texte canonique humain est le Markdown de `v6-alpha/` : c'est lui qui fait
- * foi. Le JSON n'en est que l'encodage applicatif, et il n'est jamais édité à la
- * main — sans quoi les deux divergent en silence (le défaut que ce script et
- * l'étape CI « Fond synchronisé » corrigent).
+ * Les principes sont générés depuis le Markdown de `v6-alpha/`. La constitution
+ * structurée et les glossaires sont publiés dans `composer/` par le même dépôt
+ * canonique, puis recopiés octet pour octet. Aucun des six JSON applicatifs ne
+ * s'édite à la main.
  *
  * Ce que le Markdown ne porte pas (l'avertissement affiché quand on décoche un
  * principe, la mention légale, la licence) vit dans les surcouches
@@ -23,7 +23,12 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+// FOND_ROOT n'est utilisé que par l'épreuve en négatif : elle reconstruit un
+// arbre minimal dans un dossier temporaire sans jamais salir le worktree.
+const ROOT = resolve(
+  process.env.FOND_ROOT || dirname(fileURLToPath(import.meta.url)),
+  process.env.FOND_ROOT ? "." : "..",
+);
 const SUBMODULE = "vendor/holacracy-constitution";
 
 /** @type {{lang: string, source: string, out: string, overlay: string}[]} */
@@ -41,6 +46,17 @@ const TARGETS = [
     overlay: "src/data/principes.overlay.en.json",
   },
 ];
+
+/** Fichiers structurés publiés tels quels par le dépôt canonique. */
+const COPY_TARGETS = [
+  "constitution.fr.json",
+  "constitution.en.json",
+  "glossaire.fr.json",
+  "glossaire.en.json",
+].map((name) => ({
+  source: `composer/${name}`,
+  out: `src/data/${name}`,
+}));
 
 class FondError extends Error {}
 
@@ -229,11 +245,42 @@ function main() {
     console.log(`${current === null ? "+" : "~"} ${target.out}`);
   }
 
+  for (const target of COPY_TARGETS) {
+    const sourcePath = resolve(ROOT, SUBMODULE, target.source);
+    const outPath = resolve(ROOT, target.out);
+    let canonical;
+    let current = null;
+    try {
+      canonical = readFileSync(sourcePath, "utf8");
+    } catch {
+      fail(
+        `Source canonique introuvable : ${SUBMODULE}/${target.source}\n` +
+          "Mets à jour le sous-module avant de vérifier le fond.",
+      );
+    }
+    try {
+      current = readFileSync(outPath, "utf8");
+    } catch {
+      /* fichier absent : traité comme une divergence */
+    }
+
+    if (current === canonical) {
+      if (!check) console.log(`= ${target.out} (inchangé)`);
+      continue;
+    }
+    if (check) {
+      diverged.push(target.out);
+      continue;
+    }
+    writeFileSync(outPath, canonical);
+    console.log(`${current === null ? "+" : "~"} ${target.out}`);
+  }
+
   if (diverged.length) {
     console.error(
       "Le fond du Composer a divergé de la source canonique.\n" +
         diverged.map((f) => `  ${f}`).join("\n") +
-        `\n\nCes fichiers sont générés depuis ${SUBMODULE}/v6-alpha/ : ne les édite pas à la main.` +
+        `\n\nCes fichiers viennent de ${SUBMODULE}/v6-alpha/ et ${SUBMODULE}/composer/ : ne les édite pas à la main.` +
         "\nRégénère-les et committe le résultat :\n" +
         "  git submodule update --init --recursive\n" +
         "  npm run fond:build\n",

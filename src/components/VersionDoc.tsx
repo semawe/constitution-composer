@@ -6,7 +6,7 @@ import Prose from "@/components/Prose";
 import { type Locale, UI } from "@/lib/i18n";
 import { REPO_V6_URL, v5Href } from "@/lib/links";
 
-// Rendu Markdown léger (gras + listes), identique au visualiseur /admin/view.
+// Rendu Markdown léger partagé avec le Composer (gras + listes).
 export interface VersionDocProps {
   data: ConstitutionData;
   active: Set<string>;

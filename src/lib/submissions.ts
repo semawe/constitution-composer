@@ -76,34 +76,3 @@ export async function listMySubmissions(): Promise<AppSubmission[]> {
   if (error) throw error;
   return (data ?? []) as AppSubmission[];
 }
-
-/** Liste toutes les soumissions (admin, via RLS is_admin). */
-export async function listAllSubmissions(): Promise<AppSubmission[]> {
-  const sb = getSupabase();
-  if (!sb) return [];
-  const { data, error } = await sb
-    .from("app_submissions")
-    .select(SELECT)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as AppSubmission[];
-}
-
-/** Met à jour le statut d'une soumission (admin). */
-export async function reviewSubmission(
-  id: string,
-  status: SubmissionStatus,
-  adminNote: string,
-): Promise<void> {
-  const sb = getSupabase();
-  if (!sb) throw new Error("UNAVAILABLE");
-  const { error } = await sb
-    .from("app_submissions")
-    .update({
-      status,
-      admin_note: adminNote || null,
-      reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-  if (error) throw error;
-}

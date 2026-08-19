@@ -46,7 +46,8 @@ export function useComposerCompte({
       setUser(u);
       setAccount(!!u);
       setNeedsCompany(!!u && !u.user_metadata?.company);
-      // Miroir des infos utilisateur dans `profiles` (pour l'écran admin).
+      // Miroir minimal dans `profiles` : rattachement du compte et notification
+      // Slack à la première organisation renseignée.
       if (u) {
         supabase
           .from("profiles")

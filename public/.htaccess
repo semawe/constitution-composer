@@ -1,9 +1,7 @@
 # constitution-composer.com — hébergement mutualisé OVH (Apache, statique).
 
-# Pas de listing de répertoire, et surtout : ne pas laisser mod_dir ajouter un
-# slash final à /admin (qui existe aussi comme dossier à cause de /admin/...).
-# Sans DirectorySlash Off, mod_dir redirige /admin -> /admin/ avant la réécriture
-# du point 3 et casse les URLs sans slash.
+# Pas de listing de répertoire. DirectorySlash est désactivé pour que les URL
+# exportées restent canoniques sans slash final avant la réécriture du point 3.
 Options -Indexes
 DirectorySlash Off
 
@@ -39,10 +37,8 @@ RewriteRule ^(.+)/$ https://%{HTTP_HOST}/$1 [R=301,L]
 
 # 3. Service des URLs sans extension : si /chemin n'est pas un fichier mais que
 #    /chemin.html existe, on le sert en réécriture interne (l'URL reste propre).
-#    On ne teste PAS !-d à dessein : pour /admin (qui est aussi un répertoire à
-#    cause de /admin/insertions), la page admin.html doit primer sur le dossier.
 #    Réécrire ici neutralise aussi le DirectorySlash de mod_dir (la cible .html
-#    est un fichier, donc pas de redirection /admin -> /admin/).
+#    est un fichier, donc pas de redirection parasite vers une URL avec slash).
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}\.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]

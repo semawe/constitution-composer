@@ -82,7 +82,7 @@ export interface RenderedItem {
 
 /**
  * Normalise un ensemble de modules actifs venu de l'extérieur (localStorage,
- * Supabase, visualiseur admin, URL). `compose()` fait confiance à ce qu'on lui
+ * Supabase ou URL). `compose()` fait confiance à ce qu'on lui
  * donne : sans ce passage, un état sauvegardé peut violer les `requires` et
  * produire une Constitution qui contredit son propre graphe de dépendances
  * (ex. les insertions « Agents » sans « Source de Vérité »), ou référencer des

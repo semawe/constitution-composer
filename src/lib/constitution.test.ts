@@ -148,7 +148,7 @@ describe("toggleModule", () => {
 
 // ---------------------------------------------------------------------------
 // normalizeActive : frontière d'entrée des états venus de l'extérieur
-// (localStorage, Supabase, visualiseur admin).
+// (localStorage, Supabase, URL).
 // ---------------------------------------------------------------------------
 
 describe("normalizeActive", () => {

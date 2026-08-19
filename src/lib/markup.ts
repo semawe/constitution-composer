@@ -3,9 +3,9 @@
 // Le fond n'est pas du Markdown : il en emploie quatre motifs et rien d'autre —
 // paragraphes séparés par une ligne vide, listes à puces (« - »), listes
 // numérotées (« 1. »), gras (`**…**`) et italique (`*…*`). Cette grammaire était
-// réécrite dans cinq rendus (le Composer, le PDF, les pages /lite et /micro, le
-// visualiseur d'administration), et les copies avaient dérivé : le PDF ignorait
-// l'italique, les pages /lite l'ignorent encore et affichent des astérisques en
+// réécrite dans plusieurs rendus (le Composer, le PDF, les pages /lite et
+// /micro), et les copies avaient dérivé : le PDF ignorait
+// l'italique, les pages /lite l'ignoraient et affichaient des astérisques en
 // clair sur des pages indexées. Un seul analyseur, plusieurs rendus : la dérive
 // n'a plus d'endroit où se produire.
 //
@@ -43,8 +43,8 @@ export function parseInline(text: string): InlineSegment[] {
 
 /**
  * Découpe brut : les blocs d'un texte, séparés par une ligne vide, tels qu'écrits.
- * Exporté pour les rares usages qui indexent les blocs sans les rendre (l'outil
- * d'administration des insertions) : la règle de découpage ne se réécrit pas.
+ * Exporté pour les rares usages qui indexent les blocs sans les rendre : la
+ * règle de découpage ne se réécrit pas.
  */
 export function chunks(text: string): string[] {
   return text.split(/\n\n/);
