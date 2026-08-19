@@ -23,7 +23,9 @@ function sources(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry);
     if (statSync(path).isDirectory()) return sources(path);
-    return /\.tsx$/.test(path) ? [path] : [];
+    // Les fichiers de test ne sont pas rendus : leurs mocks de Framer Motion
+    // citent les noms de props sans les employer.
+    return /\.tsx$/.test(path) && !/\.test\.tsx$/.test(path) ? [path] : [];
   });
 }
 
