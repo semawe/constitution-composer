@@ -282,9 +282,18 @@ export default function Composer({
         </span>
       </div>
 
-      <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
+      {/* Largeur de l'atelier. La coquille était en `max-w-6xl` : sur un écran
+          de 1 440 px, 288 px mouraient de chaque côté pendant que le texte
+          courait sur 726 px, soit ~85 caractères par ligne — ni la pleine
+          largeur assumée, ni une mesure décidée. La coquille prend maintenant
+          la largeur disponible (bornée à 96rem, au-delà l'œil ne suit plus les
+          allers-retours), et c'est le texte qui porte sa propre mesure : une
+          colonne de ~66 caractères, plus une marge où les libellés de modules
+          vont se poser. Colonne et marge : le geste éditorial, pas une colonne
+          centrée dans du vide. */}
+      <div className="mx-auto flex max-w-[96rem] gap-8 px-4 py-8 sm:px-6 lg:gap-12 lg:px-8 xl:gap-16">
         {/* Panneau (desktop) */}
-        <aside className="hidden w-72 shrink-0 lg:block">
+        <aside className="hidden w-72 shrink-0 lg:block xl:w-80">
           <div className="sticky top-16">{panel}</div>
         </aside>
 

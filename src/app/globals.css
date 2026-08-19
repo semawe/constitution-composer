@@ -79,6 +79,17 @@ body {
   font-family: var(--font-serif), Georgia, serif;
 }
 
+/* Mesure du texte constitutionnel.
+   Bornée en `ch` et non en `rem` : les cinq polices du document ont des
+   largeurs de caractère très différentes, et une largeur fixe donnerait 66
+   caractères en Inter pour 78 en EB Garamond. La borne suit la police choisie.
+   La largeur restante n'est pas perdue : elle donne au panneau de composition
+   sa place sans comprimer la lecture, et laisse respirer les deux. */
+.doc-measure {
+  max-width: 66ch;
+}
+
+
 /* Bandeau d'introduction : masqué sans flash quand l'utilisateur l'a fermé
    (classe posée par le script d'en-tête avant le paint, comme le thème). */
 html.intro-off [data-intro] {

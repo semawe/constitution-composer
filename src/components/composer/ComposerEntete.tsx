@@ -66,7 +66,7 @@ export function ComposerEntete({
   compte: { connecte: boolean; nom?: string; onSignOut: () => void };
 }) {
   return (
-        <header className="mb-8 border-b border-slate-200 pb-6">
+        <header className="doc-measure mx-auto mb-8 border-b border-slate-200 pb-6">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {t.editionKicker}
           </p>

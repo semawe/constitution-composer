@@ -55,7 +55,12 @@ export function ComposerDocument({
   onBook: () => void;
 }) {
   return (
-        <article className="doc-prose text-[1.05rem] text-slate-800">
+        // `doc-measure` (globals.css) borne la colonne de texte à ~66
+        // caractères ; `mx-auto` la centre dans la largeur disponible. Élargir
+        // la coquille sans borner la mesure aurait juste allongé les lignes ;
+        // borner la mesure sans centrer la colonne l'aurait collée à gauche avec
+        // un vide de 560 px à droite. Centrée, elle se lit comme une page.
+        <article className="doc-prose doc-measure mx-auto text-[1.05rem] text-slate-800">
           {data.blocks.map((block) => {
             return (
               // Pas d'entrée animée sur le corps constitutionnel. Elle
@@ -123,6 +128,15 @@ export function ComposerDocument({
                           tinted ? `rounded-r-md ${ui.tint} py-3 pl-4 pr-3` : "py-1 pl-5"
                         }`}
                       >
+                        {/* Le libellé reste au-dessus du passage, et non dans la
+                            marge que l'élargissement dégage. La marge demanderait
+                            un positionnement absolu, incompatible avec
+                            l'`overflow-hidden` dont l'animation de hauteur a
+                            besoin pour ne pas déborder quand on décoche : c'est
+                            cette animation qui tient la promesse « on coche, on
+                            voit ce que ça change ». Une vraie annotation en marge
+                            se ferait par une grille au niveau de l'article, pas
+                            au niveau du bloc — chantier à part. */}
                         <span
                           className={`mb-1.5 inline-block text-[0.7rem] font-medium uppercase tracking-wider ${
                             tinted
