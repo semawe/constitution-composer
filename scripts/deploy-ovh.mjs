@@ -151,6 +151,74 @@ if (!existsSync(OUT)) {
   }
 }
 
+// Le commit courant doit aussi être le dernier. La garde ci-dessus vérifie que
+// `out/` correspond au commit du worktree — elle ne dit rien de savoir si ce
+// commit est le sommet. Les deux ensemble laissaient passer un déploiement à la
+// fois frais et incomplet : le 19/08, la production est partie sur `9a51b59`
+// alors que `main` était déjà trois commits plus loin, et le tampon en ligne
+// affichait un commit exact mais périmé. Le tampon dit ce qui tourne, pas si
+// c'est le dernier ; quand plusieurs sessions poussent le même jour, personne ne
+// peut le savoir de tête.
+{
+  const repo = resolve(__dirname, '..');
+  const git = (cmd) => execSync(cmd, { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'] })
+    .toString()
+    .trim();
+
+  // Un ref de suivi périmé donnerait une fausse assurance : on rafraîchit, et on
+  // le dit si on n'a pas pu (hors ligne, dépôt sans remote).
+  let remoteConnu = true;
+  try {
+    git('git fetch --quiet origin main');
+  } catch (err) {
+    remoteConnu = false;
+    console.warn(
+      `Attention : origin/main n'a pas pu être rafraîchi (${err.message.split('\n')[0]}) — ` +
+        "la comparaison porte sur le dernier état connu localement.",
+    );
+  }
+
+  let retard = null;
+  let avance = null;
+  try {
+    retard = Number(git('git rev-list --count HEAD..origin/main'));
+    avance = Number(git('git rev-list --count origin/main..HEAD'));
+  } catch {
+    console.warn(
+      "Attention : origin/main est introuvable — impossible de vérifier que le " +
+        "commit déployé est bien le dernier.",
+    );
+  }
+
+  if (retard !== null && retard > 0 && process.env.DEPLOY_ALLOW_BEHIND !== 'yes') {
+    const manquants = git('git log --oneline HEAD..origin/main');
+    console.error(
+      `Erreur : le worktree est en retard de ${retard} commit(s) sur origin/main. ` +
+        "Déployer maintenant mettrait en ligne un état déjà dépassé, sous un " +
+        "tampon exact mais périmé.\n\n" +
+        manquants.split('\n').map((l) => '  ' + l).join('\n') +
+        "\n\n  git rebase origin/main && npm run build\n" +
+        "puis relance le déploiement (ou DEPLOY_ALLOW_BEHIND=yes pour revenir " +
+        "délibérément à un état antérieur).",
+    );
+    process.exit(1);
+  }
+
+  if (avance !== null && avance > 0) {
+    // Pas un blocage : déployer un travail non poussé est un cas légitime. Mais
+    // il ne doit pas être silencieux — personne d'autre ne pourra reconstruire
+    // ce qui est en ligne.
+    console.warn(
+      `Attention : ${avance} commit(s) de ce worktree ne sont pas sur origin/main. ` +
+        "Ce qui part en ligne n'est reconstructible que depuis ce poste.",
+    );
+  }
+
+  if (retard === 0 && avance === 0 && remoteConnu) {
+    console.log('Commit courant confirmé au sommet d’origin/main.');
+  }
+}
+
 // Un build fait sans les clés Supabase produit un site qui *paraît* marcher :
 // compte simulé, sauvegardes dans le navigateur, rien qui suive le compte. On
 // vérifie donc dans les fichiers à envoyer que la configuration est bien là,
