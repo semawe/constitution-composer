@@ -182,27 +182,81 @@ if (protocol === 'sftp') {
   const { default: SftpClient } = await import('ssh2-sftp-client');
   const sftp = new SftpClient();
 
-  async function clearRemoteSftp(dir) {
-    if (dir !== config.remoteDir && !dir.startsWith(config.remoteDir + '/')) {
+  const CIBLE = config.remoteDir;
+  // Répertoires frères, dans le même compte : la bascule est un renommage, donc
+  // instantané pour Apache. Le nom porte l'intention pour qui les découvrirait.
+  const TRANSIT = `${CIBLE}.transit`;
+  const PRECEDENT = `${CIBLE}.precedent`;
+
+  const absent = (err) => /No such (file|directory)|not exist/i.test(String(err));
+
+  /** Vide un répertoire, sans jamais sortir de la racine qu'on lui donne. */
+  async function purger(dir, racine) {
+    if (dir !== racine && !dir.startsWith(racine + '/')) {
       throw new Error(`Purge hors cible refusée : ${dir}`);
     }
     for (const e of await sftp.list(dir)) {
       const p = `${dir}/${e.name}`;
       // Un lien symbolique se supprime, il ne se descend pas : y recurser
       // sortirait de la cible sans que le contrôle lexical du chemin le voie.
-      // Vérifié le 18/08/2026 : la cible n'en contient aucun, ce filet vaut
-      // pour le jour où l'hébergeur ou un tiers en pose un.
       if (e.type === 'l') {
         await sftp.delete(p).catch(() => {});
         continue;
       }
       if (e.type === 'd') {
-        await clearRemoteSftp(p);
-        await sftp.rmdir(p);
+        await purger(p, racine);
+        await sftp.rmdir(p).catch((err) => {
+          if (!absent(err)) throw err;
+        });
       } else {
-        await sftp.delete(p);
+        // Le serveur liste parfois ce qu'il vient de perdre : une entrée déjà
+        // disparue n'interrompt pas la purge (19/08 : les pages /en ont disparu
+        // en ligne parce qu'un rmdir sur un répertoire absent a tout arrêté).
+        await sftp.delete(p).catch((err) => {
+          if (!absent(err)) throw err;
+        });
       }
     }
+  }
+
+  async function supprimer(dir) {
+    if (!(await sftp.exists(dir))) return;
+    await purger(dir, dir);
+    await sftp.rmdir(dir).catch((err) => {
+      if (!absent(err)) throw err;
+    });
+  }
+
+  /**
+   * Le transit est-il un site complet ? On ne bascule pas sur un envoi partiel :
+   * c'est tout l'intérêt de la manœuvre.
+   */
+  async function controler(dir) {
+    const manquants = [];
+    for (const attendu of ['index.html', '.htaccess', '_next']) {
+      if (!(await sftp.exists(`${dir}/${attendu}`))) manquants.push(attendu);
+    }
+    // Les fragments que la page d'accueil réclame doivent être là : un envoi
+    // interrompu au milieu de _next/ passerait sinon pour complet.
+    const pages = readdirSync(OUT).filter((f) => f.endsWith('.html'));
+    const references = new Set();
+    for (const f of pages)
+      for (const m of readFileSync(join(OUT, f), 'utf8').matchAll(
+        /\/(_next\/static\/[A-Za-z0-9._\/-]+?\.(?:js|css))/g,
+      ))
+        references.add(m[1]);
+    const echantillon = [...references].slice(0, 12);
+    for (const ref of echantillon) {
+      if (!(await sftp.exists(`${dir}/${ref}`))) manquants.push(ref);
+    }
+    if (manquants.length) {
+      throw new Error(
+        `Envoi incomplet dans ${dir} : ${manquants.slice(0, 5).join(', ')}` +
+          (manquants.length > 5 ? ` (+${manquants.length - 5})` : '') +
+          '. La version en ligne n’a pas été touchée.',
+      );
+    }
+    return { pages: pages.length, fragments: echantillon.length };
   }
 
   try {
@@ -212,15 +266,43 @@ if (protocol === 'sftp') {
       password: config.password,
       port: Number(process.env.FTP_PORT || 22),
     });
+    console.log(`Connecté à ${config.host} en SFTP.`);
+
+    // 1. Envoi complet à côté du site en ligne, qui continue de servir.
+    await supprimer(TRANSIT);
+    await sftp.mkdir(TRANSIT, true);
+    console.log(`Envoi de out/ vers ${TRANSIT} (le site en ligne continue) …`);
+    await sftp.uploadDir(OUT, TRANSIT);
+
+    // 2. Contrôle avant de toucher à quoi que ce soit.
+    const vu = await controler(TRANSIT);
     console.log(
-      `Connecté à ${config.host} en SFTP. Upload de out/ vers ${config.remoteDir} …`,
+      `Envoi complet : ${vu.pages} pages, ${vu.fragments} fragments vérifiés.`,
     );
-    if (!(await sftp.exists(config.remoteDir))) {
-      await sftp.mkdir(config.remoteDir, true);
+
+    // 3. Bascule par renommages. Entre les deux, le site est absent le temps
+    //    d'un appel — sans commune mesure avec une purge suivie d'un envoi.
+    await supprimer(PRECEDENT);
+    const avaitUneVersion = await sftp.exists(CIBLE);
+    if (avaitUneVersion) await sftp.rename(CIBLE, PRECEDENT);
+    try {
+      await sftp.rename(TRANSIT, CIBLE);
+    } catch (err) {
+      // Le pire moment : la cible est partie et le transit n'a pas pris sa
+      // place. On remet la version précédente avant de rendre la main.
+      if (avaitUneVersion) await sftp.rename(PRECEDENT, CIBLE).catch(() => {});
+      throw err;
     }
-    await clearRemoteSftp(config.remoteDir);
-    await sftp.uploadDir(OUT, config.remoteDir);
-    console.log('Déploiement terminé.');
+
+    // 4. Contrôle après bascule, puis seulement, on jette l'ancienne version.
+    if (!(await sftp.exists(`${CIBLE}/index.html`))) {
+      throw new Error(
+        `Bascule douteuse : ${CIBLE}/index.html est absent. La version ` +
+          `précédente est conservée dans ${PRECEDENT}.`,
+      );
+    }
+    await supprimer(PRECEDENT);
+    console.log('Déploiement terminé (bascule atomique).');
   } catch (err) {
     console.error('Échec du déploiement :', err.message);
     process.exitCode = 1;

@@ -218,7 +218,21 @@ Required: set the environment variables above before building, as `NEXT_PUBLIC_*
 
 **Note on canonical URLs:** some metadata files hard-code `constitution-composer.com` as the canonical. If you deploy a public instance under a different domain, update the canonical URLs in `src/app/**/page.tsx` before building.
 
-The official instance ([constitution-composer.com](https://constitution-composer.com)) is deployed via FTP to an OVH shared hosting. See `scripts/deploy-ovh.mjs` if you want to replicate that setup.
+The official instance ([constitution-composer.com](https://constitution-composer.com)) is deployed
+to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Three guards are worth reusing if you
+replicate that setup:
+
+- **SFTP by default.** Plain FTP sends the password in the clear and the account hosts other sites;
+  it now requires `FTP_ALLOW_PLAINTEXT=yes` to be used at all.
+- **The build must match the commit.** Twice in one day a deploy served the right code under a
+  stale stamp because the build preceded the commit. The script compares `out/` to `git HEAD` and
+  refuses otherwise.
+- **Atomic publication.** The upload goes to a sibling `…​.transit` directory while the live site
+  keeps serving, the directory is checked for completeness (`index.html`, `.htaccess`, `_next/`, and
+  a sample of the chunks the pages reference), and only then is the switch made by two renames, the
+  previous version kept until the new one answers. This replaced a purge-then-upload that took the
+  English pages offline mid-deploy on 2026-08-19 — a failed upload now leaves the live site
+  untouched.
 
 ---
 
