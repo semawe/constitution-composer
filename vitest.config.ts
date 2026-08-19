@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 // test qui remonte jusqu'à un import `@/…` échoue à charger.
 export default defineConfig({
   test: {
+    // Bouchons de ce que jsdom ne fournit pas (IntersectionObserver, matchMedia,
+    // scrollIntoView) : sans eux, monter le Composer échoue avant tout rendu.
+    setupFiles: ["./vitest.setup.ts"],
     // Sans cette exclusion, un worktree git imbriqué (.claude/worktrees/…, créé
     // par les sessions Claude) fait découvrir deux fois chaque fichier de test :
     // la suite passe au vert sur des tests d'une autre branche, en double.

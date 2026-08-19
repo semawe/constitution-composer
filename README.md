@@ -190,6 +190,15 @@ lint and a full static build). What each file guards:
   The decisive case rewrites the *current* content underneath and asserts that what a pinned
   version renders does not move.
 - **`src/lib/markup.test.ts` — the markup grammar.** The fond uses five patterns and no more (paragraphs, bullet lists, numbered lists, bold, italic), parsed in one place by `src/lib/markup.ts`. Beyond unit cases, a property check over every text of the real content in both languages: the grammar restitutes every word, in order — it loses nothing and invents nothing. Its two deliberate limits (no nested lists, no single-item list) are guarded on the content side rather than silently tolerated.
+- **`src/components/Composer.interaction.test.tsx` and `Composer.immuabilite.test.tsx` — the
+  interface, driven.** Every other file exercises the engine, the content, the grammar and the two
+  exports; none of them touches a button. These two mount the Composer in jsdom and use it: opening
+  a saved version, refusing one whose text is gone, pinning an old one, and — the decisive case —
+  opening a version pinned to an earlier release and asserting **the sentence only that release
+  contains is on screen**. The animation layer is stubbed out: outside a browser that paints, an
+  AnimatePresence exit never completes and the node lingers, so a test would measure what the
+  animation has not finished removing rather than what React renders. Animations themselves remain
+  out of coverage, and that is stated where it matters.
 - **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
 
 Tests are named in French and sit next to the module they cover, following the conventions of the
