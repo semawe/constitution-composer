@@ -61,7 +61,7 @@ export function ComposerEntete({
               séparément se centraient sur deux largeurs différentes — 559 px ici,
               586 px pour le corps, soit 27 px de décalage entre leurs bords. */}
           <div className="doc-measure doc-titre-boite border-b border-rule pb-6">
-            <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted">
               {t.editionKicker}
             </p>
             {logo && (
@@ -79,25 +79,25 @@ export function ComposerEntete({
               placeholder={data.meta.title}
               spellCheck={false}
               style={titleColor ? { color: titleColor } : undefined}
-              className="doc-titre mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-field focus:border-field-accent"
+              className="doc-titre mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif font-semibold text-strong outline-none transition placeholder:text-muted hover:border-field focus:border-field-accent"
             />
             {/* Sous-titre du document : de quoi ce texte est dérivé, et ce qu'il
                 n'est pas. Il suit le titre même quand l'utilisateur renomme sa
                 Constitution — c'est l'édition qui est qualifiée, pas le nom. */}
-            <p className="mt-2 max-w-2xl text-xs leading-relaxed text-slate-500">
+            <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted">
               {UI[locale].derivation}
             </p>
-            <p className="mt-2 text-xs text-slate-400">{t.titleHint}</p>
+            <p className="mt-2 text-xs text-muted">{t.titleHint}</p>
 
 
             <div className="mt-5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-slate-600">{versionLabel}</span>
-                <span className="text-slate-400">
+                <span className="font-medium text-body">{versionLabel}</span>
+                <span className="text-muted">
                   {actifs}/{data.modules.length} modules
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r from-slate-400 via-teal-400 to-violet-500 ${
                     reduce ? "" : "transition-[width] duration-500 ease-out"
@@ -105,14 +105,14 @@ export function ComposerEntete({
                   style={{ width: `${Math.max(pct * 100, 3)}%` }}
                 />
               </div>
-              <p className="mt-1.5 text-xs text-slate-400">
+              <p className="mt-1.5 text-xs text-muted">
                 {compte.connecte ? (
                   <>
                     {compte.nom ? t.loggedIn(compte.nom) : t.activeAccount}
                     {" · "}
                     <button
                       onClick={compte.onSignOut}
-                      className="underline transition hover:text-slate-600"
+                      className="underline transition hover:text-body"
                     >
                       {t.signOut}
                     </button>
@@ -125,7 +125,7 @@ export function ComposerEntete({
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-4">
-                <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-500">
+                <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-muted">
                   <input
                     type="checkbox"
                     checked={showIntent}

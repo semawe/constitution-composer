@@ -41,15 +41,15 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
               ⬡
             </span>
             <span className="flex flex-col leading-tight">
-              <span className="text-sm font-medium text-slate-800">
+              <span className="text-sm font-medium text-body">
                 {brand.product}
               </span>
-              <span className="text-[0.65rem] text-slate-400">
+              <span className="text-[0.65rem] text-muted">
                 {brand.byline}
               </span>
             </span>
           </Link>
-          <span aria-hidden className="hidden h-6 w-px bg-slate-200 sm:block" />
+          <span aria-hidden className="hidden h-6 w-px bg-surface-strong sm:block" />
           <a
             href={SEMAWE_URL}
             target="_blank"
@@ -71,26 +71,26 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
             />
           </a>
         </div>
-        <div className="flex items-center gap-1 text-sm text-slate-500 sm:gap-4">
+        <div className="flex items-center gap-1 text-sm text-muted sm:gap-4">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="hidden rounded-full px-3 py-1.5 transition hover:bg-slate-100 hover:text-slate-800 sm:inline"
+              className="hidden rounded-full px-3 py-1.5 transition hover:bg-surface-muted hover:text-body sm:inline"
             >
               {item.label}
             </Link>
           ))}
           <Link
             href={navHref("/composer", locale)}
-            className="rounded-lg border border-teal-600 px-3 py-1.5 text-teal-700 transition hover:bg-teal-50"
+            className="rounded-lg border border-teal-600 px-3 py-1.5 text-accent-text transition hover:bg-accent-soft"
           >
             {t.login}
           </Link>
           {/* Language switcher */}
           <Link
             href={otherPath}
-            className="rounded-full px-2 py-1 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-full px-2 py-1 text-xs font-medium text-muted transition hover:bg-surface-muted hover:text-body"
             title={otherLocale === "en" ? "English version" : "Version française"}
           >
             {otherLocale.toUpperCase()}
@@ -109,45 +109,45 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
 
   return (
     <footer className="border-t border-rule bg-background">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8 text-sm text-slate-500">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8 text-sm text-muted">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <span>{t.tagline}</span>
           <div className="flex flex-wrap gap-4">
-            <Link href={navHref("/micro", locale)} className="transition hover:text-slate-800">
+            <Link href={navHref("/micro", locale)} className="transition hover:text-body">
               {UI[locale].nav.micro}
             </Link>
-            <Link href={navHref("/lite", locale)} className="transition hover:text-slate-800">
+            <Link href={navHref("/lite", locale)} className="transition hover:text-body">
               {UI[locale].nav.lite}
             </Link>
-            <Link href={navHref("/comprendre", locale)} className="transition hover:text-slate-800">
+            <Link href={navHref("/comprendre", locale)} className="transition hover:text-body">
               {UI[locale].nav.comprendre}
             </Link>
-            <Link href={navHref("/composer", locale)} className="transition hover:text-slate-800">
+            <Link href={navHref("/composer", locale)} className="transition hover:text-body">
               {UI[locale].nav.composer}
             </Link>
             <a
               href={v5Href(locale)}
               target="_blank"
               rel="noopener noreferrer"
-              className="transition hover:text-slate-800"
+              className="transition hover:text-body"
             >
               {t.v5Label} ↗
             </a>
             <Link
               href={navHref("/mentions-legales", locale)}
-              className="transition hover:text-slate-800"
+              className="transition hover:text-body"
             >
               {t.legal}
             </Link>
           </div>
         </div>
-        <p className="border-t border-rule pt-4 text-xs text-slate-400">
+        <p className="border-t border-rule pt-4 text-xs text-muted">
           {t.createdByPre}{" "}
           <a
             href={HETEROSTASIA_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-slate-500 underline transition hover:text-slate-700"
+            className="font-medium text-muted underline transition hover:text-body"
           >
             Heterostasia
           </a>
@@ -156,15 +156,15 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
             href={SEMAWE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-slate-500 underline transition hover:text-slate-700"
+            className="font-medium text-muted underline transition hover:text-body"
           >
             Sémawé
           </a>
           .
         </p>
-        {/* `text-slate-300` : 1,4:1 sur le fond clair, illisible. La version
+        {/* `text-muted` : 1,4:1 sur le fond clair, illisible. La version
             du build est une information, pas une décoration. */}
-        <p className="text-[0.7rem] text-slate-500">{buildLabel}</p>
+        <p className="text-[0.7rem] text-muted">{buildLabel}</p>
       </div>
     </footer>
   );

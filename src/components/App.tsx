@@ -32,7 +32,7 @@ const LS_BRANDING = "cc-branding";
 
 function tabClass(active: boolean) {
   return `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
-    active ? "btn-ink" : "text-slate-500 hover:bg-slate-100"
+    active ? "btn-ink" : "text-muted hover:bg-surface-muted"
   }`;
 }
 
@@ -52,6 +52,10 @@ export default function App({
   const [view, setViewBrut] = useState<
     "constitution" | "principes" | "glossaire" | "appstore"
   >("constitution");
+  const [glossaryOrigin, setGlossaryOrigin] = useState<{
+    view: "constitution" | "principes";
+    scrollY: number;
+  } | null>(null);
   const setView = useCallback(
     (v: "constitution" | "principes" | "glossaire" | "appstore") => {
       setVus((s) => (s.has(v) ? s : new Set(s).add(v)));
@@ -106,12 +110,21 @@ export default function App({
   };
 
   const goToTerm = (key: string) => {
+    if (view === "constitution" || view === "principes") {
+      setGlossaryOrigin({ view, scrollY: window.scrollY });
+    }
     setView("glossaire");
     setTimeout(() => {
       document
         .getElementById(`glossaire-${key}`)
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 60);
+  };
+
+  const returnFromGlossary = () => {
+    if (!glossaryOrigin) return;
+    setView(glossaryOrigin.view);
+    setTimeout(() => window.scrollTo({ top: glossaryOrigin.scrollY }), 60);
   };
 
   const [logo, setLogo] = useState("");
@@ -184,7 +197,7 @@ export default function App({
       {isAdmin && (
         <a
           href="/admin/"
-          className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
+          className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-muted transition hover:bg-surface-muted"
         >
           Admin
         </a>
@@ -208,7 +221,7 @@ export default function App({
         <div className="flex h-11 items-center">
           <Link
             href={homeHref}
-            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-muted transition hover:bg-surface-muted"
           >
             ← {t.home}
           </Link>
@@ -218,7 +231,7 @@ export default function App({
           <div className="ml-auto flex shrink-0 items-center gap-1 pl-1">
             {signedIn ? (
               <span
-                className="hidden max-w-[10rem] items-center gap-1 truncate rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 sm:inline-flex"
+                className="hidden max-w-[10rem] items-center gap-1 truncate rounded-full bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent-text sm:inline-flex"
                 title={userName}
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
@@ -227,7 +240,7 @@ export default function App({
             ) : (
               <button
                 onClick={requestSignIn}
-                className="rounded-full border border-teal-600 px-3 py-1 text-xs font-medium text-teal-700 transition hover:bg-teal-50"
+                className="rounded-full border border-teal-600 px-3 py-1 text-xs font-medium text-accent-text transition hover:bg-accent-soft"
               >
                 {t.signIn}
               </button>
@@ -235,7 +248,7 @@ export default function App({
             <Link
               href={otherLangHref}
               title={locale === "en" ? "Passer en français" : "Switch to English"}
-              className="flex items-center gap-1 rounded-full border border-rule px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
+              className="flex items-center gap-1 rounded-full border border-rule px-2.5 py-1 text-xs font-medium text-muted transition hover:border-teal-400 hover:bg-accent-soft hover:text-accent-text"
             >
               <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
                 <circle cx="8" cy="8" r="6.5" />
@@ -272,7 +285,13 @@ export default function App({
         )}
       </div>
       <div className={view === "glossaire" ? "" : "hidden"}>
-        {vus.has("glossaire") && <Glossaire font={font} locale={locale} />}
+        {vus.has("glossaire") && (
+          <Glossaire
+            font={font}
+            locale={locale}
+            onBack={glossaryOrigin ? returnFromGlossary : undefined}
+          />
+        )}
       </div>
       <div className={view === "appstore" ? "" : "hidden"}>
         {vus.has("appstore") && (

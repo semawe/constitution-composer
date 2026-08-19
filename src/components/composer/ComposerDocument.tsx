@@ -62,7 +62,7 @@ export function ComposerDocument({
         // borner la mesure n'aurait fait qu'allonger les lignes ; borner la mesure
         // sans rien mettre à côté laissait 560 px de vide à droite. La marge n'est
         // plus du vide : elle porte les libellés.
-        <article className="text-slate-800">
+        <article className="text-body">
           {data.blocks.map((block) => {
             return (
               // Pas d'entrée animée sur le corps constitutionnel. Elle
@@ -77,7 +77,7 @@ export function ComposerDocument({
                 id={block.id}
                 className="mb-10 scroll-mt-24"
               >
-                <h2 className="doc-measure mb-3 font-serif text-2xl font-semibold text-slate-900">
+                <h2 className="doc-measure mb-3 font-serif text-2xl font-semibold text-strong">
                   {block.heading}
                 </h2>
                 <AnimatePresence initial={false}>
@@ -86,7 +86,7 @@ export function ComposerDocument({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="doc-measure mb-4 overflow-hidden border-l-2 border-rule pl-3 text-sm italic text-slate-500"
+                      className="doc-measure mb-4 overflow-hidden border-l-2 border-rule pl-3 text-sm italic text-muted"
                     >
                       {block.intent}
                     </motion.p>
@@ -185,11 +185,11 @@ export function ComposerDocument({
                     title={t.reinsert(m.label)}
                     className="doc-measure group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
                   >
-                    <span className="h-px flex-1 bg-slate-200" />
-                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-field px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
+                    <span className="h-px flex-1 bg-surface-strong" />
+                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-field px-2 py-0.5 text-[0.7rem] text-muted transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
                       <span className="text-sm leading-none">+</span> {m.label}
                     </span>
-                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="h-px flex-1 bg-surface-strong" />
                   </button>
                 ))}
 
@@ -210,24 +210,24 @@ export function ComposerDocument({
 
                 {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
                 {inactiveAdvanced(block.anchor).length > 0 && (
-                  <div className="doc-measure mt-5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-[0.85rem] text-violet-900">
+                  <div className="doc-measure mt-5 rounded-lg border border-extension-border bg-extension-soft px-4 py-3 text-[0.85rem] text-extension-strong">
                     <span className="font-semibold">Ce tier ne couvre pas :</span>{" "}
                     {inactiveAdvanced(block.anchor).map((m, i, arr) => (
                       <span key={m.id}>
                         <button
                           onClick={() => toggle(m.id)}
-                          className="underline decoration-dotted underline-offset-2 hover:text-violet-700"
+                          className="underline decoration-dotted underline-offset-2 hover:text-extension-text"
                           title={m.description}
                         >
                           {m.label}
                         </button>
-                        <span className="ml-1 text-[0.75rem] text-violet-600">
+                        <span className="ml-1 text-[0.75rem] text-extension-muted">
                           [{m.tier === "extension" ? "Extension" : "App"}]
                         </span>
                         {i < arr.length - 1 && <span className="mr-1">,</span>}
                       </span>
                     ))}{" "}
-                    <span className="text-violet-600">
+                    <span className="text-extension-muted">
                       Activez-les pour voir ce contenu.
                     </span>
                   </div>
@@ -237,15 +237,15 @@ export function ComposerDocument({
           })}
 
           {coaches.length > 0 && (
-            <div className="doc-measure mt-12 rounded-2xl border border-rule bg-gradient-to-br from-teal-50 to-violet-50 p-6">
-              <h2 className="font-serif text-xl font-semibold text-slate-900">
+            <div className="doc-measure mt-12 rounded-2xl border border-rule bg-gradient-to-br from-accent-gradient to-extension-gradient p-6">
+              <h2 className="font-serif text-xl font-semibold text-strong">
                 Aller plus loin avec un coach
               </h2>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="mt-1 text-sm text-body">
                 Composer, c&apos;est un début. Faites relire et co-construire votre
                 Constitution avec un coach certifié en Holacracy.
               </p>
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
+              <ul className="mt-3 space-y-1.5 text-sm text-body">
                 <li>
                   🎁 <strong>20 minutes de découverte offertes</strong> à la
                   création de votre compte.
@@ -264,7 +264,7 @@ export function ComposerDocument({
             </div>
           )}
 
-          <footer className="doc-measure mt-10 flex items-start gap-3 border-t border-rule pt-6 text-xs text-slate-400">
+          <footer className="doc-measure mt-10 flex items-start gap-3 border-t border-rule pt-6 text-xs text-muted">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-semawe-light.png"

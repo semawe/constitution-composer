@@ -11,9 +11,9 @@ import {
 } from "@/lib/submissions";
 
 const STATUS_CLS: Record<SubmissionStatus, string> = {
-  pending: "bg-amber-50 text-amber-700 ring-amber-200",
+  pending: "bg-warning-soft text-warning-text ring-warning-border",
   approved: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  rejected: "bg-slate-100 text-slate-500 ring-slate-200",
+  rejected: "bg-surface-muted text-muted ring-rule",
 };
 
 export default function AppSubmissions({
@@ -91,14 +91,14 @@ export default function AppSubmissions({
 
   return (
     <section className="mt-10 border-t border-rule pt-8">
-      <h2 className="font-serif text-xl font-semibold text-slate-900">
+      <h2 className="font-serif text-xl font-semibold text-strong">
         {t.proposeTitle}
       </h2>
-      <p className="mb-4 mt-1 text-sm text-slate-500">{t.proposeDesc}</p>
+      <p className="mb-4 mt-1 text-sm text-muted">{t.proposeDesc}</p>
 
       {!signedIn ? (
         <div className="rounded-xl border border-dashed border-field p-6 text-center">
-          <p className="text-sm text-slate-600">{t.formSignIn}</p>
+          <p className="text-sm text-body">{t.formSignIn}</p>
           <button
             onClick={onRequestSignIn}
             className="mt-3 inline-flex items-center rounded-full btn-ink px-5 py-2 text-sm font-medium transition"
@@ -109,54 +109,54 @@ export default function AppSubmissions({
       ) : (
         <form
           onSubmit={submit}
-          className="grid gap-3 rounded-xl border border-rule bg-white p-5 sm:grid-cols-2"
+          className="grid gap-3 rounded-xl border border-rule bg-surface p-5 sm:grid-cols-2"
         >
           <label className="text-sm sm:col-span-1">
-            <span className="text-slate-600">{t.formName}</span>
+            <span className="text-body">{t.formName}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-strong outline-none focus:border-field-accent"
               required
             />
           </label>
           <label className="text-sm sm:col-span-1">
-            <span className="text-slate-600">{t.formKind}</span>
+            <span className="text-body">{t.formKind}</span>
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as SubmissionKind)}
-              className="mt-1 w-full rounded-lg border border-field bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
+              className="mt-1 w-full rounded-lg border border-field bg-surface px-3 py-2 text-sm text-strong outline-none focus:border-field-accent"
             >
               <option value="app">{t.formKindApp}</option>
               <option value="extension">{t.formKindExtension}</option>
             </select>
           </label>
           <label className="text-sm sm:col-span-2">
-            <span className="text-slate-600">{t.formIntegration}</span>
+            <span className="text-body">{t.formIntegration}</span>
             <input
               value={integrationPoint}
               onChange={(e) => setIntegrationPoint(e.target.value)}
               placeholder={t.formIntegrationPlaceholder}
-              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-field-accent"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-strong outline-none placeholder:text-muted focus:border-field-accent"
             />
           </label>
           <label className="text-sm sm:col-span-2">
-            <span className="text-slate-600">{t.formDescription}</span>
+            <span className="text-body">{t.formDescription}</span>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-strong outline-none focus:border-field-accent"
               required
             />
           </label>
           <label className="text-sm sm:col-span-2">
-            <span className="text-slate-600">{t.formRationale}</span>
+            <span className="text-body">{t.formRationale}</span>
             <textarea
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-strong outline-none focus:border-field-accent"
             />
           </label>
           <div className="flex items-center gap-3 sm:col-span-2">
@@ -170,27 +170,27 @@ export default function AppSubmissions({
             {done && !error && (
               <span className="text-sm text-emerald-700">{t.formThanks}</span>
             )}
-            {error && <span className="text-sm text-rose-700">{t.formError}</span>}
+            {error && <span className="text-sm text-danger-text">{t.formError}</span>}
           </div>
         </form>
       )}
 
       {mine.length > 0 && (
         <div className="mt-6">
-          <h3 className="text-sm font-medium uppercase tracking-wide text-slate-400">
+          <h3 className="text-sm font-medium uppercase tracking-wide text-muted">
             {t.mySubmissions}
           </h3>
           <ul className="mt-2 space-y-2">
             {mine.map((s) => (
               <li
                 key={s.id}
-                className="flex items-start justify-between gap-3 rounded-lg border border-rule bg-white p-3"
+                className="flex items-start justify-between gap-3 rounded-lg border border-rule bg-surface p-3"
               >
                 <div>
-                  <p className="text-sm font-medium text-slate-800">{s.name}</p>
-                  <p className="text-xs text-slate-500">{s.description}</p>
+                  <p className="text-sm font-medium text-body">{s.name}</p>
+                  <p className="text-xs text-muted">{s.description}</p>
                   {s.admin_note && (
-                    <p className="mt-1 text-xs italic text-slate-400">
+                    <p className="mt-1 text-xs italic text-muted">
                       {s.admin_note}
                     </p>
                   )}

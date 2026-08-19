@@ -54,11 +54,11 @@ export default function VersionDoc({
         <p className="text-xs font-medium uppercase tracking-widest text-teal-600">
           {versionName}
         </p>
-        <h1 className="mt-2 font-serif text-4xl font-medium leading-tight text-slate-900">
+        <h1 className="mt-2 font-serif text-4xl font-medium leading-tight text-strong">
           {data.meta.title}
         </h1>
-        <p className="mt-3 text-lg leading-relaxed text-slate-600">{tagline}</p>
-        <p className="mt-3 max-w-2xl text-xs leading-relaxed text-slate-500">
+        <p className="mt-3 text-lg leading-relaxed text-body">{tagline}</p>
+        <p className="mt-3 max-w-2xl text-xs leading-relaxed text-muted">
           {UI[locale].derivation}
         </p>
 
@@ -69,11 +69,11 @@ export default function VersionDoc({
           {ctaLabel}
         </Link>
 
-        <article className="doc-prose mt-12 border-t border-rule pt-10 text-[1.05rem] text-slate-800">
+        <article className="doc-prose mt-12 border-t border-rule pt-10 text-[1.05rem] text-body">
           {items.map((it) => (
             <section key={it.key} className="mb-8">
               {it.heading && (
-                <h2 className="mb-2 font-serif text-2xl font-semibold text-slate-900">
+                <h2 className="mb-2 font-serif text-2xl font-semibold text-strong">
                   {it.heading}
                 </h2>
               )}
@@ -85,7 +85,7 @@ export default function VersionDoc({
                 }
               >
                 {it.kind !== "block" && it.moduleLabel && (
-                  <p className="mb-1 text-[0.7rem] uppercase tracking-wide text-slate-400">
+                  <p className="mb-1 text-[0.7rem] uppercase tracking-wide text-muted">
                     {it.warning
                       ? `Règle par défaut : ${it.moduleLabel}`
                       : it.moduleLabel}
@@ -104,12 +104,12 @@ export default function VersionDoc({
           {ctaLabel}
         </Link>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-6 text-sm text-slate-500">
+        <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-6 text-sm text-muted">
           <a
             href={REPO_V6_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition hover:text-slate-800"
+            className="transition hover:text-body"
           >
             {L.source} ↗
           </a>
@@ -117,7 +117,7 @@ export default function VersionDoc({
             href={v5Href(locale)}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition hover:text-slate-800"
+            className="transition hover:text-body"
           >
             {L.v5} ↗
           </a>

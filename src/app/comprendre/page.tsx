@@ -36,13 +36,13 @@ export default function ComprendrePage() {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SiteNav />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-        <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+        <p className="text-xs font-medium uppercase tracking-widest text-muted">
           Documentation
         </p>
-        <h1 className="mt-3 max-w-3xl font-serif text-4xl font-medium leading-tight text-slate-900 sm:text-5xl">
+        <h1 className="mt-3 max-w-3xl font-serif text-4xl font-medium leading-tight text-strong sm:text-5xl">
           Comprendre la Constitution
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-body">
           Une Constitution n&apos;est pas un règlement intérieur : c&apos;est le
           texte qui dit où se prennent les décisions et jusqu&apos;où va
           l&apos;autorité de chacun. Avant de composer la vôtre, quelques
@@ -53,7 +53,7 @@ export default function ComprendrePage() {
             typographie de titrage, le numéro tient la marge, un filet sépare
             les entrées. Les cartes encadrées donnaient à trois réponses le
             poids visuel de trois produits. */}
-        <h2 className="mt-16 font-serif text-2xl font-medium text-slate-900">
+        <h2 className="mt-16 font-serif text-2xl font-medium text-strong">
           Questions fréquentes
         </h2>
         <dl className="mt-8 border-t border-rule">
@@ -62,14 +62,14 @@ export default function ComprendrePage() {
               key={item.q}
               className="grid gap-x-8 gap-y-3 border-b border-rule py-8 sm:grid-cols-[3rem_1fr]"
             >
-              <dt className="font-serif text-lg leading-snug text-slate-400 sm:text-right">
+              <dt className="font-serif text-lg leading-snug text-muted sm:text-right">
                 {String(i + 1).padStart(2, "0")}
               </dt>
               <div>
-                <dt className="font-serif text-xl leading-snug text-slate-900">
+                <dt className="font-serif text-xl leading-snug text-strong">
                   {item.q}
                 </dt>
-                <dd className="mt-3 max-w-2xl leading-relaxed text-slate-600">
+                <dd className="mt-3 max-w-2xl leading-relaxed text-body">
                   {item.a}
                 </dd>
               </div>
@@ -86,7 +86,7 @@ export default function ComprendrePage() {
           </Link>
           <Link
             href="/lite"
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-800"
+            className="text-sm font-medium text-muted transition hover:text-body"
           >
             Lire d&apos;abord la version Lite
           </Link>

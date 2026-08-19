@@ -23,8 +23,8 @@ export default function OfflineRedirect({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center px-6 text-center">
-      <p className="text-sm text-slate-500">{message}</p>
-      <a href={to} className="mt-4 text-sm text-teal-700 underline">
+      <p className="text-sm text-muted">{message}</p>
+      <a href={to} className="mt-4 text-sm text-accent-text underline">
         {to}
       </a>
     </main>

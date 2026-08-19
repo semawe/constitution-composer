@@ -21,23 +21,23 @@ export default function IntroBanner({ locale = "fr" }: { locale?: Locale }) {
     <section
       data-intro
       aria-label={t.ariaLabel}
-      className="relative mb-8 rounded-lg border border-teal-200/60 bg-teal-50/50 p-5 dark:border-teal-800/40 dark:bg-teal-950/20"
+      className="relative mb-8 rounded-lg border border-accent-border/60 bg-accent-faint p-5"
     >
       <button
         onClick={dismiss}
         aria-label={t.ariaClose}
-        className="absolute right-3 top-3 rounded px-1.5 text-sm text-slate-400 transition hover:bg-slate-200 hover:text-slate-700"
+        className="absolute right-3 top-3 rounded px-1.5 text-sm text-muted transition hover:bg-surface-strong hover:text-body"
       >
         ✕
       </button>
-      <h2 className="pr-8 font-serif text-lg font-semibold text-slate-900">
+      <h2 className="pr-8 font-serif text-lg font-semibold text-strong">
         {t.title}
       </h2>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-body">
         {t.body}
       </p>
-      <details className="mt-3 text-sm text-slate-600">
-        <summary className="cursor-pointer font-medium text-slate-700 transition hover:text-slate-900">
+      <details className="mt-3 text-sm text-body">
+        <summary className="cursor-pointer font-medium text-body transition hover:text-strong">
           {t.howTitle}
         </summary>
         <ol className="mt-2 list-decimal space-y-1 pl-5">

@@ -95,6 +95,42 @@
   --rule-strong: var(--color-slate-300);
   --field: #8692a2;
   --field-accent: #677487;
+  --surface: #ffffff;
+  --surface-subtle: var(--color-slate-50);
+  --surface-muted: var(--color-slate-100);
+  --surface-strong: var(--color-slate-200);
+  --text-strong: var(--color-slate-900);
+  --text-body: var(--color-slate-600);
+  --text-muted: var(--color-slate-500);
+  --accent-soft: var(--color-teal-50);
+  --accent-faint: color-mix(in srgb, var(--color-teal-50) 50%, transparent);
+  --accent-gradient: var(--color-teal-50);
+  --accent-text: var(--color-teal-700);
+  --accent-strong: var(--color-teal-900);
+  --accent-border: var(--color-teal-200);
+  --extension-soft: var(--color-violet-50);
+  --extension-faint-surface: color-mix(in srgb, var(--color-violet-50) 50%, transparent);
+  --extension-gradient: var(--color-violet-50);
+  --extension-text: var(--color-violet-700);
+  --extension-strong: var(--color-violet-900);
+  --extension-muted: var(--color-violet-600);
+  --extension-faint: var(--color-violet-400);
+  --extension-border: var(--color-violet-200);
+  --app-soft: var(--color-rose-50);
+  --app-faint: color-mix(in srgb, var(--color-rose-50) 50%, transparent);
+  --app-text: var(--color-rose-700);
+  --app-strong: var(--color-rose-800);
+  --app-border: var(--color-rose-200);
+  --danger-soft: var(--color-rose-50);
+  --danger-text: var(--color-rose-700);
+  --danger-strong: var(--color-rose-900);
+  --danger-muted: var(--color-rose-600);
+  --warning-soft: var(--color-amber-50);
+  --warning-faint: color-mix(in srgb, var(--color-amber-50) 60%, transparent);
+  --warning-text: var(--color-amber-700);
+  --warning-muted: var(--color-amber-600);
+  --warning-strong: var(--color-amber-900);
+  --warning-border: var(--color-amber-300);
 }
 .dark {
   --rule-soft: #1e293b;
@@ -102,6 +138,42 @@
   --rule-strong: #475569;
   --field: #6f7d92;
   --field-accent: #8e9cb1;
+  --surface: #1e293b;
+  --surface-subtle: #1e293b;
+  --surface-muted: #273449;
+  --surface-strong: #334155;
+  --text-strong: #f1f5f9;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-soft: rgb(13 148 136 / 0.18);
+  --accent-faint: rgb(13 148 136 / 0.14);
+  --accent-gradient: rgb(13 148 136 / 0.16);
+  --accent-text: #5eead4;
+  --accent-strong: #99f6e4;
+  --accent-border: rgb(13 148 136 / 0.4);
+  --extension-soft: rgb(124 58 237 / 0.18);
+  --extension-faint-surface: rgb(124 58 237 / 0.14);
+  --extension-gradient: rgb(124 58 237 / 0.16);
+  --extension-text: #c4b5fd;
+  --extension-strong: #ddd6fe;
+  --extension-muted: #a78bfa;
+  --extension-faint: #7c6fcd;
+  --extension-border: rgb(124 58 237 / 0.35);
+  --app-soft: rgb(225 29 72 / 0.18);
+  --app-faint: rgb(225 29 72 / 0.14);
+  --app-text: #fda4af;
+  --app-strong: #fecdd3;
+  --app-border: rgb(225 29 72 / 0.35);
+  --danger-soft: rgb(225 29 72 / 0.18);
+  --danger-text: #fda4af;
+  --danger-strong: #fecdd3;
+  --danger-muted: #fda4af;
+  --warning-soft: rgb(217 119 6 / 0.18);
+  --warning-faint: rgb(217 119 6 / 0.18);
+  --warning-text: #fcd34d;
+  --warning-muted: #fbbf24;
+  --warning-strong: #fde68a;
+  --warning-border: rgb(217 119 6 / 0.45);
 }
 
 :root {
@@ -128,6 +200,42 @@
   --color-rule-strong: var(--rule-strong);
   --color-field: var(--field);
   --color-field-accent: var(--field-accent);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-strong: var(--surface-strong);
+  --color-text-strong: var(--text-strong);
+  --color-text-body: var(--text-body);
+  --color-text-muted: var(--text-muted);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-faint: var(--accent-faint);
+  --color-accent-gradient: var(--accent-gradient);
+  --color-accent-text: var(--accent-text);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-border: var(--accent-border);
+  --color-extension-soft: var(--extension-soft);
+  --color-extension-faint-surface: var(--extension-faint-surface);
+  --color-extension-gradient: var(--extension-gradient);
+  --color-extension-text: var(--extension-text);
+  --color-extension-strong: var(--extension-strong);
+  --color-extension-muted: var(--extension-muted);
+  --color-extension-faint: var(--extension-faint);
+  --color-extension-border: var(--extension-border);
+  --color-app-soft: var(--app-soft);
+  --color-app-faint: var(--app-faint);
+  --color-app-text: var(--app-text);
+  --color-app-strong: var(--app-strong);
+  --color-app-border: var(--app-border);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+  --color-danger-strong: var(--danger-strong);
+  --color-danger-muted: var(--danger-muted);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-faint: var(--warning-faint);
+  --color-warning-text: var(--warning-text);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-strong: var(--warning-strong);
+  --color-warning-border: var(--warning-border);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -311,55 +419,9 @@ html.intro-off [data-intro] {
   background: rgb(255 255 255 / 0.16);
 }
 
-/* ───────────────────────────────────────────────────────────────────
-   Couche de thème sombre. Le code des composants emploie des couleurs
-   neutres en dur (slate/white) ; plutôt que d'ajouter `dark:` partout,
-   on remappe ici les utilitaires récurrents quand <html> porte .dark.
-   Spécificité (.dark .x) = (0,2,0) > utilitaire simple (0,1,0).
-   ─────────────────────────────────────────────────────────────────── */
-
-/* Surfaces */
-.dark .bg-white { background-color: #1e293b; }
-.dark .bg-white\/70 { background-color: rgb(30 41 59 / 0.7); }
-.dark .bg-slate-50 { background-color: #1e293b; }
-.dark .bg-slate-100 { background-color: #273449; }
-.dark .bg-slate-200 { background-color: #334155; }
-.dark .hover\:bg-slate-100:hover { background-color: #273449; }
-.dark .hover\:bg-slate-50:hover { background-color: #1e293b; }
-
-/* Texte */
-.dark .text-slate-900 { color: #f1f5f9; }
-.dark .text-slate-800 { color: #e2e8f0; }
-.dark .text-slate-700 { color: #cbd5e1; }
-.dark .text-slate-600 { color: #cbd5e1; }
-.dark .text-slate-500 { color: #94a3b8; }
-.dark .text-slate-400 { color: #7c8aa0; }
-.dark .text-slate-300 { color: #64748b; }
-
-/* Teintes des modules (insertions / tags) : versions sombres translucides */
-.dark .bg-teal-50 { background-color: rgb(13 148 136 / 0.18); }
-.dark .bg-teal-50\/50 { background-color: rgb(13 148 136 / 0.14); }
-.dark .bg-violet-50 { background-color: rgb(124 58 237 / 0.18); }
-.dark .bg-violet-50\/50 { background-color: rgb(124 58 237 / 0.14); }
-.dark .bg-rose-50 { background-color: rgb(225 29 72 / 0.18); }
-.dark .bg-rose-50\/50 { background-color: rgb(225 29 72 / 0.14); }
-.dark .bg-amber-50 { background-color: rgb(217 119 6 / 0.18); }
-.dark .bg-amber-50\/60 { background-color: rgb(217 119 6 / 0.18); }
-.dark .text-teal-700 { color: #5eead4; }
-.dark .text-violet-900 { color: #ddd6fe; }
-.dark .text-violet-700 { color: #c4b5fd; }
-.dark .text-violet-600 { color: #a78bfa; }
-.dark .text-violet-400 { color: #7c6fcd; }
-.dark .text-rose-700 { color: #fda4af; }
-.dark .text-amber-700 { color: #fcd34d; }
-.dark .text-amber-600 { color: #fbbf24; }
-.dark .text-teal-900 { color: #99f6e4; }
-.dark .border-violet-200 { border-color: rgb(124 58 237 / 0.35); }
-
-/* Carte coach : dégradé clair → teinte sombre */
-.dark .from-teal-50 { --tw-gradient-from: rgb(13 148 136 / 0.16); }
-.dark .to-violet-50 { --tw-gradient-to: rgb(124 58 237 / 0.16); }
-.dark .border-teal-200 { border-color: rgb(13 148 136 / 0.4); }
+/* Les neutres sont exprimés par rôle dans les composants. Les trois niveaux
+   de texte et les quatre surfaces changent de valeur avec le thème sans
+   remapper globalement un utilitaire Tailwind. */
 
 /* Bouton primaire : une seule définition, deux thèmes. Remplace le triplet
    `bg-slate-900 text-white hover:bg-slate-700`, qui ne pouvait pas s'adapter

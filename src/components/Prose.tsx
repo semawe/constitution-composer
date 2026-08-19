@@ -38,7 +38,7 @@ function inline(
         const key = `${keyBase}-${i}`;
         if (seg.emphasis === "bold")
           return (
-            <strong key={key} className="font-semibold text-slate-900">
+            <strong key={key} className="font-semibold text-strong">
               {seg.text}
             </strong>
           );

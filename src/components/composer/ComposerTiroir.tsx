@@ -50,7 +50,7 @@ export function ComposerTiroir({
           <button
             onClick={onClose}
             aria-label={fermer}
-            className="rounded-full px-2 py-1 text-slate-500 hover:bg-slate-100"
+            className="rounded-full px-2 py-1 text-muted hover:bg-surface-muted"
           >
             ✕
           </button>

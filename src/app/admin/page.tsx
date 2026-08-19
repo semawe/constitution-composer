@@ -142,19 +142,19 @@ export default function AdminPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-semibold text-slate-900">
+        <h1 className="font-serif text-2xl font-semibold text-strong">
           Admin : leads &amp; compositions
         </h1>
         <div className="flex items-center gap-4 text-sm">
           <Link
             href="/admin/insertions/"
-            className="text-slate-500 underline transition hover:text-slate-800"
+            className="text-muted underline transition hover:text-body"
           >
             Config des insertions
           </Link>
           <Link
             href="/composer"
-            className="text-slate-500 underline transition hover:text-slate-800"
+            className="text-muted underline transition hover:text-body"
           >
             ← Composeur
           </Link>
@@ -162,19 +162,19 @@ export default function AdminPage() {
       </div>
 
       {state.kind === "loading" && (
-        <p className="text-sm text-slate-500">Chargement…</p>
+        <p className="text-sm text-muted">Chargement…</p>
       )}
 
       {state.kind === "unconfigured" && (
-        <p className="text-sm text-amber-700">
+        <p className="text-sm text-warning-text">
           Supabase n&apos;est pas configuré sur cet environnement : aucune donnée
           à afficher.
         </p>
       )}
 
       {state.kind === "error" && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-6">
-          <p className="text-sm text-amber-900">
+        <div className="rounded-lg border border-warning-border bg-warning-soft p-6">
+          <p className="text-sm text-warning-strong">
             Lecture refusée par la base : <code>{state.message}</code>
           </p>
           <p className="mt-2 text-sm text-amber-800">
@@ -187,8 +187,8 @@ export default function AdminPage() {
       )}
 
       {state.kind === "denied" && (
-        <div className="rounded-lg border border-rule bg-slate-50 p-6">
-          <p className="text-sm text-slate-700">
+        <div className="rounded-lg border border-rule bg-surface-subtle p-6">
+          <p className="text-sm text-body">
             Accès réservé. Connectez-vous depuis le composeur avec un compte
             associé pour consulter cet écran.
           </p>
@@ -198,14 +198,14 @@ export default function AdminPage() {
       {state.kind === "ready" && (
         <>
           <AdminSubmissions />
-          <p className="mb-4 text-sm text-slate-500">
+          <p className="mb-4 text-sm text-muted">
             {state.profiles.length} compte{state.profiles.length > 1 ? "s" : ""}{" "}
             · {state.comps.length} composition
             {state.comps.length > 1 ? "s" : ""} sauvegardée
             {state.comps.length > 1 ? "s" : ""}
           </p>
           {state.profiles.length === 0 ? (
-            <p className="text-sm text-slate-500">Aucun lead pour l&apos;instant.</p>
+            <p className="text-sm text-muted">Aucun lead pour l&apos;instant.</p>
           ) : (
             <div className="space-y-3">
               {state.profiles.map((p) => {
@@ -217,17 +217,17 @@ export default function AdminPage() {
                 return (
                   <div
                     key={p.id}
-                    className="rounded-lg border border-rule bg-white p-4"
+                    className="rounded-lg border border-rule bg-surface p-4"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="font-medium text-slate-900">
+                      <span className="font-medium text-strong">
                         {p.full_name || "(vide)"}
                       </span>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-muted">
                         inscrit le {fmtDate(p.created_at)}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-body">
                       {p.email || "(vide)"}
                       {p.company ? ` · ${p.company}` : ""}
                     </p>
@@ -240,13 +240,13 @@ export default function AdminPage() {
                           return (
                             <li key={c.id} className="text-sm">
                               <div className="flex items-baseline justify-between gap-3">
-                                <span className="font-medium text-slate-700">
+                                <span className="font-medium text-body">
                                   {c.name || c.titre || "Sans titre"}
                                 </span>
-                                <span className="flex shrink-0 items-baseline gap-3 text-xs text-slate-400">
+                                <span className="flex shrink-0 items-baseline gap-3 text-xs text-muted">
                                   <Link
                                     href={`/admin/view/?comp=${c.id}`}
-                                    className="underline transition hover:text-slate-700"
+                                    className="underline transition hover:text-body"
                                   >
                                     Voir
                                   </Link>
@@ -256,7 +256,7 @@ export default function AdminPage() {
                                 </span>
                               </div>
                               {labels.length > 0 && (
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted">
                                   {labels.join(" · ")}
                                 </p>
                               )}
@@ -267,18 +267,18 @@ export default function AdminPage() {
                     )}
                     {dp && (
                       <div className="mt-2 border-t border-rule-soft pt-2 text-sm">
-                        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted">
                           Déclaration de Principes
                         </p>
                         {dp.raisonEtre ? (
-                          <p className="mt-0.5 text-slate-700">
+                          <p className="mt-0.5 text-body">
                             Raison d&apos;être : {dp.raisonEtre}
                           </p>
                         ) : null}
                         {dp.devise ? (
-                          <p className="text-slate-600">Devise : {dp.devise}</p>
+                          <p className="text-body">Devise : {dp.devise}</p>
                         ) : null}
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-muted">
                           {dp.ajoutes?.length ?? 0} principe(s) ajouté(s) ·{" "}
                           {countNames(dp.ratifiers)} ratificateur(s) ·{" "}
                           {countNames(dp.signatories)} signataire(s) ·{" "}

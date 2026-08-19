@@ -591,7 +591,7 @@ export default function Principes({
       {releaseMsg && (
         <div
           role="status"
-          className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+          className="mb-4 rounded-lg border border-warning-border bg-warning-soft p-3 text-sm text-warning-strong"
         >
           <p>{releaseMsg}</p>
           {aFiger && (
@@ -607,7 +607,7 @@ export default function Principes({
       {remote === "error" && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
+          className="mb-4 rounded-lg border border-app-border bg-danger-soft p-3 text-sm text-danger-strong"
         >
           {t.loadFailed}
         </p>
@@ -615,7 +615,7 @@ export default function Principes({
       {saveState === "error" && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
+          className="mb-4 rounded-lg border border-app-border bg-danger-soft p-3 text-sm text-danger-strong"
         >
           {t.saveFailed}
         </p>
@@ -623,7 +623,7 @@ export default function Principes({
       {saveState === "perimee" && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+          className="mb-4 rounded-lg border border-warning-border bg-warning-soft p-3 text-sm text-warning-strong"
         >
           {t.saveStale}
         </p>
@@ -631,7 +631,7 @@ export default function Principes({
       {pdfError && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
+          className="mb-4 rounded-lg border border-app-border bg-danger-soft p-3 text-sm text-danger-strong"
         >
           {t.pdfFailed}
         </p>
@@ -640,7 +640,7 @@ export default function Principes({
         {saveState === "saving" ? t.saving : saveState === "saved" ? t.saved : ""}
       </p>
       {offerAttach && (
-        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="mb-6 rounded-lg border border-warning-border bg-warning-soft p-4 text-sm text-warning-strong">
           <p className="font-medium">
             {t.attachTitle}
           </p>
@@ -672,20 +672,20 @@ export default function Principes({
             className="mb-3 max-h-16 w-auto"
           />
         )}
-        <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+        <p className="text-xs font-medium uppercase tracking-widest text-muted">
           {t.editionKicker}
         </p>
         <h1
-          className="mt-1 font-serif text-3xl font-semibold text-slate-900 sm:text-4xl"
+          className="mt-1 font-serif text-3xl font-semibold text-strong sm:text-4xl"
           style={titleColor ? { color: titleColor } : undefined}
         >
           {data.meta.title}
         </h1>
-        <p className="mt-2 max-w-2xl text-xs leading-relaxed text-slate-500">
+        <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted">
           {UI[locale].derivation}
         </p>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted">
             {t.kept(activeCount)}
           </p>
           <button
@@ -709,12 +709,12 @@ export default function Principes({
         </div>
       </header>
 
-      <article className="doc-prose text-[1.05rem] text-slate-800">
-        <p className="mb-6 italic leading-relaxed text-slate-600">{data.intro}</p>
+      <article className="doc-prose text-[1.05rem] text-body">
+        <p className="mb-6 italic leading-relaxed text-body">{data.intro}</p>
 
-        <div className="mb-8 space-y-3 rounded-md border border-rule bg-white/70 p-4">
+        <div className="mb-8 space-y-3 rounded-md border border-rule bg-surface/70 p-4">
           <div>
-            <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="block text-xs font-medium uppercase tracking-wide text-muted">
               {t.purposeLabel}
             </label>
             <textarea
@@ -726,9 +726,9 @@ export default function Principes({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="block text-xs font-medium uppercase tracking-wide text-muted">
               {t.mottoLabel}{" "}
-              <span className="normal-case text-slate-400">
+              <span className="normal-case text-muted">
                 ({locale === "en" ? "optional" : "facultatif"})
               </span>
             </label>
@@ -741,7 +741,7 @@ export default function Principes({
           </div>
         </div>
 
-        <p className="mb-4 text-xs text-slate-400">
+        <p className="mb-4 text-xs text-muted">
           {t.dragHintPre} <span aria-hidden>⠿</span> {t.dragHint}
           <span className="mt-0.5 block">{t.keyboardHint}</span>
         </p>
@@ -755,12 +755,12 @@ export default function Principes({
             return (
               <div
                 key={id}
-                className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-rule-strong px-3 py-2 text-sm text-slate-400"
+                className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-rule-strong px-3 py-2 text-sm text-muted"
               >
                 <span>{t.removedPrinciple(p.title)}</span>
                 <button
                   onClick={() => restore(id)}
-                  className="shrink-0 underline transition hover:text-slate-600"
+                  className="shrink-0 underline transition hover:text-body"
                 >
                   {t.restore}
                 </button>
@@ -782,7 +782,7 @@ export default function Principes({
           const grip = (
             <span className="mt-1 flex shrink-0 flex-col items-center">
               <span
-                className="cursor-grab select-none text-slate-300 transition hover:text-slate-500"
+                className="cursor-grab select-none text-muted transition hover:text-muted"
                 title={t.dragTitle}
                 aria-hidden
               >
@@ -796,7 +796,7 @@ export default function Principes({
                 disabled={rang <= 0}
                 aria-label={t.moveUp(titreLisible)}
                 title={t.moveUp(titreLisible)}
-                className="rounded px-1 text-[0.65rem] leading-none text-slate-300 transition hover:text-slate-600 disabled:opacity-0"
+                className="rounded px-1 text-[0.65rem] leading-none text-muted transition hover:text-body disabled:opacity-0"
               >
                 ▲
               </button>
@@ -806,7 +806,7 @@ export default function Principes({
                 disabled={rang >= orderedIds.length - 1}
                 aria-label={t.moveDown(titreLisible)}
                 title={t.moveDown(titreLisible)}
-                className="rounded px-1 text-[0.65rem] leading-none text-slate-300 transition hover:text-slate-600 disabled:opacity-0"
+                className="rounded px-1 text-[0.65rem] leading-none text-muted transition hover:text-body disabled:opacity-0"
               >
                 ▼
               </button>
@@ -818,7 +818,7 @@ export default function Principes({
             <section
               key={id}
               {...dragProps}
-              className={`mb-7 flex gap-2 border-l-2 pl-4 transition ${accent} ${
+              className={`group mb-7 flex gap-2 border-l-2 pl-4 transition ${accent} ${
                 dragging ? "opacity-40" : ""
               }`}
             >
@@ -849,7 +849,7 @@ export default function Principes({
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
-                        className="rounded-full border border-field px-4 py-1.5 text-sm text-slate-600 transition hover:border-field-accent"
+                        className="rounded-full border border-field px-4 py-1.5 text-sm text-body transition hover:border-field-accent"
                       >
                         {t.cancel}
                       </button>
@@ -858,14 +858,14 @@ export default function Principes({
                 ) : (
                   <>
                     <div className="flex items-baseline justify-between gap-3">
-                      <h2 className="font-serif text-lg font-semibold text-slate-900">
+                      <h2 className="font-serif text-lg font-semibold text-strong">
                         {num}. {p ? p.title : c!.title}
                       </h2>
-                      <div className="flex shrink-0 gap-3 text-xs text-slate-400">
+                      <div className="flex shrink-0 gap-3 text-xs text-muted transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                         {c && (
                           <button
                             onClick={() => startEdit(c)}
-                            className="underline transition hover:text-slate-700"
+                            className="underline transition hover:text-body"
                           >
                             {t.edit}
                           </button>
@@ -876,7 +876,7 @@ export default function Principes({
                               ? setConfirmId(id)
                               : setCustom((cs) => cs.filter((x) => x.id !== id))
                           }
-                          className="underline transition hover:text-amber-600"
+                          className="underline transition hover:text-warning-muted"
                         >
                           {t.remove}
                         </button>
@@ -895,7 +895,7 @@ export default function Principes({
                   </>
                 )}
                 {p && confirmId === id && (
-                  <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-amber-50/60 py-3 pl-4 pr-3">
+                  <div className="mt-3 rounded-md border-l-4 border-amber-400 bg-warning-faint py-3 pl-4 pr-3">
                     <p className="text-sm text-amber-800">
                       <span className="font-semibold">
                         {t.confirmRemove}
@@ -911,7 +911,7 @@ export default function Principes({
                       </button>
                       <button
                         onClick={() => setConfirmId(null)}
-                        className="rounded-full border border-field px-3 py-1 text-xs text-slate-600 transition hover:border-field-accent"
+                        className="rounded-full border border-field px-3 py-1 text-xs text-body transition hover:border-field-accent"
                       >
                         {t.cancel}
                       </button>
@@ -924,7 +924,7 @@ export default function Principes({
         })}
 
         {adding ? (
-          <div className="mt-4 rounded-md border border-rule bg-white/70 p-4">
+          <div className="mt-4 rounded-md border border-rule bg-surface/70 p-4">
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -952,7 +952,7 @@ export default function Principes({
                   setNewTitle("");
                   setNewText("");
                 }}
-                className="rounded-full border border-field px-4 py-1.5 text-sm text-slate-600 transition hover:border-field-accent"
+                className="rounded-full border border-field px-4 py-1.5 text-sm text-body transition hover:border-field-accent"
               >
                 {t.cancel}
               </button>
@@ -961,20 +961,20 @@ export default function Principes({
         ) : (
           <button
             onClick={() => setAdding(true)}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-field px-3 py-1.5 text-sm text-slate-500 transition hover:border-field-accent hover:text-slate-700"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-field px-3 py-1.5 text-sm text-muted transition hover:border-field-accent hover:text-body"
           >
             <span className="text-base leading-none">+</span> {t.addPrinciple}
           </button>
         )}
 
         <section className="mt-12 border-t border-rule pt-6">
-          <h2 className="font-serif text-xl font-semibold text-slate-900">
+          <h2 className="font-serif text-xl font-semibold text-strong">
             {t.adoption}
           </h2>
           <p className="mt-2 leading-relaxed">{t.adoptionText}</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="block text-xs font-medium uppercase tracking-wide text-muted">
                 {t.ratifiers}
               </label>
               <textarea
@@ -982,11 +982,11 @@ export default function Principes({
                 onChange={(e) => setRatifiers(e.target.value)}
                 rows={4}
                 placeholder={t.namesPlaceholder}
-                className="doc-prose mt-1 w-full resize-y rounded border border-field bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-field-accent"
+                className="doc-prose mt-1 w-full resize-y rounded border border-field bg-surface/70 p-2.5 text-[0.95rem] outline-none transition focus:border-field-accent"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="block text-xs font-medium uppercase tracking-wide text-muted">
                 {t.signatories}
               </label>
               <textarea
@@ -994,16 +994,16 @@ export default function Principes({
                 onChange={(e) => setSignatories(e.target.value)}
                 rows={4}
                 placeholder={t.namesPlaceholder}
-                className="doc-prose mt-1 w-full resize-y rounded border border-field bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-field-accent"
+                className="doc-prose mt-1 w-full resize-y rounded border border-field bg-surface/70 p-2.5 text-[0.95rem] outline-none transition focus:border-field-accent"
               />
             </div>
           </div>
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-muted">
             {t.namesHint}
           </p>
         </section>
 
-        <footer className="mt-12 flex items-start gap-3 border-t border-rule pt-6 text-xs text-slate-400">
+        <footer className="mt-12 flex items-start gap-3 border-t border-rule pt-6 text-xs text-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-semawe-light.png"
@@ -1027,7 +1027,7 @@ export default function Principes({
             <button
               onClick={() => setGate(false)}
               aria-label={c.close}
-              className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+              className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-surface/20 hover:text-white"
             >
               ✕
             </button>
@@ -1048,7 +1048,7 @@ export default function Principes({
             <div className="px-6 py-6">
               <button
                 onClick={signIn}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-field bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-field bg-surface px-4 py-2.5 text-sm font-medium text-body shadow-sm transition hover:bg-surface-subtle"
               >
                 <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
                   <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
@@ -1058,13 +1058,13 @@ export default function Principes({
                 </svg>
                 {c.continueGoogle}
               </button>
-              <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-slate-400">
-                <span className="h-px flex-1 bg-slate-200" />
+              <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-muted">
+                <span className="h-px flex-1 bg-surface-strong" />
                 {c.orByEmail}
-                <span className="h-px flex-1 bg-slate-200" />
+                <span className="h-px flex-1 bg-surface-strong" />
               </div>
               {otpSent ? (
-                <p className="rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
+                <p className="rounded-lg bg-accent-soft px-3 py-2 text-sm text-teal-800">
                   {c.emailSent}
                 </p>
               ) : (

@@ -110,16 +110,16 @@ export default function AdminViewPage() {
   }, []);
 
   if (state.kind === "loading")
-    return <main className="p-10 text-sm text-slate-500">Chargement…</main>;
+    return <main className="p-10 text-sm text-muted">Chargement…</main>;
   if (state.kind === "denied")
     return (
-      <main className="p-10 text-sm text-slate-700">
+      <main className="p-10 text-sm text-body">
         Accès réservé. Connectez-vous avec un compte associé.
       </main>
     );
   if (state.kind === "notfound")
     return (
-      <main className="p-10 text-sm text-slate-700">
+      <main className="p-10 text-sm text-body">
         Composition introuvable.{" "}
         <Link href="/admin/" className="underline">
           ← Admin
@@ -169,26 +169,26 @@ export default function AdminViewPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6" style={branding}>
       <div className="mb-6 flex items-center justify-between text-sm">
-        <Link href="/admin/" className="text-slate-500 underline hover:text-slate-800">
+        <Link href="/admin/" className="text-muted underline hover:text-body">
           ← Admin
         </Link>
-        <span className="text-slate-400">{who}</span>
+        <span className="text-muted">{who}</span>
       </div>
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {logo && <img src={logo} alt="Logo" className="mb-3 max-h-16 w-auto" />}
       <h1
-        className="font-serif text-3xl font-semibold text-slate-900 sm:text-4xl"
+        className="font-serif text-3xl font-semibold text-strong sm:text-4xl"
         style={titleStyle}
       >
         {comp.title || constitution.meta.title}
       </h1>
 
-      <article className="doc-prose mt-6 text-[1.05rem] text-slate-800">
+      <article className="doc-prose mt-6 text-[1.05rem] text-body">
         {items.map((it) => (
           <section key={it.key} className="mb-8">
             {it.heading && (
-              <h2 className="mb-2 font-serif text-2xl font-semibold text-slate-900">
+              <h2 className="mb-2 font-serif text-2xl font-semibold text-strong">
                 {it.heading}
               </h2>
             )}
@@ -200,7 +200,7 @@ export default function AdminViewPage() {
               }
             >
               {it.kind !== "block" && it.moduleLabel && (
-                <p className="mb-1 text-[0.7rem] uppercase tracking-wide text-slate-400">
+                <p className="mb-1 text-[0.7rem] uppercase tracking-wide text-muted">
                   {it.warning ? `Règle par défaut : ${it.moduleLabel}` : it.moduleLabel}
                 </p>
               )}
@@ -211,40 +211,40 @@ export default function AdminViewPage() {
       </article>
 
       {decl && (
-        <article className="doc-prose mt-12 border-t border-rule pt-8 text-[1.05rem] text-slate-800">
+        <article className="doc-prose mt-12 border-t border-rule pt-8 text-[1.05rem] text-body">
           <h1
-            className="font-serif text-3xl font-semibold text-slate-900"
+            className="font-serif text-3xl font-semibold text-strong"
             style={titleStyle}
           >
             {principes.meta.title}
           </h1>
           {decl.devise && (
-            <p className="mt-2 italic text-slate-600">« {decl.devise} »</p>
+            <p className="mt-2 italic text-body">« {decl.devise} »</p>
           )}
           {decl.raisonEtre && (
             <div className="mt-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Raison d&apos;Être
               </p>
               <Prose text={decl.raisonEtre} keyBase="re" />
             </div>
           )}
-          <p className="mt-4 italic text-slate-600">{principes.intro}</p>
+          <p className="mt-4 italic text-body">{principes.intro}</p>
           {declItems.map((it) => (
             <section key={it.n} className="mt-6 border-l-2 border-rule pl-4">
-              <h2 className="font-serif text-lg font-semibold text-slate-900">
+              <h2 className="font-serif text-lg font-semibold text-strong">
                 {it.n}. {it.title}
               </h2>
               {it.text ? <Prose text={it.text} keyBase={`d${it.n}`} /> : null}
             </section>
           ))}
-          <h2 className="mt-8 font-serif text-xl font-semibold text-slate-900">
+          <h2 className="mt-8 font-serif text-xl font-semibold text-strong">
             Adoption
           </h2>
           <p className="mt-2 leading-relaxed">{ADOPTION_TEXT}</p>
           <div className="mt-4 grid gap-6 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Ratificateurs
               </p>
               {names(decl.ratifiers).map((n, i) => (
@@ -254,7 +254,7 @@ export default function AdminViewPage() {
               ))}
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Signataires
               </p>
               {names(decl.signatories).map((n, i) => (

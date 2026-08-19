@@ -38,8 +38,8 @@ export function ComposerIdentite({
   setTitleColor: (v: string) => void;
 }) {
   return (
-    <div className="space-y-3 text-xs text-slate-500">
-      <p className="text-slate-400">{t.identityHint}</p>
+    <div className="space-y-3 text-xs text-muted">
+      <p className="text-muted">{t.identityHint}</p>
 
       <label className="block">
         <span className="block">{t.fontLabel}</span>
@@ -60,7 +60,7 @@ export function ComposerIdentite({
       <div>
         <span className="block">Logo</span>
         <div className="mt-1 flex items-center gap-2">
-          <label className="cursor-pointer underline transition hover:text-slate-700">
+          <label className="cursor-pointer underline transition hover:text-body">
             {logo ? t.logoChange : t.logoAdd}
             <input
               type="file"
@@ -72,7 +72,7 @@ export function ComposerIdentite({
           {logo && (
             <button
               onClick={() => setLogo("")}
-              className="underline transition hover:text-slate-700"
+              className="underline transition hover:text-body"
             >
               {t.logoRemove}
             </button>
@@ -101,7 +101,7 @@ export function ComposerIdentite({
           {titleColor && (
             <button
               onClick={() => setTitleColor("")}
-              className="shrink-0 underline transition hover:text-slate-700"
+              className="shrink-0 underline transition hover:text-body"
             >
               {t.colorReset}
             </button>

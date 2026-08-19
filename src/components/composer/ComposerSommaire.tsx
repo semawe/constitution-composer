@@ -32,7 +32,7 @@ export function ComposerSommaire({
 }) {
   return (
     <nav aria-label={t.toc}>
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
         {t.toc}
       </h2>
       <div className="mt-2 space-y-0.5">
@@ -44,15 +44,15 @@ export function ComposerSommaire({
               onClick={() => goTo(b.id)}
               className={`block w-full border-l-2 py-1 pl-3 text-left leading-snug transition ${
                 on
-                  ? "border-teal-500 bg-teal-50/50"
-                  : "border-rule hover:border-rule-strong hover:bg-slate-50/50"
+                  ? "border-teal-500 bg-accent-faint"
+                  : "border-rule hover:border-rule-strong hover:bg-surface-subtle/50"
               }`}
             >
               <span
                 className={`block text-[0.82rem] ${
                   on
                     ? "font-medium text-teal-800"
-                    : "text-slate-500 hover:text-slate-700"
+                    : "text-muted hover:text-body"
                 }`}
               >
                 {b.heading}

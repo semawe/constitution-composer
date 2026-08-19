@@ -13,16 +13,16 @@ export default function LegalNoticePage() {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SiteNav locale="en" />
       <main className="flex-1 mx-auto max-w-3xl px-4 pb-24 pt-16">
-        <h1 className="font-serif text-4xl font-medium leading-tight text-slate-900">
+        <h1 className="font-serif text-4xl font-medium leading-tight text-strong">
           Legal notice
         </h1>
 
         <section className="mt-12">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
             Publisher
           </h2>
-          <div className="mt-4 space-y-1 text-sm leading-relaxed text-slate-600">
-            <p className="font-medium text-slate-800">Sémawé</p>
+          <div className="mt-4 space-y-1 text-sm leading-relaxed text-body">
+            <p className="font-medium text-body">Sémawé</p>
             <p>
               Worker cooperative (SAS SCOP) with variable capital, registered in
               France
@@ -36,7 +36,7 @@ export default function LegalNoticePage() {
               Contact:{" "}
               <a
                 href="mailto:contact@semawe.fr"
-                className="text-teal-700 underline transition hover:text-teal-800"
+                className="text-accent-text underline transition hover:text-teal-800"
               >
                 contact@semawe.fr
               </a>{" "}
@@ -46,24 +46,24 @@ export default function LegalNoticePage() {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
             Publication director
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-slate-600">
+          <p className="mt-4 text-sm leading-relaxed text-body">
             Juliette Brunerie
           </p>
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
             Design and maintenance
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-slate-600">
+          <p className="mt-4 text-sm leading-relaxed text-body">
             <a
               href={HETEROSTASIA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-teal-700 underline transition hover:text-teal-800"
+              className="text-accent-text underline transition hover:text-teal-800"
             >
               Heterostasia
             </a>
@@ -73,18 +73,18 @@ export default function LegalNoticePage() {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
             Hosting
           </h2>
-          <div className="mt-4 space-y-1 text-sm leading-relaxed text-slate-600">
-            <p className="font-medium text-slate-800">OVH SAS</p>
+          <div className="mt-4 space-y-1 text-sm leading-relaxed text-body">
+            <p className="font-medium text-body">OVH SAS</p>
             <p>2 rue Kellermann, 59100 Roubaix, France</p>
             <p>
               <a
                 href="https://www.ovhcloud.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-teal-700 underline transition hover:text-teal-800"
+                className="text-accent-text underline transition hover:text-teal-800"
               >
                 ovhcloud.com
               </a>
@@ -93,16 +93,16 @@ export default function LegalNoticePage() {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
             Intellectual property and licence
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-slate-600">
+          <p className="mt-4 text-sm leading-relaxed text-body">
             The Composer source code is released under the{" "}
             <a
               href="https://www.gnu.org/licenses/agpl-3.0.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-teal-700 underline transition hover:text-teal-800"
+              className="text-accent-text underline transition hover:text-teal-800"
             >
               AGPL-3.0
             </a>{" "}
@@ -121,10 +121,10 @@ export default function LegalNoticePage() {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
             Personal data
           </h2>
-          <div className="mt-4 space-y-4 text-sm leading-relaxed text-slate-600">
+          <div className="mt-4 space-y-4 text-sm leading-relaxed text-body">
             <p>
               Creating an account collects an email address and, where
               provided, a name and an organisation. This data is used solely to
@@ -141,7 +141,7 @@ export default function LegalNoticePage() {
               to access, rectify, port and erase your data by writing to{" "}
               <a
                 href="mailto:contact@semawe.fr"
-                className="text-teal-700 underline transition hover:text-teal-800"
+                className="text-accent-text underline transition hover:text-teal-800"
               >
                 contact@semawe.fr
               </a>

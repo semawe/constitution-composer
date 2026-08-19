@@ -277,7 +277,7 @@ export default function Composer({
       <div className="sticky top-11 z-20 flex items-center justify-between border-b border-rule bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <button
           onClick={() => setMobileOpen(true)}
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-700"
+          className="inline-flex items-center gap-2 text-sm font-medium text-body"
         >
           <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden>
             <path
@@ -289,7 +289,7 @@ export default function Composer({
           </svg>
           {t.mobilePanel}
         </button>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-muted">
           {active.size > 0 ? t.mobileActive(active.size) : t.mobileCore}
         </span>
       </div>

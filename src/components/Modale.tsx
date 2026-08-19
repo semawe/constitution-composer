@@ -28,7 +28,7 @@ export function Modale({
   labelledBy,
   label,
   children,
-  className = "relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl",
+  className = "relative w-full max-w-md overflow-hidden rounded-2xl bg-surface shadow-2xl",
 }: {
   /** Fermeture demandée : Échap, clic sur le fond, ou bouton de l'appelant. */
   onClose: () => void;

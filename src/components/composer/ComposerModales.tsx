@@ -63,7 +63,7 @@ export function ComposerModales({
               <button
                 onClick={() => setGate(null)}
                 aria-label={t.close}
-                className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+                className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-surface/20 hover:text-white"
               >
                 ✕
               </button>
@@ -94,18 +94,18 @@ export function ComposerModales({
                 </p>
               </div>
               <div className="px-6 py-6">
-                <div className="mb-5 flex items-start gap-3 rounded-xl border border-teal-200 bg-teal-50 p-3">
+                <div className="mb-5 flex items-start gap-3 rounded-xl border border-accent-border bg-accent-soft p-3">
                   <span className="text-xl leading-none">🎁</span>
-                  <p className="text-sm text-teal-900">
+                  <p className="text-sm text-accent-strong">
                     <strong>{t.coachOffer}</strong> {t.coachOfferDetail}
-                    <span className="mt-0.5 block text-xs text-teal-700">
+                    <span className="mt-0.5 block text-xs text-accent-text">
                       {t.coachOfferSub}
                     </span>
                   </p>
                 </div>
                 <button
                   onClick={signInGoogle}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-field bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-field bg-surface px-4 py-2.5 text-sm font-medium text-body shadow-sm transition hover:bg-surface-subtle"
                 >
                   <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
                     <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
@@ -115,13 +115,13 @@ export function ComposerModales({
                   </svg>
                   {t.continueGoogle}
                 </button>
-                <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-slate-400">
-                  <span className="h-px flex-1 bg-slate-200" />
+                <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-muted">
+                  <span className="h-px flex-1 bg-surface-strong" />
                   {t.orByEmail}
-                  <span className="h-px flex-1 bg-slate-200" />
+                  <span className="h-px flex-1 bg-surface-strong" />
                 </div>
                 {otpSent ? (
-                  <p className="rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-800">
+                  <p className="rounded-lg bg-accent-soft px-3 py-2 text-sm text-teal-800">
                     {t.emailSent}
                   </p>
                 ) : (
@@ -142,7 +142,7 @@ export function ComposerModales({
                     </button>
                   </div>
                 )}
-                <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
+                <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-muted">
                   {t.accountNotice}
                 </p>
               </div>
@@ -154,11 +154,11 @@ export function ComposerModales({
         <Modale
           onClose={() => setNeedsCompany(false)}
           labelledBy="titre-entreprise"
-          className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
+          className="relative w-full max-w-md overflow-hidden rounded-2xl bg-surface p-6 shadow-2xl"
         >
             <h2
               id="titre-entreprise"
-              className="font-serif text-xl font-semibold text-slate-900"
+              className="font-serif text-xl font-semibold text-strong"
             >
               {t.welcome}
               {user?.user_metadata?.given_name
@@ -166,10 +166,10 @@ export function ComposerModales({
                 : ""}{" "}
               !
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted">
               {t.lastStep}
             </p>
-            <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-muted">
               {t.orgName}
             </label>
             <input
@@ -180,7 +180,7 @@ export function ComposerModales({
               onKeyDown={(e) => {
                 if (e.key === "Enter") submitCompany();
               }}
-              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-field-accent"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-body outline-none transition focus:border-field-accent"
             />
             <button
               onClick={submitCompany}
@@ -191,7 +191,7 @@ export function ComposerModales({
             </button>
             <button
               onClick={() => setNeedsCompany(false)}
-              className="mt-2 w-full rounded-lg px-4 py-2 text-xs text-slate-400 transition hover:text-slate-600"
+              className="mt-2 w-full rounded-lg px-4 py-2 text-xs text-muted transition hover:text-body"
             >
               {t.later}
             </button>
@@ -204,7 +204,7 @@ export function ComposerModales({
             <button
               onClick={() => setBooking(false)}
               aria-label={t.close}
-              className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+              className="absolute right-3 top-3 rounded-full p-1.5 text-white/80 transition hover:bg-surface/20 hover:text-white"
             >
               ✕
             </button>
@@ -228,14 +228,14 @@ export function ComposerModales({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setBooking(false)}
-                    className="flex items-center justify-between rounded-lg border border-field px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-field-accent hover:bg-slate-50"
+                    className="flex items-center justify-between rounded-lg border border-field px-4 py-3 text-sm font-medium text-body transition hover:border-field-accent hover:bg-surface-subtle"
                   >
                     <span>{t.bookWith(c.name)}</span>
                     <span aria-hidden>→</span>
                   </a>
                 ))}
               </div>
-              <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-slate-400">
+              <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-muted">
                 {t.coachingPricing}
               </p>
             </div>

@@ -39,7 +39,7 @@ export default function ThemeToggle() {
       onClick={toggle}
       aria-label={dark ? "Passer en clair" : "Passer en sombre"}
       title={dark ? "Passer en clair" : "Passer en sombre"}
-      className="rounded-full p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+      className="rounded-full p-1.5 text-muted transition hover:bg-surface-muted hover:text-body"
     >
       {dark ? (
         <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden>

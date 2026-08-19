@@ -633,8 +633,20 @@ export const PRINCIPES_UI = {
 
 // Glossaire tab
 export const GLOSSAIRE_UI = {
-  fr: { definedTerms: "Termes définis" },
-  en: { definedTerms: "Defined terms" },
+  fr: {
+    definedTerms: "Termes définis",
+    search: "Rechercher un terme",
+    searchPlaceholder: "Nom ou définition…",
+    noResult: "Aucun terme ne correspond à cette recherche.",
+    back: "Revenir au passage d’origine",
+  },
+  en: {
+    definedTerms: "Defined terms",
+    search: "Search terms",
+    searchPlaceholder: "Name or definition…",
+    noResult: "No term matches this search.",
+    back: "Return to the original passage",
+  },
 };
 
 // IntroBanner

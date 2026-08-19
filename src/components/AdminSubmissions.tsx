@@ -14,9 +14,9 @@ const STATUS_LABEL: Record<SubmissionStatus, string> = {
   rejected: "Refusée",
 };
 const STATUS_CLS: Record<SubmissionStatus, string> = {
-  pending: "bg-amber-50 text-amber-700 ring-amber-200",
+  pending: "bg-warning-soft text-warning-text ring-warning-border",
   approved: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  rejected: "bg-slate-100 text-slate-500 ring-slate-200",
+  rejected: "bg-surface-muted text-muted ring-rule",
 };
 
 function fmtDate(s: string) {
@@ -61,10 +61,10 @@ export default function AdminSubmissions() {
 
   return (
     <section className="mb-8">
-      <h2 className="mb-1 font-serif text-lg font-semibold text-slate-900">
+      <h2 className="mb-1 font-serif text-lg font-semibold text-strong">
         Propositions d&apos;apps
       </h2>
-      <p className="mb-3 text-sm text-slate-500">
+      <p className="mb-3 text-sm text-muted">
         {rows.length} soumission{rows.length > 1 ? "s" : ""} · {pending} en
         attente
       </p>
@@ -72,12 +72,12 @@ export default function AdminSubmissions() {
         {rows.map((s) => (
           <div
             key={s.id}
-            className="rounded-lg border border-rule bg-white p-4"
+            className="rounded-lg border border-rule bg-surface p-4"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <span className="font-medium text-slate-900">
+              <span className="font-medium text-strong">
                 {s.name}{" "}
-                <span className="text-xs font-normal text-slate-400">
+                <span className="text-xs font-normal text-muted">
                   ({s.kind === "extension" ? "extension" : "app"})
                 </span>
               </span>
@@ -87,23 +87,23 @@ export default function AdminSubmissions() {
                 {STATUS_LABEL[s.status]}
               </span>
             </div>
-            <p className="mt-1 text-sm text-slate-600">{s.description}</p>
+            <p className="mt-1 text-sm text-body">{s.description}</p>
             {s.integration_point && (
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-muted">
                 Intégration : {s.integration_point}
               </p>
             )}
             {s.rationale && (
-              <p className="mt-1 text-xs italic text-slate-500">
+              <p className="mt-1 text-xs italic text-muted">
                 {s.rationale}
               </p>
             )}
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-muted">
               soumise le {fmtDate(s.created_at)}
               {s.reviewed_at ? ` · traitée le ${fmtDate(s.reviewed_at)}` : ""}
             </p>
             {s.admin_note && (
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-muted">
                 Note : {s.admin_note}
               </p>
             )}
@@ -115,7 +115,7 @@ export default function AdminSubmissions() {
                     setNotes((n) => ({ ...n, [s.id]: e.target.value }))
                   }
                   placeholder="Note (optionnelle)"
-                  className="flex-1 rounded-lg border border-field px-3 py-1.5 text-sm outline-none placeholder:text-slate-400 focus:border-field-accent"
+                  className="flex-1 rounded-lg border border-field px-3 py-1.5 text-sm outline-none placeholder:text-muted focus:border-field-accent"
                 />
                 <button
                   onClick={() => review(s.id, "approved")}
@@ -127,7 +127,7 @@ export default function AdminSubmissions() {
                 <button
                   onClick={() => review(s.id, "rejected")}
                   disabled={busy === s.id}
-                  className="rounded-full border border-field px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-field-accent disabled:opacity-40"
+                  className="rounded-full border border-field px-4 py-1.5 text-sm font-medium text-body transition hover:border-field-accent disabled:opacity-40"
                 >
                   Refuser
                 </button>

@@ -125,10 +125,10 @@ export default function InsertionsConfigPage() {
   };
 
   if (admin === null)
-    return <main className="p-10 text-sm text-slate-500">Chargement…</main>;
+    return <main className="p-10 text-sm text-muted">Chargement…</main>;
   if (!admin)
     return (
-      <main className="p-10 text-sm text-slate-700">
+      <main className="p-10 text-sm text-body">
         Accès réservé.{" "}
         <Link href="/admin/" className="underline">
           ← Admin
@@ -139,17 +139,17 @@ export default function InsertionsConfigPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-semibold text-slate-900">
+        <h1 className="font-serif text-2xl font-semibold text-strong">
           Config des insertions
         </h1>
         <Link
           href="/admin/"
-          className="text-sm text-slate-500 underline hover:text-slate-800"
+          className="text-sm text-muted underline hover:text-body"
         >
           ← Admin
         </Link>
       </div>
-      <p className="mb-6 text-sm text-slate-500">
+      <p className="mb-6 text-sm text-muted">
         Positionne chaque insertion (où le texte d&apos;un module vient
         s&apos;insérer dans la Constitution), puis copie la spécification et
         transmets-la-moi : je la reporte dans le code.
@@ -162,21 +162,21 @@ export default function InsertionsConfigPage() {
           return (
             <div
               key={r.key}
-              className="rounded-lg border border-rule bg-white p-4"
+              className="rounded-lg border border-rule bg-surface p-4"
             >
               <div className="flex items-baseline justify-between gap-3">
-                <span className="font-medium text-slate-900">{r.label}</span>
-                <span className="text-xs uppercase tracking-wide text-slate-400">
+                <span className="font-medium text-strong">{r.label}</span>
+                <span className="text-xs uppercase tracking-wide text-muted">
                   {r.tier}
                   {r.insIndex > 0 ? ` · insertion ${r.insIndex + 1}` : ""}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-muted">
                 « {preview(r.insText, 90)} »
               </p>
               <div className="mt-3 flex flex-wrap gap-3 text-sm">
                 <label className="flex items-center gap-1.5">
-                  <span className="text-xs text-slate-400">Bloc</span>
+                  <span className="text-xs text-muted">Bloc</span>
                   <select
                     value={c.anchor}
                     onChange={(e) => update(r.key, { anchor: e.target.value })}
@@ -190,7 +190,7 @@ export default function InsertionsConfigPage() {
                   </select>
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <span className="text-xs text-slate-400">Position</span>
+                  <span className="text-xs text-muted">Position</span>
                   <select
                     value={c.pos}
                     onChange={(e) => update(r.key, { pos: e.target.value })}

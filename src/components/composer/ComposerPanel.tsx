@@ -133,12 +133,12 @@ export function ComposerPanel({
           l'atelier a une seule grammaire de repli. */}
       <details className="group/id">
         <summary className="flex cursor-pointer list-none items-center gap-2 rounded py-0.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted">
             {t.identity}
           </span>
           <svg
             viewBox="0 0 16 16"
-            className="ml-auto h-3 w-3 shrink-0 text-slate-400 transition group-open/id:rotate-90"
+            className="ml-auto h-3 w-3 shrink-0 text-muted transition group-open/id:rotate-90"
             fill="none"
             aria-hidden
           >
@@ -165,12 +165,12 @@ export function ComposerPanel({
         </div>
       </details>
 
-      <h2 className="mt-7 text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <h2 className="mt-7 text-sm font-semibold uppercase tracking-wide text-muted">
         {t.composerLabel}
       </h2>
-      <p className="mt-1 text-sm text-slate-500">{countLabel}</p>
+      <p className="mt-1 text-sm text-muted">{countLabel}</p>
       {gaps.length > 0 && (
-        <p className="mt-1 flex items-start gap-1.5 text-xs text-amber-600">
+        <p className="mt-1 flex items-start gap-1.5 text-xs text-warning-muted">
           <span className="mt-px">⚠</span>
           <span>{t.gapWarning(gaps.length)}</span>
         </p>
@@ -189,20 +189,20 @@ export function ComposerPanel({
             }
             setActive(normalizeActive(data, data.modules.map((m) => m.id)));
           }}
-          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-slate-600 transition hover:border-field-accent hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-body transition hover:border-field-accent hover:text-strong"
         >
           {t.activateAll}
         </button>
         <button
           onClick={() => setActive(defaultActive(data))}
-          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-slate-600 transition hover:border-field-accent hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-body transition hover:border-field-accent hover:text-strong"
           title={t.baseLiteTitle}
         >
           {t.baseLite}
         </button>
         <button
           onClick={() => setActive(new Set())}
-          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-slate-600 transition hover:border-field-accent hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-body transition hover:border-field-accent hover:text-strong"
           title={t.coreOnlyTitle}
         >
           {t.coreOnly}
@@ -211,10 +211,10 @@ export function ComposerPanel({
 
       <div className="mt-6 border-t border-rule pt-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
             {t.myVersions}
           </h2>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-muted">
             {versions.liste.length}/{MAX_COMPOSITIONS}
           </span>
         </div>
@@ -230,7 +230,7 @@ export function ComposerPanel({
         {releaseMsg && (
           <div
             role="status"
-            className="mt-1.5 rounded-md border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs text-amber-900"
+            className="mt-1.5 rounded-md border border-warning-border bg-warning-soft px-2.5 py-2 text-xs text-warning-strong"
           >
             <p>{releaseMsg}</p>
             {aFiger && (
@@ -252,20 +252,20 @@ export function ComposerPanel({
           </div>
         )}
         {versionsUnread && (
-          <p role="alert" className="mt-1.5 text-xs text-rose-700">
+          <p role="alert" className="mt-1.5 text-xs text-danger-text">
             {t.versionsFailed}
           </p>
         )}
         {pdfError && (
-          <p role="alert" className="mt-1.5 text-xs text-rose-700">
+          <p role="alert" className="mt-1.5 text-xs text-danger-text">
             {t.pdfFailed}
           </p>
         )}
         {versionMsg && (
-          <p className="mt-1.5 text-xs text-slate-500">{versionMsg}</p>
+          <p className="mt-1.5 text-xs text-muted">{versionMsg}</p>
         )}
         {!account && (
-          <p className="mt-1.5 text-xs text-slate-400">
+          <p className="mt-1.5 text-xs text-muted">
             {t.loginToSave}
           </p>
         )}
@@ -274,17 +274,17 @@ export function ComposerPanel({
             {versions.liste.map((v) => (
               <li
                 key={v.id}
-                className="group flex items-center gap-1 rounded-md px-1.5 py-1 text-sm hover:bg-slate-100"
+                className="group flex items-center gap-1 rounded-md px-1.5 py-1 text-sm hover:bg-surface-muted"
               >
                 <button
                   onClick={() => handleLoadVersion(v)}
                   title={t.loadTitle}
                   className="min-w-0 flex-1 truncate text-left"
                 >
-                  <span className="block truncate text-slate-700">
+                  <span className="block truncate text-body">
                     {v.name || t.untitled}
                   </span>
-                  <span className="block text-[0.7rem] text-slate-400">
+                  <span className="block text-[0.7rem] text-muted">
                     {new Date(v.updated_at).toLocaleDateString(t.dateLocale, {
                       day: "2-digit",
                       month: "2-digit",
@@ -296,7 +296,7 @@ export function ComposerPanel({
                   onClick={() => handleRenameVersion(v)}
                   aria-label={t.rename}
                   title={t.rename}
-                  className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-slate-700 group-hover:opacity-100"
+                  className="shrink-0 rounded p-1 text-muted opacity-0 transition hover:text-body group-hover:opacity-100"
                 >
                   ✎
                 </button>
@@ -304,7 +304,7 @@ export function ComposerPanel({
                   onClick={() => handleDeleteVersion(v)}
                   aria-label={t.delete}
                   title={t.delete}
-                  className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-rose-600 group-hover:opacity-100"
+                  className="shrink-0 rounded p-1 text-muted opacity-0 transition hover:text-rose-600 group-hover:opacity-100"
                 >
                   ✕
                 </button>
@@ -343,15 +343,15 @@ export function ComposerPanel({
           >
             <summary className="flex cursor-pointer list-none items-center gap-2 rounded py-0.5">
               <span className={`h-2 w-2 shrink-0 rounded-full ${TIER_UI[tier].dot}`} />
-              <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted">
                 {tierLabel[tier]}
               </span>
-              <span className="ml-auto text-[0.7rem] tabular-nums text-slate-400">
+              <span className="ml-auto text-[0.7rem] tabular-nums text-muted">
                 {actifs}/{mods.length}
               </span>
               <svg
                 viewBox="0 0 16 16"
-                className="h-3 w-3 shrink-0 text-slate-400 transition group-open/tier:rotate-90"
+                className="h-3 w-3 shrink-0 text-muted transition group-open/tier:rotate-90"
                 fill="none"
                 aria-hidden
               >

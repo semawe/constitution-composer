@@ -8,9 +8,9 @@ import { ORGS } from "@/data/orgs-carto";
 const GOUVERNANCE_COLORS: Record<string, string> = {
   "Holacracy 5.0": "bg-blue-100 text-blue-700",
   "Holacracy 4.1": "bg-red-100 text-red-700",
-  "Gouvernance partagée": "bg-slate-100 text-slate-600",
+  "Gouvernance partagée": "bg-surface-muted text-body",
   "Sociocratie": "bg-yellow-100 text-yellow-700",
-  "Opale": "bg-amber-100 text-amber-700",
+  "Opale": "bg-amber-100 text-warning-text",
   "Entreprise libérée": "bg-green-100 text-green-700",
 };
 
@@ -42,13 +42,13 @@ export default function CartoClientEN() {
       <SiteNav />
       <main className="mx-auto max-w-5xl px-4 pb-24 pt-16">
         <div className="max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-muted">
             Sémawé Resource
           </p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-slate-900">
+          <h1 className="mt-2 font-serif text-4xl font-semibold text-strong">
             Organization Directory
           </h1>
-          <p className="mt-4 text-lg leading-relaxed text-slate-600">
+          <p className="mt-4 text-lg leading-relaxed text-body">
             {ORGS.length}{" "}organizations practicing Holacracy, shared
             governance, or related modes, compiled by Sémawé.
           </p>
@@ -60,12 +60,12 @@ export default function CartoClientEN() {
             placeholder="Search an organization..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-field bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-field-accent focus:outline-none sm:w-72"
+            className="w-full rounded-lg border border-field bg-surface px-4 py-2.5 text-sm text-strong placeholder-slate-400 shadow-sm focus:border-field-accent focus:outline-none sm:w-72"
           />
           <select
             value={filtreGouv ?? ""}
             onChange={(e) => setFiltreGouv(e.target.value || null)}
-            className="rounded-lg border border-field bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-field-accent focus:outline-none"
+            className="rounded-lg border border-field bg-surface px-3 py-2.5 text-sm text-body shadow-sm focus:border-field-accent focus:outline-none"
           >
             <option value="">All governance types</option>
             {ALL_GOUVERNANCES.map((g) => (
@@ -75,7 +75,7 @@ export default function CartoClientEN() {
           <select
             value={filtrePays ?? ""}
             onChange={(e) => setFiltrePays(e.target.value || null)}
-            className="rounded-lg border border-field bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-field-accent focus:outline-none"
+            className="rounded-lg border border-field bg-surface px-3 py-2.5 text-sm text-body shadow-sm focus:border-field-accent focus:outline-none"
           >
             <option value="">All countries</option>
             {ALL_PAYS.map((p) => (
@@ -84,7 +84,7 @@ export default function CartoClientEN() {
           </select>
         </div>
 
-        <p className="mt-4 text-sm text-slate-400">
+        <p className="mt-4 text-sm text-muted">
           {filtered.length === ORGS.length
             ? `${ORGS.length} organizations`
             : `${filtered.length} of ${ORGS.length}`}
@@ -94,7 +94,7 @@ export default function CartoClientEN() {
           {filtered.map((org) => (
             <div
               key={org.nom}
-              className="flex flex-col rounded-xl border border-rule bg-white p-4 shadow-sm transition hover:border-rule-strong"
+              className="flex flex-col rounded-xl border border-rule bg-surface p-4 shadow-sm transition hover:border-rule-strong"
             >
               <div className="flex-1">
                 {org.site ? (
@@ -102,20 +102,20 @@ export default function CartoClientEN() {
                     href={org.site}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-slate-900 hover:text-teal-700 hover:underline"
+                    className="font-medium text-strong hover:text-accent-text hover:underline"
                   >
                     {org.nom}
                   </a>
                 ) : (
-                  <span className="font-medium text-slate-900">{org.nom}</span>
+                  <span className="font-medium text-strong">{org.nom}</span>
                 )}
                 {(org.ville || org.pays) && (
-                  <p className="mt-0.5 text-xs text-slate-400">
+                  <p className="mt-0.5 text-xs text-muted">
                     {[org.ville, org.pays].filter(Boolean).join(", ")}
                   </p>
                 )}
                 {org.effectif && (
-                  <p className="mt-0.5 text-xs text-slate-400">
+                  <p className="mt-0.5 text-xs text-muted">
                     {org.effectif} people
                   </p>
                 )}
@@ -124,7 +124,7 @@ export default function CartoClientEN() {
                 {org.gouvernance.map((g) => (
                   <span
                     key={g}
-                    className={`rounded-full px-2 py-0.5 text-[0.67rem] font-medium ${GOUVERNANCE_COLORS[g] ?? "bg-slate-100 text-slate-600"}`}
+                    className={`rounded-full px-2 py-0.5 text-[0.67rem] font-medium ${GOUVERNANCE_COLORS[g] ?? "bg-surface-muted text-body"}`}
                   >
                     {g}
                   </span>
@@ -135,14 +135,14 @@ export default function CartoClientEN() {
         </div>
 
         {filtered.length === 0 && (
-          <p className="mt-12 text-center text-sm text-slate-400">
+          <p className="mt-12 text-center text-sm text-muted">
             No organizations match these criteria.
           </p>
         )}
 
-        <section className="mt-12 rounded-xl border border-rule bg-slate-50 p-6">
-          <h2 className="font-medium text-slate-800">Contribute to the directory</h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+        <section className="mt-12 rounded-xl border border-rule bg-surface-subtle p-6">
+          <h2 className="font-medium text-body">Contribute to the directory</h2>
+          <p className="mt-2 text-sm leading-relaxed text-body">
             Do you know an organization experimenting with these practices?
             Is your organization&apos;s data out of date?
           </p>
@@ -157,7 +157,7 @@ export default function CartoClientEN() {
         <div className="mt-10">
           <Link
             href="/en/composer"
-            className="text-sm font-medium text-slate-500 hover:text-slate-800"
+            className="text-sm font-medium text-muted hover:text-body"
           >
             ← Back to Composer
           </Link>
