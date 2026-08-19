@@ -96,7 +96,7 @@ export function linkifyTerms(
         onClick={() => onTermClick(t.key)}
         title={t.definition}
         aria-label={`${m[0]} : ${t.definition}`}
-        className="cursor-help border-b border-dotted border-slate-400/70 text-left transition hover:border-slate-600"
+        className="cursor-help border-b border-dotted border-slate-400/70 text-left transition hover:border-field-accent"
       >
         {m[0]}
       </button>,

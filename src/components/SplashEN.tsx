@@ -50,7 +50,7 @@ export default function SplashEN() {
           aria-hidden
           className="pointer-events-none absolute -right-10 bottom-0 hidden w-80 rotate-[-3deg] opacity-[0.13] sm:block"
         >
-          <div className="rounded-xl border border-field-strong bg-white p-4">
+          <div className="rounded-xl border border-rule-strong bg-white p-4">
             <div className="mb-3 h-2.5 w-3/5 rounded bg-slate-300" />
             {[true, true, false, true].map((on, i) => (
               <div key={i} className="mb-2.5 flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function SplashEN() {
         </div>
 
         <div className="relative mx-auto max-w-5xl px-4 pb-20 pt-16 sm:pt-24">
-          <span className="cc-rise inline-block rounded-md border border-field-strong bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+          <span className="cc-rise inline-block rounded-md border border-rule-strong bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
             {T.unofficial}
           </span>
           <h1
@@ -90,7 +90,7 @@ export default function SplashEN() {
             </Link>
             <Link
               href="/en/lite"
-              className="rounded-lg border border-field-strong px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              className="rounded-lg border border-field px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
               Read the Lite version
             </Link>

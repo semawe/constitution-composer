@@ -180,7 +180,7 @@ export default function InsertionsConfigPage() {
                   <select
                     value={c.anchor}
                     onChange={(e) => update(r.key, { anchor: e.target.value })}
-                    className="rounded border border-field-strong px-2 py-1 text-sm"
+                    className="rounded border border-field px-2 py-1 text-sm"
                   >
                     {data.blocks.map((b) => (
                       <option key={b.id} value={b.id}>
@@ -194,7 +194,7 @@ export default function InsertionsConfigPage() {
                   <select
                     value={c.pos}
                     onChange={(e) => update(r.key, { pos: e.target.value })}
-                    className="max-w-xs rounded border border-field-strong px-2 py-1 text-sm"
+                    className="max-w-xs rounded border border-field px-2 py-1 text-sm"
                   >
                     <option value="start">Tout début du bloc</option>
                     {paras.map((p, i) => (

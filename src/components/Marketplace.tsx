@@ -74,7 +74,7 @@ export default function Marketplace({
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href={`/apps/${m.id}`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-field px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+            className="inline-flex items-center gap-1.5 rounded-full border border-field px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-field-accent hover:text-slate-900"
           >
             {t.discover}
           </Link>
@@ -137,7 +137,7 @@ export default function Marketplace({
         <section className="mt-10 border-t border-rule pt-8">
           <a
             href={proposeMailto}
-            className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-field-strong p-5 text-center transition hover:border-teal-400 hover:bg-teal-50/40"
+            className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-field p-5 text-center transition hover:border-teal-400 hover:bg-teal-50/40"
           >
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-3xl font-light leading-none text-slate-500 transition group-hover:bg-teal-600 group-hover:text-white">
               +

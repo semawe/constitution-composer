@@ -186,7 +186,7 @@ export function ComposerDocument({
                     className="doc-measure group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
                   >
                     <span className="h-px flex-1 bg-slate-200" />
-                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-field-strong px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-field px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
                       <span className="text-sm leading-none">+</span> {m.label}
                     </span>
                     <span className="h-px flex-1 bg-slate-200" />

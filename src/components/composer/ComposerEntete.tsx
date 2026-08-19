@@ -79,7 +79,7 @@ export function ComposerEntete({
               placeholder={data.meta.title}
               spellCheck={false}
               style={titleColor ? { color: titleColor } : undefined}
-              className="doc-titre mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-field focus:border-slate-400"
+              className="doc-titre mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-field focus:border-field-accent"
             />
             {/* Sous-titre du document : de quoi ce texte est dérivé, et ce qu'il
                 n'est pas. Il suit le titre même quand l'utilisateur renomme sa

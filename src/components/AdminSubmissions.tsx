@@ -115,7 +115,7 @@ export default function AdminSubmissions() {
                     setNotes((n) => ({ ...n, [s.id]: e.target.value }))
                   }
                   placeholder="Note (optionnelle)"
-                  className="flex-1 rounded-lg border border-field-strong px-3 py-1.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500"
+                  className="flex-1 rounded-lg border border-field px-3 py-1.5 text-sm outline-none placeholder:text-slate-400 focus:border-field-accent"
                 />
                 <button
                   onClick={() => review(s.id, "approved")}
@@ -127,7 +127,7 @@ export default function AdminSubmissions() {
                 <button
                   onClick={() => review(s.id, "rejected")}
                   disabled={busy === s.id}
-                  className="rounded-full border border-field-strong px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-500 disabled:opacity-40"
+                  className="rounded-full border border-field px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-field-accent disabled:opacity-40"
                 >
                   Refuser
                 </button>

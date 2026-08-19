@@ -62,12 +62,12 @@ export default function CartoClient() {
             placeholder="Chercher une organisation..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-field bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-slate-400 focus:outline-none sm:w-72"
+            className="w-full rounded-lg border border-field bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-field-accent focus:outline-none sm:w-72"
           />
           <select
             value={filtreGouv ?? ""}
             onChange={(e) => setFiltreGouv(e.target.value || null)}
-            className="rounded-lg border border-field bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none"
+            className="rounded-lg border border-field bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-field-accent focus:outline-none"
           >
             <option value="">Toutes les gouvernances</option>
             {ALL_GOUVERNANCES.map((g) => (
@@ -77,7 +77,7 @@ export default function CartoClient() {
           <select
             value={filtrePays ?? ""}
             onChange={(e) => setFiltrePays(e.target.value || null)}
-            className="rounded-lg border border-field bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none"
+            className="rounded-lg border border-field bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-field-accent focus:outline-none"
           >
             <option value="">Tous les pays</option>
             {ALL_PAYS.map((p) => (

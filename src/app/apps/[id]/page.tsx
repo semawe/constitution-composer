@@ -238,7 +238,7 @@ export default async function AppDetailPage({
           </Link>
           <Link
             href="/composer"
-            className="inline-flex items-center gap-2 rounded-full border border-field px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-800"
+            className="inline-flex items-center gap-2 rounded-full border border-field px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:border-field-accent hover:text-slate-800"
           >
             Retour à l&apos;App Store
           </Link>

@@ -189,20 +189,20 @@ export function ComposerPanel({
             }
             setActive(normalizeActive(data, data.modules.map((m) => m.id)));
           }}
-          className="whitespace-nowrap rounded-full border border-field-strong px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-slate-600 transition hover:border-field-accent hover:text-slate-900"
         >
           {t.activateAll}
         </button>
         <button
           onClick={() => setActive(defaultActive(data))}
-          className="whitespace-nowrap rounded-full border border-field-strong px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-slate-600 transition hover:border-field-accent hover:text-slate-900"
           title={t.baseLiteTitle}
         >
           {t.baseLite}
         </button>
         <button
           onClick={() => setActive(new Set())}
-          className="whitespace-nowrap rounded-full border border-field-strong px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-field px-3 py-1 text-slate-600 transition hover:border-field-accent hover:text-slate-900"
           title={t.coreOnlyTitle}
         >
           {t.coreOnly}

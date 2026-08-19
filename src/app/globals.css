@@ -51,32 +51,57 @@
      carte, et le bord d'un contrôle plus affirmé — bouton en contour, zone
      pointillée.
 
-   D'où cinq jetons et non trois : un jeton par utilitaire aurait entériné la
-   dette sous un plus joli nom. Les valeurs sont exactement celles d'aujourd'hui
+   D'où des jetons par rôle et non par utilitaire : un jeton par nuance aurait
+   entériné la dette sous un plus joli nom. Les valeurs sont exactement celles d'aujourd'hui
    dans les deux thèmes, donc la conversion ne déplace pas un pixel ; ce qu'elle
    change est qu'on peut désormais toucher au filet sans déplacer les champs.
 
    `.dark .border-transparent` était morte : elle rétablissait `transparent` sur
    `transparent`, et son seul site n'a aucune autre classe de bord au repos. */
-/* En clair, les jetons pointent sur la palette Tailwind plutôt que d'en recopier
+/* Les filets pointent sur la palette Tailwind plutôt que d'en recopier
    l'hexadécimal : `--color-slate-200` se sérialise en `lab(91.7353% …)` et non en
    `rgb(226, 232, 240)`. Recopié à la main, le jeton donnait la couleur voulue mais
-   pas la même valeur calculée — vérifié au navigateur, les 249 bords du thème
-   clair changeaient tous d'un cran de sérialisation. En sombre les valeurs restent
-   littérales : ce sont celles que portaient les quatre règles retirées. */
+   pas la même valeur calculée — vérifié au navigateur, les bords du thème clair
+   changeaient tous d'un cran de sérialisation. En sombre les valeurs restent
+   littérales : ce sont celles que portaient les quatre règles retirées.
+
+   Les jetons de champ, eux, ne suivent plus la palette : ils portent une valeur
+   calculée pour franchir le seuil de 3:1 que la WCAG 1.4.11 pose sur la limite
+   d'un composant d'interface. Relevé avant correction, contre le fond de chaque
+   thème et contre la surface d'une carte :
+
+     bord d'un champ au repos, clair   1,17 et 1,23   ✗
+     bord d'un champ au repos, sombre  1,72 et 1,41   ✗
+     bord affirmé, clair               1,41 et 1,48   ✗
+     bord affirmé, sombre              2,36 et 1,93   ✗
+
+   Les quatre échouaient, dans les deux thèmes : la limite d'un champ n'existait
+   pas à l'œil. Les valeurs retenues sont les plus faibles qui franchissent le
+   seuil, pour garder à l'interface ses bords discrets plutôt que de sauter à
+   `slate-500` — 3,00 et 3,16 en clair, 3,00 à 4,27 en sombre selon la surface.
+
+   `--field-strong` a disparu : l'écart entre lui et `--field` était le choix
+   entre `slate-200` et `slate-300`, arbitraire d'un site à l'autre. Deux poids
+   pour un même rôle, avec la même exigence de contraste, n'est pas deux rôles.
+
+   `--field-accent` est nouveau et couvre le survol comme le focus. Ces états
+   n'avaient jamais été remappés : `focus:border-slate-400`, sur 19 sites, donnait
+   2,44 en clair — sous le seuil. Et ils étaient en désordre, le survol
+   (`slate-500`, 11 sites) marquant plus que le focus (`slate-400`, 19 sites) :
+   le signal était inversé. */
 :root {
   --rule-soft: var(--color-slate-100);
   --rule: var(--color-slate-200);
   --rule-strong: var(--color-slate-300);
-  --field: var(--color-slate-200);
-  --field-strong: var(--color-slate-300);
+  --field: #8692a2;
+  --field-accent: #677487;
 }
 .dark {
   --rule-soft: #1e293b;
   --rule: #334155;
   --rule-strong: #475569;
-  --field: #334155;
-  --field-strong: #475569;
+  --field: #6f7d92;
+  --field-accent: #8e9cb1;
 }
 
 :root {
@@ -102,7 +127,7 @@
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
   --color-field: var(--field);
-  --color-field-strong: var(--field-strong);
+  --color-field-accent: var(--field-accent);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);

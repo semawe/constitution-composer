@@ -24,7 +24,7 @@ export const TIER_UI: Record<
     bar: "border-rule",
     tag: "bg-slate-100 text-slate-600 ring-slate-200",
     tint: "",
-    chip: "hover:border-slate-400 hover:text-slate-700",
+    chip: "hover:border-field-accent hover:text-slate-700",
     label: "text-slate-500",
   },
   retirable: {
@@ -108,7 +108,7 @@ export function ModuleToggle({
           className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition ${
             on
               ? `${ui.dot} border-transparent text-white`
-              : "border-field-strong bg-white"
+              : "border-field bg-white"
           }`}
         >
           {on &&
@@ -172,7 +172,7 @@ export function InsertDivider({
           className={`flex h-7 w-7 items-center justify-center rounded-full border bg-background transition duration-200 ${
             open
               ? "rotate-45 border-slate-500 text-slate-700"
-              : "border-field-strong text-slate-400 opacity-40 hover:border-slate-500 hover:text-slate-700 hover:opacity-100 group-hover:opacity-100"
+              : "border-field text-slate-400 opacity-40 hover:border-field-accent hover:text-slate-700 hover:opacity-100 group-hover:opacity-100"
           }`}
         >
           <span className="text-lg leading-none">+</span>
@@ -199,7 +199,7 @@ export function InsertDivider({
                     }}
                     data-add={m.id}
                     title={m.description}
-                    className={`inline-flex items-center gap-1.5 rounded-full border border-dashed border-field-strong px-3 py-1 text-xs text-slate-500 transition ${ui.chip}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full border border-dashed border-field px-3 py-1 text-xs text-slate-500 transition ${ui.chip}`}
                   >
                     <span className="text-base leading-none">+</span>
                     {m.label}
@@ -231,7 +231,7 @@ export function PreambleValues({
     return (
       <button
         onClick={() => setEditing(true)}
-        className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-field-strong px-3 py-1 text-xs text-slate-500 transition hover:border-slate-500 hover:text-slate-700"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-field px-3 py-1 text-xs text-slate-500 transition hover:border-field-accent hover:text-slate-700"
       >
         <span className="text-base leading-none">+</span>
         Ajouter vos valeurs et principes
@@ -258,7 +258,7 @@ export function PreambleValues({
         onChange={(e) => setValues(e.target.value)}
         rows={6}
         placeholder="Exprimez les valeurs et principes propres à votre organisation. Restez bref : 4 paragraphes maximum. Séparez les paragraphes par une ligne vide."
-        className="doc-prose w-full resize-y rounded border border-field bg-white p-3 text-[0.98rem] leading-relaxed text-slate-800 outline-none transition focus:border-slate-400"
+        className="doc-prose w-full resize-y rounded border border-field bg-white p-3 text-[0.98rem] leading-relaxed text-slate-800 outline-none transition focus:border-field-accent"
       />
       {paraCount > 4 && (
         <p className="mt-1 text-xs text-amber-600">

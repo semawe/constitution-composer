@@ -97,7 +97,7 @@ export default function AppSubmissions({
       <p className="mb-4 mt-1 text-sm text-slate-500">{t.proposeDesc}</p>
 
       {!signedIn ? (
-        <div className="rounded-xl border border-dashed border-field-strong p-6 text-center">
+        <div className="rounded-xl border border-dashed border-field p-6 text-center">
           <p className="text-sm text-slate-600">{t.formSignIn}</p>
           <button
             onClick={onRequestSignIn}
@@ -116,7 +116,7 @@ export default function AppSubmissions({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-field-strong px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
               required
             />
           </label>
@@ -125,7 +125,7 @@ export default function AppSubmissions({
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as SubmissionKind)}
-              className="mt-1 w-full rounded-lg border border-field-strong bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border border-field bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
             >
               <option value="app">{t.formKindApp}</option>
               <option value="extension">{t.formKindExtension}</option>
@@ -137,7 +137,7 @@ export default function AppSubmissions({
               value={integrationPoint}
               onChange={(e) => setIntegrationPoint(e.target.value)}
               placeholder={t.formIntegrationPlaceholder}
-              className="mt-1 w-full rounded-lg border border-field-strong px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-field-accent"
             />
           </label>
           <label className="text-sm sm:col-span-2">
@@ -146,7 +146,7 @@ export default function AppSubmissions({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-field-strong px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
               required
             />
           </label>
@@ -156,7 +156,7 @@ export default function AppSubmissions({
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-field-strong px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border border-field px-3 py-2 text-sm text-slate-900 outline-none focus:border-field-accent"
             />
           </label>
           <div className="flex items-center gap-3 sm:col-span-2">
