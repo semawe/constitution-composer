@@ -24,19 +24,19 @@ interface CompositionRow {
   id: string;
   user_id: string;
   name: string;
-  payload: { title?: string; active?: string[] } | null;
+  /** Sous-champs du payload, extraits par la requête (jamais le payload entier). */
+  titre: string | null;
+  actifs: string[] | null;
   updated_at: string;
 }
 interface DeclarationRow {
   user_id: string;
-  payload: {
-    removed?: string[];
-    custom?: unknown[];
-    raisonEtre?: string;
-    devise?: string;
-    ratifiers?: string;
-    signatories?: string;
-  } | null;
+  raisonEtre: string | null;
+  devise: string | null;
+  ratifiers: string | null;
+  signatories: string | null;
+  /** Les principes ajoutés : on n'en affiche que le nombre. */
+  ajoutes: unknown[] | null;
   updated_at: string;
 }
 
@@ -88,11 +88,21 @@ export default function AdminPage() {
           .from("profiles")
           .select("id,email,full_name,company,created_at")
           .order("created_at", { ascending: false }),
+        // Seuls les champs affichés : un payload entier porte le logo en data
+        // URL et peut peser des centaines de kilo-octets. Cet écran en chargeait
+        // un par composition et par compte, à chaque ouverture (revue adverse du
+        // 18/08/2026). PostgREST sait extraire des sous-champs JSON.
         sb
           .from("compositions")
-          .select("id,user_id,name,payload,updated_at")
+          .select("id,user_id,name,updated_at,titre:payload->title,actifs:payload->active")
           .order("updated_at", { ascending: false }),
-        sb.from("declarations").select("user_id,payload,updated_at"),
+        sb
+          .from("declarations")
+          .select(
+            "user_id,updated_at,raisonEtre:payload->raisonEtre,devise:payload->devise," +
+              "ratifiers:payload->ratifiers,signatories:payload->signatories," +
+              "ajoutes:payload->custom",
+          ),
       ]);
       // Une lecture refusée par la RLS renvoie une erreur et des données
       // nulles : sans ce test, l'écran affichait des listes vides, ce qui se
@@ -105,8 +115,10 @@ export default function AdminPage() {
       setState({
         kind: "ready",
         profiles: (p.data ?? []) as ProfileRow[],
-        comps: (c.data ?? []) as CompositionRow[],
-        decls: (d.data ?? []) as DeclarationRow[],
+        comps: (c.data ?? []) as unknown as CompositionRow[],
+        // Le typage de PostgREST ne suit pas les alias de sous-champs JSON :
+        // on passe par `unknown`, la forme réelle est décrite au-dessus.
+        decls: (d.data ?? []) as unknown as DeclarationRow[],
       });
     })();
   }, []);
@@ -199,8 +211,8 @@ export default function AdminPage() {
               {state.profiles.map((p) => {
                 const comps = compsByUser.get(p.id) ?? [];
                 const decl = declByUser.get(p.id);
-                const dp = decl?.payload;
-                const countNames = (s?: string) =>
+                const dp = decl;
+                const countNames = (s?: string | null) =>
                   s ? s.split("\n").filter((x) => x.trim()).length : 0;
                 return (
                   <div
@@ -222,14 +234,14 @@ export default function AdminPage() {
                     {comps.length > 0 && (
                       <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2">
                         {comps.map((c) => {
-                          const labels = (c.payload?.active ?? []).map(
+                          const labels = (c.actifs ?? []).map(
                             (id) => MODULE_LABEL.get(id) ?? id,
                           );
                           return (
                             <li key={c.id} className="text-sm">
                               <div className="flex items-baseline justify-between gap-3">
                                 <span className="font-medium text-slate-700">
-                                  {c.name || c.payload?.title || "Sans titre"}
+                                  {c.name || c.titre || "Sans titre"}
                                 </span>
                                 <span className="flex shrink-0 items-baseline gap-3 text-xs text-slate-400">
                                   <Link
@@ -267,10 +279,10 @@ export default function AdminPage() {
                           <p className="text-slate-600">Devise : {dp.devise}</p>
                         ) : null}
                         <p className="text-xs text-slate-400">
-                          {dp.custom?.length ?? 0} principe(s) ajouté(s) ·{" "}
+                          {dp.ajoutes?.length ?? 0} principe(s) ajouté(s) ·{" "}
                           {countNames(dp.ratifiers)} ratificateur(s) ·{" "}
                           {countNames(dp.signatories)} signataire(s) ·{" "}
-                          {fmtDate(decl!.updated_at)}
+                          {fmtDate(dp.updated_at)}
                         </p>
                       </div>
                     )}
