@@ -150,6 +150,65 @@ describe("le document composé, à l'écran", () => {
     });
   });
 
+  it("sans compte, un module payant ne s'active pas et la boîte s'ouvre", async () => {
+    // Le mur du freemium. Il vient de changer de fichier (#1057) : sans ce test,
+    // le neutraliser ne faisait rougir personne — vérifié en le neutralisant.
+    const utilisateur = userEvent.setup();
+    monter();
+    const paye = data.modules.find((m) => m.tier === "extension")!;
+    const bascule = screen
+      .getAllByRole("button")
+      .find((b) => (b.textContent ?? "").trim().startsWith(paye.label))!;
+
+    await utilisateur.click(bascule);
+
+    // La boîte s'ouvre, et l'insertion du module n'est pas entrée dans le
+    // document. On vise l'ancre que le moteur pose, pas une chaîne : le texte
+    // commence par un passage en gras, donc il ne vit pas dans un seul nœud.
+    expect(await screen.findByRole("dialog")).toBeTruthy();
+    expect(document.getElementById(`ins-${paye.id}-0`)).toBeNull();
+  });
+
+  it("avec un compte, le même module s'active", async () => {
+    const utilisateur = userEvent.setup();
+    localStorage.setItem("cc_account", "1");
+    monter();
+    const paye = data.modules.find((m) => m.tier === "extension")!;
+    const bascule = screen
+      .getAllByRole("button")
+      .find((b) => (b.textContent ?? "").trim().startsWith(paye.label))!;
+
+    await utilisateur.click(bascule);
+
+    await waitFor(() =>
+      expect(document.getElementById(`ins-${paye.id}-0`)).not.toBeNull(),
+    );
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("basculer un module amène la modification dans le champ de vision", async () => {
+    // La promesse de l'interface : on coche, et on voit ce que ça change. Rien ne
+    // la gardait ; jsdom n'a pas de mise en page, mais l'élément visé se vérifie.
+    const utilisateur = userEvent.setup();
+    const vus: (string | undefined)[] = [];
+    const vrai = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function () {
+      vus.push((this as HTMLElement).id);
+    };
+    try {
+      monter();
+      const scribe = data.modules.find((m) => m.id === "scribe")!;
+      const bascule = screen
+        .getAllByRole("button")
+        .find((b) => (b.textContent ?? "").trim().startsWith(scribe.label))!;
+      await utilisateur.click(bascule);
+      // Décoché, un bloc retirable laisse un marqueur de réinsertion : c'est lui
+      // qu'on doit amener sous les yeux.
+      await waitFor(() => expect(vus).toContain("reins-scribe"));
+    } finally {
+      Element.prototype.scrollIntoView = vrai;
+    }
+  });
 });
 
 describe("ouvrir une version enregistrée", () => {
