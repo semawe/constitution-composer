@@ -29,6 +29,22 @@ Create a branch from `main`:
 git checkout -b feat/my-feature
 ```
 
+### One trap: `git commit -a` and the submodule
+
+The canonical Constitution is vendored as a submodule at `vendor/holacracy-constitution`. Two git
+behaviours combine badly there, and they cost this repo a red `main`:
+
+- `git reset --hard` and `git checkout` move the *pointer* recorded in the index but do not check
+  out the submodule's content, so the working tree can sit on a different commit than `HEAD` records;
+- the submodule then shows up as a modification, and `git commit -a` (or `git add -A`) records that
+  drift as an intentional pointer change — silently, since no file appears in the diff you are
+  reading.
+
+The effect is a commit that claims to touch documentation and actually rewinds the source text.
+Prefer staging paths explicitly, run `git submodule update --init` after any hard reset, and check
+`git submodule status` before committing. `src/lib/fond.test.ts` catches the rewind, so run
+`npm test` even on a change you believe is documentation-only.
+
 ## Code conventions
 
 - **TypeScript strict** — no `any`, no unchecked assertions
