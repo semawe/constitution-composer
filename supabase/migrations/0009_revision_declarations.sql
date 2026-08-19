@@ -118,19 +118,36 @@ grant execute on function public.save_declaration(jsonb, bigint) to authenticate
 --    where n.nspname = 'public' and p.proname = 'save_declaration';
 --   -- prosecdef doit valoir false : SECURITY INVOKER, la RLS s'applique.
 --
--- Épreuve en négatif, depuis un compte connecté (la fonction lit `auth.uid()` :
--- à jouer depuis l'application, ou avec un jeton d'accès dans l'en-tête). Deux
--- onglets, et le retardataire arrive en dernier :
+-- Épreuve en négatif. `save_declaration()` lit `auth.uid()` : dans le SQL editor
+-- il n'y a pas de compte connecté, on s'en donne un le temps de la transaction.
+-- `<uuid>` = un compte de `auth.users`. Tout est annulé par le `rollback`, donc
+-- la Déclaration du compte emprunté n'est pas touchée.
+--   begin;
+--   set local role authenticated;
+--   select set_config('request.jwt.claims',
+--            '{"sub":"<uuid>","role":"authenticated"}', true);
+--
 --   select public.save_declaration('{"marque":"onglet A"}'::jsonb, 1);
 --   -- {"ecrite": true,  "revision": 1}
 --   select public.save_declaration('{"marque":"onglet B"}'::jsonb, 2);
 --   -- {"ecrite": true,  "revision": 2}
 --   select public.save_declaration('{"marque":"onglet A"}'::jsonb, 2);
---   -- {"ecrite": false, "revision": 2}   <- refusée, et non pas « acceptée à 2 »
+--   -- {"ecrite": false, "revision": 2}  <- refusée, et non « acceptée à 2 » :
+--   --    c'est ce cas qui interdit de renvoyer un simple entier.
 --   select payload ->> 'marque', revision from public.declarations
 --    where user_id = auth.uid();
---   -- doit rendre « onglet B », 2 : rien de perdu, et l'ancien n'a pas gagné.
+--   -- « onglet B », 2 : rien de perdu, et l'ancien n'a pas gagné.
 --
--- Épreuve en négatif de la borne (doit être refusée) :
+--   -- Les bornes (les deux doivent lever) :
 --   select public.save_declaration('{}'::jsonb, 0);
 --   select public.save_declaration('{}'::jsonb, 1000000001);
+--   -- La RLS n'a pas été desserrée (doit lever) :
+--   insert into public.declarations (user_id, payload)
+--   values ('<un autre uuid>', '{}'::jsonb);
+--   rollback;
+--
+-- Le verrou de ligne, lui, ne s'éprouve qu'à deux sessions : dans la première,
+-- `begin; select public.save_declaration('{"marque":"1"}'::jsonb, 3);` sans
+-- valider ; dans la seconde, le même appel avec la même révision. La seconde
+-- attend, puis se voit refusée. Joué sur un PostgreSQL 16 le 19/08/2026 avec ce
+-- fichier et le socle de 0002/0007/0008 : conforme.
