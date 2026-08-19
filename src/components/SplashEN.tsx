@@ -1,21 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 import { UI } from "@/lib/i18n";
 import { SEMAWE_URL, v5Href } from "@/lib/links";
 
 const T = UI.en;
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  show: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: i * 0.08, ease: "easeOut" },
-  }),
-};
 
 const VALUES = [
   {
@@ -51,9 +41,6 @@ const STEPS = [
 ];
 
 export default function SplashEN() {
-  // Le réglage système « animations réduites » vaut pour la page d'arrivée
-  // comme pour le reste : sans cela, l'entrée animée s'imposait quand même.
-  const reduce = useReducedMotion();
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
@@ -77,40 +64,23 @@ export default function SplashEN() {
         </div>
 
         <div className="relative mx-auto max-w-5xl px-4 pb-20 pt-16 sm:pt-24">
-          <motion.span
-            variants={fadeUp}
-            initial={reduce ? false : "hidden"}
-            animate="show"
-            className="inline-block rounded-md border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
-          >
+          <span className="cc-rise inline-block rounded-md border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
             {T.unofficial}
-          </motion.span>
-          <motion.h1
-            variants={fadeUp}
-            initial={reduce ? false : "hidden"}
-            animate="show"
-            custom={1}
-            className="mt-4 max-w-2xl font-serif text-4xl font-medium leading-tight text-slate-900 sm:text-5xl"
+          </span>
+          <h1
+            className="cc-rise cc-rise-1 mt-4 max-w-2xl font-serif text-4xl font-medium leading-tight text-slate-900 sm:text-5xl"
           >
             Your Constitution, composed to fit
-          </motion.h1>
-          <motion.p
-            variants={fadeUp}
-            initial={reduce ? false : "hidden"}
-            animate="show"
-            custom={2}
-            className="mt-4 max-w-xl text-lg leading-relaxed text-slate-600"
+          </h1>
+          <p
+            className="cc-rise cc-rise-2 mt-4 max-w-xl text-lg leading-relaxed text-slate-600"
           >
             The text starts from a battle-tested core. You activate the modules
             that fit your organization, the Constitution composes itself as you
             decide, then exports as a PDF ready to ratify.
-          </motion.p>
-          <motion.div
-            variants={fadeUp}
-            initial={reduce ? false : "hidden"}
-            animate="show"
-            custom={3}
-            className="mt-8 flex flex-wrap items-center gap-3"
+          </p>
+          <div
+            className="cc-rise cc-rise-3 mt-8 flex flex-wrap items-center gap-3"
           >
             <Link
               href="/en/composer"
@@ -124,26 +94,19 @@ export default function SplashEN() {
             >
               Read the Lite version
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       <section className="border-t border-slate-200 bg-white/40">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-14 sm:grid-cols-3">
-          {VALUES.map((v, i) => (
-            <motion.div
-              key={v.title}
-              variants={fadeUp}
-              initial={reduce ? false : "hidden"}
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              custom={i}
-            >
+          {VALUES.map((v) => (
+            <div key={v.title}>
               <h2 className="text-base font-medium text-slate-900">{v.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">
                 {v.body}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>
@@ -153,14 +116,9 @@ export default function SplashEN() {
           How it works
         </h2>
         <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <motion.div
+          {STEPS.map((s) => (
+            <div
               key={s.n}
-              variants={fadeUp}
-              initial={reduce ? false : "hidden"}
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              custom={i}
               className="rounded-xl border border-slate-200 bg-white p-6"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-medium text-teal-700">
@@ -172,7 +130,7 @@ export default function SplashEN() {
               <p className="mt-1 text-sm leading-relaxed text-slate-600">
                 {s.d}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>

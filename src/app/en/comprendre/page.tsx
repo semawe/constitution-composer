@@ -37,38 +37,53 @@ const QA = [
 
 export default function ComprendrePageEN() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SiteNav />
-      <main className="mx-auto max-w-3xl px-4 pb-24 pt-16">
-        <div className="max-w-2xl">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+        <div>
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             Documentation
           </p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-slate-900">
+          <h1 className="mt-3 max-w-3xl font-serif text-4xl font-medium leading-tight text-slate-900 sm:text-5xl">
             Understanding the Constitution
           </h1>
-          <p className="mt-4 text-lg leading-relaxed text-slate-600">
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
             The Holacracy Constitution defines the rules of the game. It is not
             a set of values or intentions, but a formal authority structure that
             replaces the traditional management hierarchy.
           </p>
         </div>
 
-        <section className="mt-12">
+        {/* Same editorial template as the French page: the question carries
+            the display type, the number holds the margin, a rule separates
+            entries. */}
+        <section className="mt-16">
           <h2 className="font-serif text-2xl font-medium text-slate-900">
             Frequently asked questions
           </h2>
-          <dl className="mt-6 space-y-6">
-            {QA.map(({ q, a }) => (
-              <div key={q} className="rounded-xl border border-slate-200 bg-white p-6">
-                <dt className="font-medium text-slate-900">{q}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-slate-600">{a}</dd>
+          <dl className="mt-8 border-t border-slate-200">
+            {QA.map(({ q, a }, i) => (
+              <div
+                key={q}
+                className="grid gap-x-8 gap-y-3 border-b border-slate-200 py-8 sm:grid-cols-[3rem_1fr]"
+              >
+                <dt className="font-serif text-lg leading-snug text-slate-400 sm:text-right">
+                  {String(i + 1).padStart(2, "0")}
+                </dt>
+                <div>
+                  <dt className="font-serif text-xl leading-snug text-slate-900">
+                    {q}
+                  </dt>
+                  <dd className="mt-3 max-w-2xl leading-relaxed text-slate-600">
+                    {a}
+                  </dd>
+                </div>
               </div>
             ))}
           </dl>
         </section>
 
-        <section className="mt-12 rounded-xl border border-teal-200 bg-teal-50 p-6">
+        <section className="mt-14 max-w-2xl rounded-xl border border-teal-200 bg-teal-50 p-6">
           <h2 className="font-medium text-teal-900">Try the Composer</h2>
           <p className="mt-2 text-sm leading-relaxed text-teal-800">
             The core and the Lite model are freely accessible. Compose your

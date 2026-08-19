@@ -822,7 +822,7 @@ export default function Composer({
         <button
           onClick={handleSaveVersion}
           disabled={versionBusy}
-          className="mt-2 w-full rounded-full bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-700 disabled:opacity-60"
+          className="mt-2 w-full rounded-full btn-ink px-3 py-1.5 text-xs font-medium transition disabled:opacity-60"
         >
           {versionBusy ? t.saving : t.saveVersion}
         </button>
@@ -1003,7 +1003,7 @@ export default function Composer({
             placeholder={data.meta.title}
             spellCheck={false}
             style={titleColor ? { color: titleColor } : undefined}
-            className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-3xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
+            className="mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif text-xl font-semibold text-slate-900 outline-none transition placeholder:text-slate-300 hover:border-slate-200 focus:border-slate-400 sm:text-4xl"
           />
           {/* Sous-titre du document : de quoi ce texte est dérivé, et ce qu'il
               n'est pas. Il suit le titre même quand l'utilisateur renomme sa
@@ -1126,7 +1126,7 @@ export default function Composer({
             <button
               onClick={handlePdf}
               disabled={pdfBusy}
-              className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full btn-ink px-4 py-2 text-sm font-medium transition disabled:opacity-60"
             >
               <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden>
                 <path
@@ -1145,14 +1145,17 @@ export default function Composer({
         <article className="doc-prose text-[1.05rem] text-slate-800">
           {data.blocks.map((block) => {
             return (
-              <motion.section
+              // Pas d'entrée animée sur le corps constitutionnel. Elle
+              // s'obtenait par `whileInView`, donc par un `opacity:0` écrit
+              // dans l'HTML prérendu : le texte des six articles partait
+              // invisible et n'apparaissait que si React s'hydratait, et un
+              // lien profond (`/composer#article-4`) laissait sa cible à zéro
+              // — l'IntersectionObserver ne voit pas ce qu'on a sauté. Un
+              // document qu'on vient étudier n'a pas à s'animer pour exister.
+              <section
                 key={block.id}
                 id={block.id}
                 className="mb-10 scroll-mt-24"
-                initial={reduce ? false : { opacity: 0, y: 14 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-12% 0px -12% 0px" }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
               >
                 <h2 className="mb-3 font-serif text-2xl font-semibold text-slate-900">
                   {block.heading}
@@ -1265,7 +1268,7 @@ export default function Composer({
                     </span>
                   </div>
                 )}
-              </motion.section>
+              </section>
             );
           })}
 
@@ -1290,7 +1293,7 @@ export default function Composer({
               </ul>
               <button
                 onClick={() => setBooking(true)}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
+                className="mt-4 inline-flex items-center gap-2 rounded-full btn-ink px-5 py-2.5 text-sm font-medium transition"
               >
                 🎁 Réserver mes 20 minutes offertes
               </button>
@@ -1439,7 +1442,7 @@ export default function Composer({
                     <button
                       onClick={signInOtp}
                       disabled={!email.trim()}
-                      className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                      className="shrink-0 rounded-lg btn-ink px-3 py-2 text-sm font-medium transition disabled:opacity-50"
                     >
                       {t.sendLink}
                     </button>
@@ -1494,7 +1497,7 @@ export default function Composer({
             <button
               onClick={submitCompany}
               disabled={!company.trim()}
-              className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+              className="mt-4 w-full rounded-lg btn-ink px-4 py-2.5 text-sm font-medium transition disabled:opacity-50"
             >
               {t.continue}
             </button>

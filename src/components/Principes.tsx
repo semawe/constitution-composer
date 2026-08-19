@@ -654,7 +654,7 @@ export default function Principes({
           <button
             onClick={handlePdf}
             disabled={pdfBusy}
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full btn-ink px-4 py-2 text-sm font-medium transition disabled:opacity-60"
           >
             <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden>
               <path
@@ -777,7 +777,7 @@ export default function Principes({
                       <button
                         onClick={saveEdit}
                         disabled={!editTitle.trim()}
-                        className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                        className="rounded-full btn-ink px-4 py-1.5 text-sm font-medium transition disabled:opacity-50"
                       >
                         {t.save}
                       </button>
@@ -876,7 +876,7 @@ export default function Principes({
               <button
                 onClick={addCustom}
                 disabled={!newTitle.trim()}
-                className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                className="rounded-full btn-ink px-4 py-1.5 text-sm font-medium transition disabled:opacity-50"
               >
                 {t.add}
               </button>
@@ -1015,7 +1015,7 @@ export default function Principes({
                   <button
                     onClick={signInOtp}
                     disabled={!email.trim()}
-                    className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
+                    className="shrink-0 rounded-lg btn-ink px-3 py-2 text-sm font-medium transition disabled:opacity-50"
                   >
                     {c.sendLink}
                   </button>

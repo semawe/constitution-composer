@@ -159,7 +159,7 @@ export const COMPOSER = {
     activeAccount: "Compte actif",
     signOut: "se déconnecter",
     freeTierMsg:
-      "Coeur et Intégrale en accès libre. Compte requis pour les Extensions, les Apps et le PDF.",
+      "Cœur et Intégrale en accès libre. Compte requis pour les Extensions, les Apps et le PDF.",
     showIntent: "Afficher les notes d'intention",
     pdfGenerating: "Génération...",
     pdfDownload: "Télécharger le PDF",

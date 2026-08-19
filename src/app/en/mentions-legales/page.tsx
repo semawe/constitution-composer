@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function LegalNoticePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SiteNav locale="en" />
-      <main className="mx-auto max-w-3xl px-4 pb-24 pt-16">
+      <main className="flex-1 mx-auto max-w-3xl px-4 pb-24 pt-16">
         <h1 className="font-serif text-4xl font-medium leading-tight text-slate-900">
           Legal notice
         </h1>

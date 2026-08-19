@@ -30,6 +30,23 @@
   --foreground: #e2e8f0;
 }
 
+/* Action principale, en jetons plutôt qu'en couleur littérale. Un bouton
+   primaire doit rester le point le plus contrasté de l'écran dans les deux
+   thèmes : encre sur clair, clair sur encre. C'est ce que `bg-slate-900`
+   remappé sous `.dark` ne savait pas faire — il retombait sur #334155, soit
+   1,6:1 sur le fond, et l'action principale de l'app (« Télécharger le PDF »)
+   devenait une pastille grise. */
+:root {
+  --action: #0f172a;
+  --action-hover: #334155;
+  --action-fg: #ffffff;
+}
+.dark {
+  --action: #e2e8f0;
+  --action-hover: #ffffff;
+  --action-fg: #0f172a;
+}
+
 :root {
   /* Anciennement injectées par next/font/google : désormais posées en dur,
      les fichiers étant dans /public/fonts. */
@@ -68,6 +85,17 @@ html.intro-off [data-intro] {
   display: none;
 }
 
+/* Bande d'onglets : défilement horizontal sans barre visible. Déclaré en
+   `@utility` et non en règle nue : sous cette forme, l'optimiseur CSS de Next
+   laissait tomber `scrollbar-width` et la barre restait peinte sous la
+   rangée d'onglets. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Masquer la scrollbar du panneau latéral tout en gardant le scroll */
 .thin-scroll::-webkit-scrollbar {
   width: 8px;
@@ -93,7 +121,6 @@ html.intro-off [data-intro] {
 .dark .bg-slate-50 { background-color: #1e293b; }
 .dark .bg-slate-100 { background-color: #273449; }
 .dark .bg-slate-200 { background-color: #334155; }
-.dark .bg-slate-900 { background-color: #334155; }
 .dark .hover\:bg-slate-100:hover { background-color: #273449; }
 .dark .hover\:bg-slate-50:hover { background-color: #1e293b; }
 
@@ -136,3 +163,50 @@ html.intro-off [data-intro] {
 .dark .from-teal-50 { --tw-gradient-from: rgb(13 148 136 / 0.16); }
 .dark .to-violet-50 { --tw-gradient-to: rgb(124 58 237 / 0.16); }
 .dark .border-teal-200 { border-color: rgb(13 148 136 / 0.4); }
+
+/* Bouton primaire : une seule définition, deux thèmes. Remplace le triplet
+   `bg-slate-900 text-white hover:bg-slate-700`, qui ne pouvait pas s'adapter
+   au thème sombre sans que le remappage global confonde « surface sombre » et
+   « action principale ». La géométrie (rayon, padding) reste aux utilitaires. */
+.btn-ink {
+  background-color: var(--action);
+  color: var(--action-fg);
+}
+.btn-ink:hover:not(:disabled) {
+  background-color: var(--action-hover);
+}
+
+/* Entrée animée, en CSS et non en JS.
+   Framer Motion écrivait `opacity:0` dans l'HTML prérendu : le titre de la
+   page d'arrivée et les six sections du corps constitutionnel partaient
+   invisibles et n'apparaissaient qu'une fois React hydraté. Sans JS, ou si le
+   bundle échouait, le texte ne s'affichait jamais ; un lien profond
+   (`/composer#article-4`) laissait sa cible à zéro parce que
+   l'IntersectionObserver ne voit pas ce qu'on a sauté. Une animation CSS part
+   de l'état visible dans le balisage : elle joue quand elle peut, et son échec
+   n'a aucune conséquence. */
+@keyframes cc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cc-rise {
+  animation: cc-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cc-rise-1 { animation-delay: 0.08s; }
+.cc-rise-2 { animation-delay: 0.16s; }
+.cc-rise-3 { animation-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-rise,
+  .cc-rise-1,
+  .cc-rise-2,
+  .cc-rise-3 {
+    animation: none;
+  }
+}

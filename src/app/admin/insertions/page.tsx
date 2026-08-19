@@ -214,11 +214,11 @@ export default function InsertionsConfigPage() {
       <div className="mt-8 border-t border-slate-200 pt-6">
         <button
           onClick={copySpec}
-          className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          className="rounded-full btn-ink px-4 py-2 text-sm font-medium transition"
         >
           {copied ? "Copié ✓" : "Copier la spécification"}
         </button>
-        <pre className="mt-4 max-h-72 overflow-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">
+        <pre className="mt-4 max-h-72 overflow-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100 dark:bg-slate-800">
           {JSON.stringify(spec, null, 2)}
         </pre>
       </div>

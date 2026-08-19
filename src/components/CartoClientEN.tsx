@@ -148,7 +148,7 @@ export default function CartoClientEN() {
           </p>
           <a
             href="mailto:contact@semawe.fr"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-full btn-ink px-5 py-2.5 text-sm font-medium transition"
           >
             Contact Sémawé
           </a>

@@ -16,7 +16,7 @@ const LS_BRANDING = "cc-branding";
 
 function tabClass(active: boolean) {
   return `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
-    active ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
+    active ? "btn-ink" : "text-slate-500 hover:bg-slate-100"
   }`;
 }
 
@@ -129,81 +129,99 @@ export default function App({
     setTitleColor,
   };
 
+  const tabs = (
+    <>
+      <button
+        onClick={() => setView("constitution")}
+        className={tabClass(view === "constitution")}
+      >
+        {t.tabs.constitution}
+      </button>
+      <button
+        onClick={() => setView("principes")}
+        className={tabClass(view === "principes")}
+      >
+        {t.tabs.principes}
+      </button>
+      <button
+        onClick={() => setView("glossaire")}
+        className={tabClass(view === "glossaire")}
+      >
+        {t.tabs.glossaire}
+      </button>
+      <button
+        onClick={() => setView("appstore")}
+        className={tabClass(view === "appstore")}
+      >
+        {t.tabs.appstore}
+      </button>
+      {isAdmin && (
+        <a
+          href="/admin/"
+          className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
+        >
+          Admin
+        </a>
+      )}
+    </>
+  );
+
   const homeHref = locale === "en" ? "/en" : "/";
   const otherLangHref = locale === "en" ? "/composer" : "/en/composer";
 
   return (
     <div>
-      <nav className="sticky top-0 z-40 flex h-11 items-center border-b border-slate-200 bg-background/90 px-2 backdrop-blur">
-        <Link
-          href={homeHref}
-          className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
-        >
-          ← {t.home}
-        </Link>
-        <div className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto">
-          <button
-            onClick={() => setView("constitution")}
-            className={tabClass(view === "constitution")}
-          >
-            {t.tabs.constitution}
-          </button>
-          <button
-            onClick={() => setView("principes")}
-            className={tabClass(view === "principes")}
-          >
-            {t.tabs.principes}
-          </button>
-          <button
-            onClick={() => setView("glossaire")}
-            className={tabClass(view === "glossaire")}
-          >
-            {t.tabs.glossaire}
-          </button>
-          <button
-            onClick={() => setView("appstore")}
-            className={tabClass(view === "appstore")}
-          >
-            {t.tabs.appstore}
-          </button>
-          {isAdmin && (
-            <a
-              href="/admin/"
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
-            >
-              Admin
-            </a>
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-1 pl-1">
-          {signedIn ? (
-            <span
-              className="hidden max-w-[10rem] items-center gap-1 truncate rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 sm:inline-flex"
-              title={userName}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-              {userName}
-            </span>
-          ) : (
-            <button
-              onClick={requestSignIn}
-              className="rounded-full border border-teal-600 px-3 py-1 text-xs font-medium text-teal-700 transition hover:bg-teal-50"
-            >
-              {t.signIn}
-            </button>
-          )}
+      {/* Barre d'onglets. Sur téléphone, les quatre onglets ne tiennent pas
+          dans la même rangée que le retour, le compte, la langue et le thème :
+          ils prenaient 135 px de fenêtre pour 507 px de contenu, et le
+          conteneur centré rendait même le premier onglet inatteignable
+          (`scrollLeft` ne descend pas sous zéro). Ils passent donc sur une
+          seconde rangée, pleine largeur, et ne se centrent qu'à partir du
+          moment où la barre les contient. */}
+      <nav className="sticky top-0 z-40 border-b border-slate-200 bg-background/90 px-2 backdrop-blur">
+        <div className="flex h-11 items-center">
           <Link
-            href={otherLangHref}
-            title={locale === "en" ? "Passer en français" : "Switch to English"}
-            className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
+            href={homeHref}
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100"
           >
-            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
-              <circle cx="8" cy="8" r="6.5" />
-              <path d="M8 1.5C8 1.5 5.5 4 5.5 8s2.5 6.5 2.5 6.5M8 1.5C8 1.5 10.5 4 10.5 8S8 14.5 8 14.5M1.5 8h13" strokeLinecap="round"/>
-            </svg>
-            {t.switchLang}
+            ← {t.home}
           </Link>
-          <ThemeToggle />
+          <div className="no-scrollbar hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto sm:flex">
+            {tabs}
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-1 pl-1">
+            {signedIn ? (
+              <span
+                className="hidden max-w-[10rem] items-center gap-1 truncate rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700 sm:inline-flex"
+                title={userName}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                {userName}
+              </span>
+            ) : (
+              <button
+                onClick={requestSignIn}
+                className="rounded-full border border-teal-600 px-3 py-1 text-xs font-medium text-teal-700 transition hover:bg-teal-50"
+              >
+                {t.signIn}
+              </button>
+            )}
+            <Link
+              href={otherLangHref}
+              title={locale === "en" ? "Passer en français" : "Switch to English"}
+              className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
+            >
+              <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
+                <circle cx="8" cy="8" r="6.5" />
+                <path d="M8 1.5C8 1.5 5.5 4 5.5 8s2.5 6.5 2.5 6.5M8 1.5C8 1.5 10.5 4 10.5 8S8 14.5 8 14.5M1.5 8h13" strokeLinecap="round"/>
+              </svg>
+              {t.switchLang}
+            </Link>
+            <ThemeToggle />
+          </div>
+        </div>
+        <div className="no-scrollbar -mx-2 flex items-center gap-1 overflow-x-auto px-2 pb-2 sm:hidden">
+          {tabs}
         </div>
       </nav>
 

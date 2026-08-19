@@ -1,0 +1,56 @@
+import { describe, expect, it } from "vitest";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+/**
+ * Garde-fou de la famille « échec silencieux » : aucun contenu ne part
+ * invisible dans l'HTML prérendu.
+ *
+ * Framer Motion écrit l'état `initial` dans le balisage rendu côté serveur.
+ * Une entrée animée déclenchée au défilement (`whileInView`) livrait donc un
+ * `opacity:0` dans l'export statique : le titre de la page d'arrivée et les six
+ * sections du corps constitutionnel n'apparaissaient qu'une fois React hydraté,
+ * et jamais si le bundle échouait. Pire, `once: true` ne se déclenche que sur
+ * une intersection réelle : un lien profond (`/composer#article-4`) sautait la
+ * cible, qui restait à zéro — page blanche sur le texte qu'on venait lire.
+ *
+ * L'entrée animée vit désormais en CSS (`.cc-rise`, cf. `globals.css`) : elle
+ * part de l'état visible dans le balisage, joue quand elle peut, et son échec
+ * n'a aucune conséquence. Ce test interdit le retour du motif.
+ */
+
+function sources(dir: string): string[] {
+  return readdirSync(dir).flatMap((entry) => {
+    const path = join(dir, entry);
+    if (statSync(path).isDirectory()) return sources(path);
+    return /\.tsx$/.test(path) ? [path] : [];
+  });
+}
+
+const FILES = [...sources("src/components"), ...sources("src/app")];
+
+describe("entrée animée", () => {
+  it("ne cache aucun contenu derrière un déclenchement au défilement", () => {
+    const coupables = FILES.filter((f) =>
+      // Le commentaire qui explique la règle n'est pas une infraction.
+      readFileSync(f, "utf8")
+        .split("\n")
+        .some((l) => /whileInView/.test(l) && !/^\s*(\/\/|\*)/.test(l)),
+    );
+    expect(coupables).toEqual([]);
+  });
+
+  it("n'anime pas l'opacité au montage d'un élément rendu côté serveur", () => {
+    // `animate` au montage écrit lui aussi `opacity:0` côté serveur. Les
+    // insertions du composer sont exemptes : elles montent sur une action de
+    // l'utilisateur, dans une `AnimatePresence initial={false}`, et sortent
+    // donc du serveur à `opacity:1`.
+    const coupables = FILES.filter((f) => {
+      const src = readFileSync(f, "utf8");
+      return /animate="show"/.test(src) || /animate=\{\{\s*opacity: 1/.test(src)
+        ? !/AnimatePresence/.test(src)
+        : false;
+    });
+    expect(coupables).toEqual([]);
+  });
+});

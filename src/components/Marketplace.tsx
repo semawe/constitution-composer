@@ -80,7 +80,7 @@ export default function Marketplace({
           </Link>
           <button
             onClick={() => onOpen(anchor)}
-            className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+            className="inline-flex items-center gap-1.5 rounded-full btn-ink px-4 py-2 text-sm font-medium transition"
           >
             {t.activate}
           </button>
@@ -148,7 +148,7 @@ export default function Marketplace({
             <p className="mt-1 text-sm leading-relaxed text-slate-600">
               {t.proposeDesc}
             </p>
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition group-hover:bg-teal-600">
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full btn-ink px-4 py-2 text-sm font-medium transition group-hover:opacity-90">
               {t.proposeCta}
             </span>
           </a>

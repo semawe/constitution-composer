@@ -53,9 +53,9 @@ export default async function AppDetailPage({
   const tier = TIER_LABEL[mod.tier];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SiteNav />
-      <main className="mx-auto max-w-3xl px-4 pb-24 pt-16">
+      <main className="flex-1 mx-auto max-w-3xl px-4 pb-24 pt-16">
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-sm text-slate-400">
           <Link href="/composer" className="hover:text-slate-600">
@@ -232,7 +232,7 @@ export default async function AppDetailPage({
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href={`/composer#${mod.insertions[0]?.anchor ?? ""}`}
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
+            className="inline-flex items-center gap-2 rounded-full btn-ink px-5 py-2.5 text-sm font-medium transition"
           >
             Activer dans le composeur →
           </Link>

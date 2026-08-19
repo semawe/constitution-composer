@@ -101,7 +101,7 @@ export default function AppSubmissions({
           <p className="text-sm text-slate-600">{t.formSignIn}</p>
           <button
             onClick={onRequestSignIn}
-            className="mt-3 inline-flex items-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+            className="mt-3 inline-flex items-center rounded-full btn-ink px-5 py-2 text-sm font-medium transition"
           >
             {t.formSignInCta}
           </button>
@@ -163,7 +163,7 @@ export default function AppSubmissions({
             <button
               type="submit"
               disabled={!canSubmit}
-              className="inline-flex items-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-40"
+              className="inline-flex items-center rounded-full btn-ink px-5 py-2 text-sm font-medium transition disabled:opacity-40"
             >
               {busy ? t.formSubmitting : t.formSubmit}
             </button>
