@@ -20,6 +20,7 @@ import {
 } from "@/lib/constitution";
 import {
   type ContentRef,
+  CURRENT_RELEASE,
   currentContentRef,
   isOutdated,
   releaseLabel,
@@ -30,6 +31,7 @@ import {
   type SavedComposition,
   MAX_COMPOSITIONS,
   listCompositions,
+  migrateComposition,
   repinComposition,
   saveComposition,
   renameComposition,
@@ -140,6 +142,7 @@ export default function Composer({
   );
   const [releaseMsg, setReleaseMsg] = useState<string | null>(null);
   const [aFiger, setAFiger] = useState<SavedComposition | null>(null);
+  const [aRejouer, setARejouer] = useState<SavedComposition | null>(null);
   // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
     defaultActive(data),
@@ -561,6 +564,7 @@ export default function Composer({
     // enregistré sur un autre texte, c'est en changer le contenu en silence.
     const resolution = resolveContent(v.payload.content);
     setAFiger(null);
+    setARejouer(null);
     if (resolution.statut === "release-absente") {
       setReleaseMsg(t.releaseMissing(releaseLabel(resolution.release, locale)));
       return;
@@ -578,12 +582,14 @@ export default function Composer({
       // et on propose de la figer — d'un clic, pas d'une manipulation.
       setReleaseMsg(t.releaseNotPinned);
       setAFiger(v);
+    } else if (isOutdated(v.payload.content)) {
+      setReleaseMsg(t.releasePinned(releaseLabel(resolution.release, locale)));
+      // Relire son document tel qu'il a été adopté, ou en repartir sur le texte
+      // du jour : ce sont deux besoins, et le second ne doit pas écraser le
+      // premier. D'où une création, proposée ici, plutôt qu'une conversion.
+      setARejouer(v);
     } else {
-      setReleaseMsg(
-        isOutdated(v.payload.content)
-          ? t.releasePinned(releaseLabel(resolution.release, locale))
-          : null,
-      );
+      setReleaseMsg(null);
     }
     // Le payload vient de la base : il peut être ancien (modules disparus),
     // incohérent (prérequis manquants) ou forgé. On le normalise avant de le
@@ -607,6 +613,26 @@ export default function Composer({
       setReleaseMsg(null);
     } catch {
       setVersionMsg(t.versionActionFailed);
+    }
+  };
+
+  /** Crée une version de celle-ci sur le texte du jour. L'originale ne bouge pas. */
+  const handleMigrateVersion = async (v: SavedComposition) => {
+    const nom = t.releaseMigrateName(v.name, releaseLabel(CURRENT_RELEASE, locale));
+    try {
+      const creee = await migrateComposition(v, nom, locale);
+      await refreshVersions();
+      setARejouer(null);
+      setReleaseMsg(t.releaseMigrated(creee.name));
+      setContentRef(currentContentRef(locale));
+      setData(fondCourant);
+      setActive(normalizeActive(fondCourant, creee.payload.active ?? []));
+    } catch (error) {
+      setReleaseMsg(
+        error instanceof Error && error.message === "LIMIT"
+          ? t.releaseMigrateFull(MAX_COMPOSITIONS)
+          : t.versionActionFailed,
+      );
     }
   };
 
@@ -814,6 +840,14 @@ export default function Composer({
                 className="mt-1.5 rounded-full bg-amber-900 px-2.5 py-1 text-[0.7rem] font-medium text-white transition hover:bg-amber-800"
               >
                 {t.releasePinAction}
+              </button>
+            )}
+            {aRejouer && (
+              <button
+                onClick={() => handleMigrateVersion(aRejouer)}
+                className="mt-1.5 rounded-full bg-amber-900 px-2.5 py-1 text-[0.7rem] font-medium text-white transition hover:bg-amber-800"
+              >
+                {t.releaseMigrateAction}
               </button>
             )}
           </div>

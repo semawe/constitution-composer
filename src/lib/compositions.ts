@@ -136,6 +136,30 @@ export async function repinComposition(
   if (error) throw error;
 }
 
+/**
+ * Rejoue une version sur le texte du jour, en **créant** une nouvelle version.
+ *
+ * C'est le pendant de `repinComposition()`, et la différence est le fond du
+ * sujet : figer une version qui n'était rattachée à aucun texte ne lui enlève
+ * rien, tandis que porter une version d'un texte à un autre change le document.
+ * L'ancienne reste donc intacte — une organisation qui a adopté sa Constitution
+ * doit pouvoir la relire telle qu'elle l'a ratifiée, même après avoir suivi une
+ * version plus récente.
+ *
+ * Jette « LIMIT » si le plafond est atteint : il faut alors libérer une place,
+ * et l'appelant le dit.
+ */
+export async function migrateComposition(
+  source: SavedComposition,
+  name: string,
+  locale: Locale,
+): Promise<SavedComposition> {
+  const { schemaVersion: _s, content: _c, ...configuration } = source.payload;
+  void _s;
+  void _c;
+  return saveComposition(name.slice(0, 120), configuration, locale);
+}
+
 export async function renameComposition(
   id: string,
   name: string,

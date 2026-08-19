@@ -129,6 +129,13 @@ export const COMPOSER = {
     releaseNotPinned:
       "Cette version est ancienne : l'application n'a pas gardé trace de la Constitution avec laquelle vous l'aviez composée. Elle s'affiche donc avec la Constitution d'aujourd'hui.",
     releasePinAction: "L'enregistrer avec la Constitution d'aujourd'hui",
+    releaseMigrateAction: "En créer une version sur la Constitution d'aujourd'hui",
+    releaseMigrateName: (name: string, date: string) =>
+      `${name} (Constitution du ${date})`,
+    releaseMigrated: (name: string) =>
+      `« ${name} » a été créée sur la Constitution d'aujourd'hui. Votre version d'origine est intacte.`,
+    releaseMigrateFull: (max: number) =>
+      `Vos ${max} emplacements de versions sont pris. Supprimez-en une pour pouvoir créer cette nouvelle version ; votre version d'origine, elle, ne sera pas touchée.`,
     releaseMissing: (date: string) =>
       `Cette version a été composée avec la Constitution du ${date}, que l'application n'a plus. Elle n'a pas été ouverte : vous auriez lu un autre texte que le vôtre.`,
     releaseMismatch: (date: string) =>
@@ -256,6 +263,13 @@ export const COMPOSER = {
     releaseNotPinned:
       "This version is an old one: the app did not record which Constitution you composed it with. It is therefore shown with today's Constitution.",
     releasePinAction: "Save it with today's Constitution",
+    releaseMigrateAction: "Create a version of it on today's Constitution",
+    releaseMigrateName: (name: string, date: string) =>
+      `${name} (Constitution of ${date})`,
+    releaseMigrated: (name: string) =>
+      `“${name}” has been created on today's Constitution. Your original version is untouched.`,
+    releaseMigrateFull: (max: number) =>
+      `All ${max} of your version slots are taken. Delete one to create this new version; your original version will not be touched.`,
     releaseMissing: (date: string) =>
       `This version was composed with the Constitution of ${date}, which the app no longer has. It was not opened: you would have read a text other than your own.`,
     releaseMismatch: (date: string) =>

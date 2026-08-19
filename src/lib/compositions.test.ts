@@ -81,6 +81,56 @@ describe("sauvegarde d'une composition (repli local)", () => {
     );
   });
 
+  it("rejouer une version en crée une autre, et laisse l'originale intacte", async () => {
+    // La différence de fond avec « figer » : porter une version d'un texte à un
+    // autre change le document. L'organisation doit garder celui qu'elle a
+    // adopté, et obtenir le nouveau à côté.
+    const { saveComposition, migrateComposition, listCompositions } = await import(
+      "./compositions"
+    );
+    const ancienne = await saveComposition("Notre Constitution", charge(), "fr");
+    // On la ramène à une release antérieure, comme le serait une version de l'an
+    // dernier ouverte aujourd'hui. Écrit dans le magasin plutôt que par une
+    // trappe exportée : le code de production n'a pas à porter de porte de test.
+    localStorage.setItem(
+      "cc_versions",
+      JSON.stringify([
+        {
+          ...ancienne,
+          payload: {
+            ...ancienne.payload,
+            content: { locale: "fr", release: "2000-01-01", sha256: "a".repeat(64) },
+          },
+        },
+      ]),
+    );
+    const source = (await listCompositions())[0];
+
+    const creee = await migrateComposition(source, "Notre Constitution (2026)", "fr");
+
+    const apres = await listCompositions();
+    expect(apres).toHaveLength(2);
+    expect(creee.payload.content?.release).toBe(CURRENT_RELEASE);
+    // L'originale, elle, porte toujours son texte d'origine.
+    const intacte = apres.find((r) => r.id === source.id)!;
+    expect(intacte.payload.content?.release).toBe("2000-01-01");
+    expect(intacte.payload.title).toBe(source.payload.title);
+  });
+
+  it("rejouer refuse au plafond, sans toucher à l'originale", async () => {
+    const { saveComposition, migrateComposition, listCompositions, MAX_COMPOSITIONS } =
+      await import("./compositions");
+    for (let i = 0; i < MAX_COMPOSITIONS; i++)
+      await saveComposition(`v${i}`, charge(), "fr");
+    const source = (await listCompositions())[0];
+    await expect(
+      migrateComposition(source, "une de trop", "fr"),
+    ).rejects.toThrow("LIMIT");
+    const apres = await listCompositions();
+    expect(apres).toHaveLength(MAX_COMPOSITIONS);
+    expect(apres.find((r) => r.id === source.id)).toEqual(source);
+  });
+
   it("figer une version se fait en place : ni doublon, ni plafond atteint", async () => {
     // Le geste « L'enregistrer avec la Constitution d'aujourd'hui » doit marcher
     // même quand les cinq places sont prises — c'est le cas d'une organisation
