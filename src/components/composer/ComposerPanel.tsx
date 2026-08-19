@@ -91,6 +91,10 @@ export function ComposerPanel({
   const handlePinVersion = versions.onPin;
   const handleMigrateVersion = versions.onMigrate;
 
+  // L'état de départ du composer, pour savoir de quels tiers l'utilisateur s'est
+  // déjà occupé (cf. l'ouverture automatique des volets plus bas).
+  const parDefaut = defaultActive(data);
+
   // Lite = blocs retirables cochés ; au-delà = modules additifs. Ce décompte
   // n'existe que pour cette ligne du panneau : il vit donc ici.
   const retirableMods = data.modules.filter((m) => m.tier === "retirable");
@@ -281,34 +285,77 @@ export function ComposerPanel({
         )}
       </div>
 
-      {(["retirable", "pedagogique", "extension", "app"] as Tier[]).map((tier) => (
-        <div key={tier} className="mt-6">
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${TIER_UI[tier].dot}`} />
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              {tierLabel[tier]}
-            </span>
-          </div>
-          <ul className="mt-2 space-y-1.5">
-            {modulesByTier(tier).map((m) => (
-              <ModuleToggle
-                key={m.id}
-                mod={m}
-                on={active.has(m.id)}
-                premium={!account && isGatedTier(m.tier)}
-                lockedBy={requiredByActive(data, active, m.id).map(
-                  (x) => x.label,
-                )}
-                requires={m.requires.flatMap((r) => {
-                  const dep = data.modules.find((d) => d.id === r);
-                  return dep ? [dep.label] : [];
-                })}
-                onToggle={() => toggle(m.id)}
-              />
-            ))}
-          </ul>
-        </div>
-      ))}
+      {/* Les tiers en volets. Le rail présentait ses sept sections d'un bloc :
+          quarante-trois lignes interactives sur plus de mille pixels, avec sa
+          propre barre de défilement et la légende sous le pli. Tout y avait le
+          même poids, alors que les blocs retirables sont le travail courant et
+          que les trois autres tiers sont des ajouts qu'on va chercher.
+
+          `<details>` et non un état React : le volet s'ouvre sans JavaScript, se
+          pilote au clavier sans qu'on ait rien à écrire, et survit à un rendu
+          serveur — la leçon de la matinée sur ce qui dépend de l'hydratation.
+
+          Un tier s'ouvre de lui-même dès qu'on y a touché, c'est-à-dire dès que
+          son état s'écarte du défaut : sans ça, activer une extension puis
+          recharger la page la laissait active derrière un volet fermé, donc
+          invisible. La règle porte sur l'écart et non sur « au moins un module
+          actif », qui ne repliait jamais la piste pédagogique — ses cinq modules
+          sont cochés par défaut, et le volet se rouvrait tout seul. */}
+      {(["retirable", "pedagogique", "extension", "app"] as Tier[]).map((tier) => {
+        const mods = modulesByTier(tier);
+        if (mods.length === 0) return null;
+        const actifs = mods.filter((m) => active.has(m.id)).length;
+        const touche = mods.some((m) => active.has(m.id) !== parDefaut.has(m.id));
+        return (
+          <details
+            key={tier}
+            open={tier === "retirable" || touche}
+            className="group/tier mt-6"
+          >
+            <summary className="flex cursor-pointer list-none items-center gap-2 rounded py-0.5">
+              <span className={`h-2 w-2 shrink-0 rounded-full ${TIER_UI[tier].dot}`} />
+              <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                {tierLabel[tier]}
+              </span>
+              <span className="ml-auto text-[0.7rem] tabular-nums text-slate-400">
+                {actifs}/{mods.length}
+              </span>
+              <svg
+                viewBox="0 0 16 16"
+                className="h-3 w-3 shrink-0 text-slate-400 transition group-open/tier:rotate-90"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M6 3.5L10.5 8L6 12.5"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </summary>
+            <ul className="mt-2 space-y-1.5">
+              {mods.map((m) => (
+                <ModuleToggle
+                  key={m.id}
+                  mod={m}
+                  on={active.has(m.id)}
+                  premium={!account && isGatedTier(m.tier)}
+                  lockedBy={requiredByActive(data, active, m.id).map(
+                    (x) => x.label,
+                  )}
+                  requires={m.requires.flatMap((r) => {
+                    const dep = data.modules.find((d) => d.id === r);
+                    return dep ? [dep.label] : [];
+                  })}
+                  onToggle={() => toggle(m.id)}
+                />
+              ))}
+            </ul>
+          </details>
+        );
+      })}
 
       <Legend tierLabel={tierLabel} ui={t} />
     </div>

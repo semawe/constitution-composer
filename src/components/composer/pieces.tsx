@@ -284,11 +284,28 @@ export function Legend({
     { key: "app", label: tierLabel.app ?? "App" },
     { key: "warning", label: ui.legendDefaultRule },
   ];
+  // En volet, replié par défaut : six lignes de pure référence qu'on consulte
+  // une fois et qui, dépliées en permanence, poussaient le reste du rail sous le
+  // pli. `<details>` plutôt qu'un état React — clavier et rendu serveur gratuits.
   return (
-    <div className="mt-8 border-t border-slate-200 pt-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+    <details className="group/leg mt-8 border-t border-slate-200 pt-4">
+      <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">
         {ui.legend}
-      </p>
+        <svg
+          viewBox="0 0 16 16"
+          className="h-3 w-3 transition group-open/leg:rotate-90"
+          fill="none"
+          aria-hidden
+        >
+          <path
+            d="M6 3.5L10.5 8L6 12.5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </summary>
       <ul className="mt-2 space-y-1.5">
         {rows.map((r) => (
           <li key={r.key} className="flex items-center gap-2 text-xs text-slate-500">
@@ -297,6 +314,6 @@ export function Legend({
           </li>
         ))}
       </ul>
-    </div>
+    </details>
   );
 }

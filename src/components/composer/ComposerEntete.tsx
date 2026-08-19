@@ -93,8 +93,36 @@ export function ComposerEntete({
           <p className="mt-2 max-w-2xl text-xs leading-relaxed text-slate-500">
             {UI[locale].derivation}
           </p>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-            <span>{t.titleHint}</span>
+          <p className="mt-2 text-xs text-slate-400">{t.titleHint}</p>
+
+          {/* Identité visuelle en volet. L'en-tête empilait cinq registres en
+              cent pixels : surtitre, titre éditable, ligne de dérivation, puis
+              police / logo / couleur en onze pixels, puis l'avancement, la case
+              des notes et l'export. Les réglages d'atelier n'appartiennent pas
+              au fronton du document — on y touche une fois, au début, et le
+              document se lit ensuite. Repliés, ils cessent de disputer
+              l'attention au titre ; le volet dit ce qu'il contient et où ça
+              s'applique. */}
+          <details className="group/id mt-3">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400 transition hover:text-slate-600">
+              {t.identity}
+              <svg
+                viewBox="0 0 16 16"
+                className="h-3 w-3 transition group-open/id:rotate-90"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M6 3.5L10.5 8L6 12.5"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </summary>
+            <p className="mt-2 text-xs text-slate-400">{t.identityHint}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
             <span className="flex items-center gap-1.5">
               {t.fontLabel}
               <select
@@ -156,7 +184,8 @@ export function ComposerEntete({
                 </button>
               )}
             </span>
-          </div>
+            </div>
+          </details>
 
           <div className="mt-5">
             <div className="flex items-center justify-between text-xs">
