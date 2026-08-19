@@ -32,6 +32,13 @@ jobs:
       - name: Fond synchronisé avec la Constitution canonique
         run: npm run fond:check
 
+      # Une release archivée est immuable, et le fond servi correspond toujours à
+      # la plus récente : sans cette garde, une retouche du fond ferait changer
+      # le texte des versions déjà sauvegardées, ce que l'archive existe pour
+      # empêcher.
+      - name: Archive des releases du fond conforme
+        run: npm run release:check
+
       - name: Run tests
         run: npm test
 

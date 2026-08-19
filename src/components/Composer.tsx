@@ -18,6 +18,13 @@ import {
   requiredByActive,
   toggleModule,
 } from "@/lib/constitution";
+import {
+  type ContentRef,
+  CURRENT_RELEASE,
+  currentContentRef,
+  isOutdated,
+  resolveContent,
+} from "@/lib/releases";
 import { getSupabase } from "@/lib/supabase";
 import {
   type SavedComposition,
@@ -111,7 +118,7 @@ interface Branding {
 }
 
 export default function Composer({
-  data,
+  data: fondCourant,
   branding,
   onTermClick,
   locale = "fr",
@@ -121,6 +128,17 @@ export default function Composer({
   onTermClick: (key: string) => void;
   locale?: Locale;
 }) {
+  // Le fond rendu n'est pas toujours celui de la page : rouvrir une version
+  // figée sur une release archivée doit afficher **le texte de cette release**,
+  // sinon la version n'est qu'une configuration et le document change sous les
+  // pieds de qui l'a adoptée. `fondCourant` reste la référence de ce qu'on sert
+  // aujourd'hui ; `data` est ce qu'on compose ici et maintenant.
+  const [data, setData] = useState<ConstitutionData>(fondCourant);
+  const [contentRef, setContentRef] = useState<ContentRef | null>(() =>
+    currentContentRef(locale),
+  );
+  const [releaseMsg, setReleaseMsg] = useState<string | null>(null);
+  const [aFiger, setAFiger] = useState<SavedComposition | null>(null);
   // Au départ : la Lite complète = tous les blocs retirables cochés.
   const [active, setActive] = useState<ReadonlySet<string>>(() =>
     defaultActive(data),
@@ -298,6 +316,9 @@ export default function Composer({
         // Le PDF rend ce que l'écran montre : les notes d'intention suivent
         // l'interrupteur, elles ne disparaissent plus en silence à l'export.
         showIntent,
+        // Le PDF dit de quel texte il est tiré : sans cela, deux exports du même
+        // nom peuvent différer sans qu'on puisse le savoir après coup.
+        contentRef: contentRef ?? undefined,
         date: new Date().toLocaleDateString(t.dateLocale, {
           day: "2-digit",
           month: "long",
@@ -511,14 +532,18 @@ export default function Composer({
     setVersionBusy(true);
     setVersionMsg(null);
     try {
-      await saveComposition((title || t.untitled).trim(), {
-        title,
-        values,
-        active: [...active],
-        titleColor: titleColor || undefined,
-        font,
-        logo: logo || undefined,
-      });
+      await saveComposition(
+        (title || t.untitled).trim(),
+        {
+          title,
+          values,
+          active: [...active],
+          titleColor: titleColor || undefined,
+          font,
+          logo: logo || undefined,
+        },
+        locale,
+      );
       await refreshVersions();
       setVersionMsg(t.saved);
       track("sauvegarde_version");
@@ -530,16 +555,57 @@ export default function Composer({
   };
 
   const handleLoadVersion = (v: SavedComposition) => {
+    // De quel texte cette version est-elle faite ? Tant que ce n'est pas
+    // tranché, on n'ouvre rien : composer avec le fond courant un document
+    // enregistré sur un autre texte, c'est en changer le contenu en silence.
+    const resolution = resolveContent(v.payload.content);
+    setAFiger(null);
+    if (resolution.statut === "release-absente") {
+      setReleaseMsg(t.releaseMissing(resolution.release));
+      return;
+    }
+    if (resolution.statut === "empreinte-divergente") {
+      setReleaseMsg(t.releaseMismatch(resolution.release));
+      return;
+    }
+    const fond =
+      resolution.statut === "resolue" ? resolution.data : fondCourant;
+    setData(fond);
+    setContentRef(v.payload.content ?? null);
+    if (resolution.statut === "non-figee") {
+      // Version d'avant l'archivage : on l'ouvre sur le texte du jour, on le dit,
+      // et on propose de la figer — d'un clic, pas d'une manipulation.
+      setReleaseMsg(t.releaseNotPinned);
+      setAFiger(v);
+    } else {
+      setReleaseMsg(
+        isOutdated(v.payload.content) ? t.releasePinned(resolution.release) : null,
+      );
+    }
     // Le payload vient de la base : il peut être ancien (modules disparus),
     // incohérent (prérequis manquants) ou forgé. On le normalise avant de le
-    // donner au moteur.
-    setActive(normalizeActive(data, v.payload.active ?? []));
-    setTitle(v.payload.title ?? data.meta.title);
+    // donner au moteur — contre le fond que la version désigne.
+    setActive(normalizeActive(fond, v.payload.active ?? []));
+    setTitle(v.payload.title ?? fond.meta.title);
     setValues(v.payload.values ?? "");
     setTitleColor(v.payload.titleColor ?? "");
     setFont(v.payload.font ?? "source-serif");
     setLogo(safeLogo(v.payload.logo));
     setVersionMsg(t.loaded(v.name));
+  };
+
+  /** Fige une version d'avant l'archivage sur le texte du jour, à la demande. */
+  const handlePinVersion = async (v: SavedComposition) => {
+    try {
+      await saveComposition(v.name, { ...v.payload }, locale);
+      await deleteComposition(v.id);
+      await refreshVersions();
+      setAFiger(null);
+      setContentRef(currentContentRef(locale));
+      setReleaseMsg(t.releasePinned(CURRENT_RELEASE));
+    } catch {
+      setVersionMsg(t.versionActionFailed);
+    }
   };
 
   const handleRenameVersion = async (v: SavedComposition) => {
@@ -732,6 +798,24 @@ export default function Composer({
         >
           {versionBusy ? t.saving : t.saveVersion}
         </button>
+        {/* De quel texte vient ce qu'on regarde. Muet quand la version est
+            figée sur le texte courant : il n'y a rien à signaler. */}
+        {releaseMsg && (
+          <div
+            role="status"
+            className="mt-1.5 rounded-md border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs text-amber-900"
+          >
+            <p>{releaseMsg}</p>
+            {aFiger && (
+              <button
+                onClick={() => handlePinVersion(aFiger)}
+                className="mt-1.5 rounded-full bg-amber-900 px-2.5 py-1 text-[0.7rem] font-medium text-white transition hover:bg-amber-800"
+              >
+                {t.releasePinAction}
+              </button>
+            )}
+          </div>
+        )}
         {versionsUnread && (
           <p role="alert" className="mt-1.5 text-xs text-rose-700">
             {t.versionsFailed}

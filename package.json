@@ -12,6 +12,8 @@
     "lint": "eslint",
     "fond:build": "node scripts/fond.mjs",
     "fond:check": "node scripts/fond.mjs --check",
+    "release:new": "node scripts/releases.mjs --new",
+    "release:check": "node scripts/releases.mjs --check",
     "deploy:ovh": "node scripts/deploy-ovh.mjs",
     "test": "vitest run",
     "test:watch": "vitest"

@@ -1,0 +1,11 @@
+{
+  "releases": [
+    {
+      "id": "2026-08-19",
+      "sha256": {
+        "fr": "69c7be54ae9a01dc7f759202c347725b736573e0fb6dcd860cb1ba86fcf3702e",
+        "en": "0568a101bdcc967e301691566183b2b2333cca69c598fe7b8d8dfd0db0b899cd"
+      }
+    }
+  ]
+}

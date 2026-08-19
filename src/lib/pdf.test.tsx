@@ -200,6 +200,22 @@ describe.each(FONDS)("export du document composé (%s)", (locale, data) => {
     expect(rendu).toContain(needle(t.pdfFooter(data.meta.license, data.meta.notice)));
   });
 
+  it("le pied de page dit de quel texte le document est tiré", () => {
+    // Sans cette mention, deux PDF du même nom peuvent différer sans qu'on
+    // puisse le savoir après coup.
+    const rendu = flatten(
+      doc(locale, data, defaultActive(data), {
+        contentRef: { release: "2026-08-19", sha256: "abcdef0123456789".repeat(4) },
+      }),
+    );
+    expect(rendu).toContain(needle(t.pdfContentRef("2026-08-19", "abcdef012345")));
+  });
+
+  it("sans référence de texte, le pied de page n'invente rien", () => {
+    const rendu = flatten(doc(locale, data, defaultActive(data)));
+    expect(rendu).not.toContain(needle(t.pdfContentRef("", "")).trim());
+  });
+
   it("les valeurs de l'organisation sortent après le préambule et avant l'article 1", () => {
     const valeurs = "Sobriété, franchise, plaisir du travail bien fait.";
     const rendu = flatten(

@@ -126,6 +126,38 @@ run. Generation without that guard would protect nothing, since nobody would run
 
 ---
 
+## Content releases — why a saved version keeps its text
+
+A saved composition used to carry only its configuration: checked modules, title, values,
+branding. Nothing of the text itself. So after an editorial update of `src/data/constitution.*.json`,
+reopening the same "version" and exporting it produced **a different legal text under the same
+name**, silently. For a document an organization adopts as its constitution, that is the worst
+defect this app can produce.
+
+Every state of the served content is therefore archived once and for all:
+
+```bash
+npm run release:new     # archives the current content as a new release
+npm run release:check   # archives are intact, and the served content matches the newest one
+```
+
+- `src/data/releases/<id>/constitution.{fr,en}.json` — the archived copies. **Immutable**: the
+  check fails if one of them changes.
+- `src/data/releases/manifest.json` and `index.ts` — the registry (generated; the check fails if
+  it drifts from the manifest). Imports are static because a bundle cannot resolve a computed path.
+- A saved composition stores `{ locale, release, sha256 }`. Reopening it composes **from that
+  release's archive**, not from today's content.
+- Resolution is strict: an unknown release, or a digest that does not match, refuses to open and
+  says so. It never silently falls back to the current content — that fallback *is* the defect.
+- Compositions saved before archiving existed carry no reference. They open on the current text,
+  say so, and offer to pin themselves in one click.
+- The exported PDF prints the release and a short digest, so anyone can tell later which text a
+  document came from.
+
+CI enforces both invariants (`release:check`), like it does for the generated content files.
+
+---
+
 ## Tests
 
 `npm test` runs the Vitest suite (also run in CI, along with `fond:check`, the type check, the
@@ -152,6 +184,11 @@ lint and a full static build). What each file guards:
   one side only would otherwise produce an English Constitution missing a section, without
   breaking anything.
 - **`src/lib/pdf.render.test.tsx` — the export, for real.** Renders actual PDFs (both documents, both languages, all five fonts) and asserts real bytes come out. The tree walk above sees what a document *contains*; it is blind to anything that breaks inside the PDF engine. This file exists because of one such defect: none of the five bundled fonts ships an italic variant, and react-pdf throws rather than synthesizing an oblique — so the Principles export, whose intro is italic, failed on every attempt in production, silently. Italic emphasis now maps to a built-in PDF italic face (`Times-Italic` / `Helvetica-Oblique`), and this test would catch the regression the moment it came back.
+- **`src/lib/releases.test.ts` — immutability of a saved version.** Resolution of a content
+  reference: an archived release resolves, an unknown release or a mismatched digest is refused
+  with no fallback, a reference-less payload is reported as unpinned rather than silently trusted.
+  The decisive case rewrites the *current* content underneath and asserts that what a pinned
+  version renders does not move.
 - **`src/lib/markup.test.ts` — the markup grammar.** The fond uses five patterns and no more (paragraphs, bullet lists, numbered lists, bold, italic), parsed in one place by `src/lib/markup.ts`. Beyond unit cases, a property check over every text of the real content in both languages: the grammar restitutes every word, in order — it loses nothing and invents nothing. Its two deliberate limits (no nested lists, no single-item list) are guarded on the content side rather than silently tolerated.
 - **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
 

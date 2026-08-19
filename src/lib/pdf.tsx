@@ -14,6 +14,7 @@ import {
 } from "@react-pdf/renderer";
 import { type ConstitutionData, type Tier, compose } from "./constitution";
 import { parseBlocks, parseInline } from "./markup";
+import { shortSha } from "./releases";
 import { COMPOSER, PRINCIPES_UI, type Locale } from "./i18n";
 
 // Polices du document, auto-hébergées dans /public/fonts (mêmes fichiers que
@@ -247,6 +248,7 @@ export function ComposedDoc({
   logo,
   locale = "fr",
   showIntent = true,
+  contentRef,
 }: {
   data: ConstitutionData;
   active: ReadonlySet<string>;
@@ -259,6 +261,12 @@ export function ComposedDoc({
   locale?: Locale;
   /** Notes d'intention : l'export suit l'interrupteur de l'écran (affiché par défaut). */
   showIntent?: boolean;
+  /**
+   * Release du fond et son empreinte : imprimées en pied de page pour qu'on
+   * puisse dire, plus tard, de quel texte ce document a été tiré. Absentes pour
+   * une composition qui n'est figée sur aucune release.
+   */
+  contentRef?: { release: string; sha256: string };
 }) {
   const t = COMPOSER[locale];
   const items = compose(data, active);
@@ -320,6 +328,9 @@ export function ComposedDoc({
           <Image style={styles.footerLogo} src="/logo-semawe-light.png" />
           <Text style={styles.footerText}>
             {t.pdfFooter(data.meta.license, data.meta.notice)}
+            {contentRef
+              ? ` — ${t.pdfContentRef(contentRef.release, shortSha(contentRef.sha256))}`
+              : ""}
           </Text>
         </View>
       </Page>
@@ -441,6 +452,7 @@ export async function generateComposedPdfBlob(
     logo?: string;
     locale?: Locale;
     showIntent?: boolean;
+    contentRef?: { release: string; sha256: string };
   },
 ): Promise<Blob> {
   const title = opts?.title?.trim() || data.meta.title;
@@ -458,6 +470,7 @@ export async function generateComposedPdfBlob(
       logo={opts?.logo}
       locale={opts?.locale}
       showIntent={opts?.showIntent}
+      contentRef={opts?.contentRef}
     />,
   ).toBlob();
 }
