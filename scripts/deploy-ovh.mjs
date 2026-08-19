@@ -219,6 +219,15 @@ if (!existsSync(OUT)) {
   }
 }
 
+// Répétition à blanc. Toutes les gardes s'exécutent, rien ne part.
+//
+// Ajouté après m'être fait prendre trois fois : éprouver ces gardes demandait de
+// lancer le script, et le script déployait. Une garde qu'on ne peut pas essayer
+// sans toucher la production ne s'essaie pas — donc ne se vérifie pas, donc ne
+// protège rien de démontrable.
+const aBlanc =
+  process.env.DEPLOY_DRY_RUN === 'yes' || process.argv.includes('--dry-run');
+
 // Un build fait sans les clés Supabase produit un site qui *paraît* marcher :
 // compte simulé, sauvegardes dans le navigateur, rien qui suive le compte. On
 // vérifie donc dans les fichiers à envoyer que la configuration est bien là,
@@ -238,6 +247,19 @@ if (!existsSync(OUT)) {
     );
     process.exit(1);
   }
+}
+
+// Placé en dernier des contrôles : la répétition ne dit « rien à envoyer »
+// qu'après avoir passé le commit, la fraîcheur vis-à-vis d'origin/main et la
+// présence du backend. Une répétition qui court-circuiterait les gardes
+// rassurerait à tort.
+if (aBlanc) {
+  console.log(
+    `Répétition à blanc : toutes les gardes sont passées. ${
+      readdirSync(OUT).filter((f) => f.endsWith('.html')).length
+    } pages prêtes pour ${config.remoteDir}. Rien n'a été envoyé.`,
+  );
+  process.exit(0);
 }
 
 // ---------------------------------------------------------------------------
