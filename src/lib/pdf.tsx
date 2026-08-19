@@ -351,6 +351,12 @@ export interface PrincipesPdfData {
   font?: string;
   titleColor?: string;
   locale?: Locale;
+  /**
+   * Release des Principes et son empreinte, imprimées en pied de page : la
+   * Déclaration est signée, on doit pouvoir dire de quels Principes elle est
+   * faite.
+   */
+  contentRef?: { release: string; sha256: string };
 }
 
 function SignatureList({ names }: { names: string[] }) {
@@ -426,6 +432,12 @@ export function PrincipesDoc({ d }: { d: PrincipesPdfData }) {
           <Image style={styles.footerLogo} src="/logo-semawe-light.png" />
           <Text style={styles.footerText}>
             {t.footer(d.meta.license, d.meta.notice)}
+            {d.contentRef
+              ? ` — ${COMPOSER[d.locale ?? "fr"].pdfContentRef(
+                  releaseLabel(d.contentRef.release, d.locale ?? "fr"),
+                  shortSha(d.contentRef.sha256),
+                )}`
+              : ""}
           </Text>
         </View>
       </Page>

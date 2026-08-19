@@ -48,6 +48,9 @@ describe("sauvegarde d'une composition (repli local)", () => {
       locale: "fr",
       release: CURRENT_RELEASE,
       sha256: releaseSha(CURRENT_RELEASE, "fr"),
+      // Le genre est dit : l'archive porte deux fonds, la Constitution et les
+      // Principes, et une référence qui ne le précise pas serait ambiguë.
+      kind: "constitution",
     });
   });
 

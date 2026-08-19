@@ -11,6 +11,7 @@ import {
   releaseLabel,
   releaseSha,
   resolveContent,
+  resolvePrincipes,
   shortSha,
 } from "./releases";
 import { ARCHIVED_RELEASES } from "../data/releases";
@@ -27,12 +28,14 @@ describe("archive des releases", () => {
 
   it("chaque release archivée porte les deux langues et leurs empreintes", () => {
     for (const r of ARCHIVED_RELEASES) {
-      for (const locale of ["fr", "en"] as const) {
-        expect(r.data[locale], `${r.id} ${locale} : fond absent`).toBeTruthy();
-        expect(r.sha256[locale], `${r.id} ${locale} : empreinte absente`).toMatch(
-          /^[0-9a-f]{64}$/,
-        );
-      }
+      for (const locale of ["fr", "en"] as const)
+        for (const kind of ["constitution", "principes"] as const) {
+          expect(r[kind][locale], `${r.id} ${kind} ${locale} : fond absent`).toBeTruthy();
+          expect(
+            r.sha256[`${kind}.${locale}.json`],
+            `${r.id} ${kind}.${locale} : empreinte absente`,
+          ).toMatch(/^[0-9a-f]{64}$/);
+        }
     }
   });
 
@@ -40,7 +43,8 @@ describe("archive des releases", () => {
     // Si ces deux-là divergent, une composition sauvegardée aujourd'hui serait
     // estampillée d'une release qui ne décrit pas ce qu'elle contient.
     // `npm run release:check` garde la même invariante sur les octets.
-    const courant = ARCHIVED_RELEASES[ARCHIVED_RELEASES.length - 1].data.fr;
+    const courant = ARCHIVED_RELEASES[ARCHIVED_RELEASES.length - 1].constitution
+      .fr as unknown as ConstitutionData;
     expect(courant.blocks.map((b) => b.id)).toEqual(
       frCourant.blocks.map((b) => b.id),
     );
@@ -96,6 +100,44 @@ describe("resolveContent", () => {
     expect(en.statut).toBe("resolue");
     if (fr.statut === "resolue" && en.statut === "resolue")
       expect(en.data.blocks[0].heading).not.toBe(fr.data.blocks[0].heading);
+  });
+});
+
+describe("resolvePrincipes", () => {
+  it("résout les Principes de la release courante", () => {
+    const r = resolvePrincipes(currentContentRef("fr", "principes"));
+    expect(r.statut).toBe("resolue");
+    if (r.statut === "resolue") expect(r.data.principles.length).toBeGreaterThan(5);
+  });
+
+  it("refuse une release absente et une empreinte divergente", () => {
+    const ref = currentContentRef("fr", "principes");
+    expect(resolvePrincipes({ ...ref, release: "1999-01-01" }).statut).toBe(
+      "release-absente",
+    );
+    expect(resolvePrincipes({ ...ref, sha256: "0".repeat(64) }).statut).toBe(
+      "empreinte-divergente",
+    );
+  });
+
+  it("ne confond pas les deux fonds d'une même release", () => {
+    // Une référence de Constitution passée au résolveur des Principes ne doit
+    // pas rendre les Principes : ce serait servir un document pour un autre.
+    const constitution = currentContentRef("fr", "constitution");
+    expect(resolvePrincipes(constitution).statut).toBe("non-figee");
+    const principes = currentContentRef("fr", "principes");
+    expect(resolveContent(principes).statut).toBe("non-figee");
+    // Et leurs empreintes diffèrent : ce ne sont pas les mêmes fichiers.
+    expect(constitution.sha256).not.toBe(principes.sha256);
+  });
+
+  it("une référence d'avant le genre est lue comme une Constitution", () => {
+    // Les premières références n'avaient pas de `kind` : elles ne parlaient que
+    // de la Constitution, et doivent continuer à se résoudre ainsi.
+    const { kind: _k, ...sansGenre } = currentContentRef("fr", "constitution");
+    void _k;
+    expect(resolveContent(sansGenre).statut).toBe("resolue");
+    expect(resolvePrincipes(sansGenre).statut).toBe("non-figee");
   });
 });
 

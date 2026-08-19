@@ -30,19 +30,32 @@ const SHA_COURANTE = "2".repeat(64);
 vi.mock("@/data/releases", async () => {
   const courant = (await import("@/data/constitution.fr.json")).default;
   const anglais = (await import("@/data/constitution.en.json")).default;
+  const principes = (await import("@/data/principes.fr.json")).default;
   const ancien = structuredClone(courant) as typeof courant;
   ancien.blocks[1].text = `${ancien.blocks[1].text}\n\nDisposition retirée depuis : elle n'existe que dans le texte de janvier.`;
   return {
     ARCHIVED_RELEASES: [
       {
         id: "2026-01-01",
-        sha256: { fr: "1".repeat(64), en: "1".repeat(64) },
-        data: { fr: ancien, en: ancien },
+        sha256: {
+          "constitution.fr.json": "1".repeat(64),
+          "constitution.en.json": "1".repeat(64),
+          "principes.fr.json": "1".repeat(64),
+          "principes.en.json": "1".repeat(64),
+        },
+        constitution: { fr: ancien, en: ancien },
+        principes: { fr: principes, en: principes },
       },
       {
         id: "2026-08-19",
-        sha256: { fr: "2".repeat(64), en: "2".repeat(64) },
-        data: { fr: courant, en: anglais },
+        sha256: {
+          "constitution.fr.json": "2".repeat(64),
+          "constitution.en.json": "2".repeat(64),
+          "principes.fr.json": "2".repeat(64),
+          "principes.en.json": "2".repeat(64),
+        },
+        constitution: { fr: courant, en: anglais },
+        principes: { fr: principes, en: principes },
       },
     ],
   };
@@ -132,10 +145,12 @@ describe("relire une version telle qu'elle a été adoptée", () => {
       RELEASE_ANCIENNE,
       RELEASE_COURANTE,
     ]);
-    expect(ARCHIVED_RELEASES[0].sha256.fr).toBe(SHA_ANCIENNE);
-    expect(ARCHIVED_RELEASES[1].sha256.fr).toBe(SHA_COURANTE);
-    expect(ARCHIVED_RELEASES[0].data.fr.blocks[1].text).toContain(PHRASE_ANCIENNE);
-    expect(ARCHIVED_RELEASES[1].data.fr.blocks[1].text).not.toContain(
+    expect(ARCHIVED_RELEASES[0].sha256["constitution.fr.json"]).toBe(SHA_ANCIENNE);
+    expect(ARCHIVED_RELEASES[1].sha256["constitution.fr.json"]).toBe(SHA_COURANTE);
+    expect(ARCHIVED_RELEASES[0].constitution.fr.blocks[1].text).toContain(
+      PHRASE_ANCIENNE,
+    );
+    expect(ARCHIVED_RELEASES[1].constitution.fr.blocks[1].text).not.toContain(
       PHRASE_ANCIENNE,
     );
   });

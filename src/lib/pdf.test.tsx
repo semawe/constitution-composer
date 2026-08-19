@@ -314,6 +314,24 @@ describe("export du document des principes", () => {
     expect(nu).toContain(needle(fixture.adoptionText));
   });
 
+  it("dit de quels Principes la Déclaration est faite, quand elle le sait", () => {
+    // Le document que les ratificateurs signent doit porter la référence de son
+    // texte, comme le PDF de la Constitution.
+    const rendu = flatten(
+      PrincipesDoc({
+        d: {
+          ...fixture,
+          contentRef: { release: "2026-08-19", sha256: "cafe".repeat(16) },
+        },
+      }),
+    );
+    expect(rendu).toContain(
+      needle(
+        COMPOSER.fr.pdfContentRef(releaseLabel("2026-08-19", "fr"), "cafecafecafe"),
+      ),
+    );
+  });
+
   it("porte la licence et la mention en pied de page", () => {
     expect(rendu).toContain(
       needle(t.footer(fixture.meta.license, fixture.meta.notice)),

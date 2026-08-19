@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "title": "Declaration of Principles",
+    "version": "v6, candidate 3",
+    "source": "holacracy-constitution/v6-alpha/en/HC-v6-principles.md",
+    "notice": "Alpha version. Holacracy® is a trademark of HolacracyOne LLC.",
+    "license": "CC BY-SA 4.0"
+  },
+  "intro": "In adopting this Constitution, we are not merely signing a set of rules. We are choosing a way of being together in service of a purpose greater than ourselves. The principles that follow state what we commit to: what guides our interpretation of the rules when they are silent, and what remains true as they evolve.",
+  "principles": [
+    {
+      "id": "p01",
+      "n": "01",
+      "title": "We serve a purpose of our own",
+      "text": "We recognize that this organization exists for a purpose distinct from our own. In joining it, we freely choose to put our energy in service of that purpose. This is the meaning of our commitment.",
+      "warning": "By removing this principle, your Declaration no longer affirms that the organization pursues a purpose of its own. Each person's commitment is no longer explicitly tied to a goal that transcends them."
+    },
+    {
+      "id": "p02",
+      "n": "02",
+      "title": "We treat tensions as signals",
+      "text": "We welcome tensions (the gaps between what is and what could be) as valid information in service of the shared purpose. We commit to giving them a channel rather than smothering them. This is how the organization learns and adapts.",
+      "warning": "Without this principle, nothing invites treating tensions as useful information. They risk being suppressed rather than processed, and the organization loses one of its means of learning."
+    },
+    {
+      "id": "p03",
+      "n": "03",
+      "title": "We distribute authority without abolishing it",
+      "text": "We believe authority is most effective when it is close to the action. We distribute it, we delimit it, we make it explicit. Each Partner holds full authority within explicit boundaries. No one is responsible for everything; everyone is responsible for something.",
+      "warning": "Removing this principle weakens the foundation of the model, according to which authority gains from being close to the action, distributed and delimited. Your Declaration no longer affirms that each person holds real authority within explicit boundaries."
+    },
+    {
+      "id": "p04",
+      "n": "04",
+      "title": "We make clarity a condition of freedom",
+      "text": "We know that ambiguity breeds insecurity. A Partner who is unaware of their limits is equally unaware of the extent of their authority. We commit to making the structure explicit, so that everyone knows where they may act without asking permission.",
+      "warning": "Without this principle, your Declaration no longer commits to making the structure explicit. The resulting ambiguity undermines the freedom to act, because each person no longer knows where they may decide without asking permission."
+    },
+    {
+      "id": "p05",
+      "n": "05",
+      "title": "We distinguish governing from operating",
+      "text": "We maintain a clear separation between decisions that change the structure (who does what, with what authority) and decisions that move the daily work forward. This distinction protects each person's clarity and the collective capacity to evolve without paralysis.",
+      "warning": "By removing it, you give up separating decisions that change the structure from those that move the work forward. The two registers risk becoming confused, to the detriment of clarity and the capacity to evolve."
+    },
+    {
+      "id": "p06",
+      "n": "06",
+      "title": "We do not set people against rules",
+      "text": "We evolve the structure around people, rather than trying to change people to make the organization work. The rules are the framework we give ourselves so that each of us can show up as we are and contribute fully.",
+      "warning": "Without this principle, nothing affirms that the structure adapts to people. The temptation returns to try to change people to keep the organization running."
+    },
+    {
+      "id": "p07",
+      "n": "07",
+      "title": "We change the rules through the rules, not through power",
+      "text": "We commit to changing our shared framework only through the processes that the framework itself provides. As long as this framework is in force, no one may set it aside or bypass it by unilateral decision. Those who adopted it retain the power to amend or repeal it: that is a founding act, exercised in writing and in the open, never an act of management. The system belongs to all who practice it.\n\nIn that same spirit, decisions that evolve a circle's structure cannot be blocked by personal preferences. An objection is valid only if it points to real harm to the organization's capacity to move forward.",
+      "warning": "Removing this principle opens the door to modifying the framework by unilateral decision. Your Declaration no longer protects the system against the exercise of power outside the intended processes."
+    },
+    {
+      "id": "p08",
+      "n": "08",
+      "title": "We write only what we honor, and everything that matters is written",
+      "text": "Nothing implicit is binding. What is not written cannot be held against anyone. We commit to making explicit what matters: roles, authorities, expectations, agreements. This discipline applies to the Constitution as much as to each circle's governance records and to the relational agreements between Partners. It is a form of respect toward each person.",
+      "warning": "Without this principle, the implicit becomes enforceable again. Your Declaration no longer commits to making roles, authorities, and agreements explicit, and each person loses the security of knowing where they stand."
+    },
+    {
+      "id": "p09",
+      "n": "09",
+      "title": "A circle's structure belongs to its members",
+      "text": "Only the members of a circle take part in the decisions that change its structure and its roles. This rule is no operational detail: it is the expression of the principle of subsidiarity applied to organizational authority. The authority to change the rules of an area belongs to those who are responsible for it.",
+      "warning": "By removing it, you give up subsidiarity. The authority to change the rules of an area could then escape those who are responsible for it."
+    },
+    {
+      "id": "p10",
+      "n": "10",
+      "title": "We support autonomy without mistaking autonomy for independence",
+      "text": "We believe that truly autonomous people create more value than people waiting for instructions. But autonomy is not independence: each role is autonomous within its boundaries and interdependent with the rest. This system supports, at once, the full capacity for individual initiative and the coherence of the whole.",
+      "warning": "Without this principle, autonomy risks being confused with independence. Your Declaration no longer affirms that each role is autonomous within its boundaries while remaining interdependent with the rest."
+    },
+    {
+      "id": "p11",
+      "n": "11",
+      "title": "We do not freeze the polarities",
+      "text": "We recognize that human groups navigate between natural polarities: verticality and horizontality, centralization and distribution, individual and collective. This Constitution does not settle these polarities once and for all. It provides a framework that lets each organization hold them in its own way, without suppressing them.",
+      "warning": "Removing this principle suggests that the Constitution settles an organization's polarities once and for all. You lose the invitation to hold them according to your own responses rather than suppressing them."
+    },
+    {
+      "id": "p12",
+      "n": "12",
+      "title": "No one delegates their accountability",
+      "text": "We distinguish directing from answering. A role, its authority, and its means can be handed to another; the duty to answer for it cannot. Every delegation leaves accountability with the one who delegates, and every chain of authority ends, in the end, in a person who answers for it.",
+      "warning": "Without this principle, nothing affirms that accountability always has a human seat. The distinction between directing and answering fades, and one might believe that by entrusting a role, to a person or an agent, accountability transfers along with it."
+    }
+  ]
+}

@@ -12,20 +12,30 @@
 // se refuse, et l'appelant le dit à l'écran.
 
 import { type ConstitutionData } from "./constitution";
+import { type PrincipesData } from "./principes-data";
 import { ARCHIVED_RELEASES } from "@/data/releases";
 
 export type Locale = "fr" | "en";
 
-/** Ce qu'une composition retient du fond dont elle est issue (payload v2). */
+/** Les deux fonds qu'une release archive, et que deux documents distincts servent. */
+export type ContentKind = "constitution" | "principes";
+
+/** Ce qu'un document retient du fond dont il est issu (payload v2). */
 export interface ContentRef {
   locale: Locale;
   release: string;
   sha256: string;
+  /** Absent = « constitution » : les premières références n'avaient qu'un fond. */
+  kind?: ContentKind;
 }
 
-export type ReleaseResolution =
+function fichier(kind: ContentKind, locale: Locale): string {
+  return `${kind}.${locale}.json`;
+}
+
+export type ReleaseResolution<T> =
   /** Release archivée et empreinte conforme : le document de son époque. */
-  | { statut: "resolue"; release: string; data: ConstitutionData }
+  | { statut: "resolue"; release: string; data: T }
   /** Version d'avant l'archivage : aucune release retenue, rien à garantir. */
   | { statut: "non-figee" }
   /** Release retenue mais absente de l'archive : on refuse de composer autre chose. */
@@ -39,16 +49,24 @@ const PAR_ID = new Map(ARCHIVED_RELEASES.map((r) => [r.id, r]));
 export const CURRENT_RELEASE: string =
   ARCHIVED_RELEASES[ARCHIVED_RELEASES.length - 1]?.id ?? "";
 
-export function releaseSha(release: string, locale: Locale): string | null {
-  return PAR_ID.get(release)?.sha256[locale] ?? null;
+export function releaseSha(
+  release: string,
+  locale: Locale,
+  kind: ContentKind = "constitution",
+): string | null {
+  return PAR_ID.get(release)?.sha256[fichier(kind, locale)] ?? null;
 }
 
-/** La référence à inscrire dans une composition sauvegardée maintenant. */
-export function currentContentRef(locale: Locale): ContentRef {
+/** La référence à inscrire dans un document sauvegardé maintenant. */
+export function currentContentRef(
+  locale: Locale,
+  kind: ContentKind = "constitution",
+): ContentRef {
   return {
     locale,
     release: CURRENT_RELEASE,
-    sha256: releaseSha(CURRENT_RELEASE, locale) ?? "",
+    sha256: releaseSha(CURRENT_RELEASE, locale, kind) ?? "",
+    kind,
   };
 }
 
@@ -88,28 +106,49 @@ export function shortSha(sha256: string): string {
 }
 
 /**
- * Le fond dont une composition doit être rendue.
+ * Le fond dont un document doit être rendu.
  *
  * `undefined` (payload d'avant l'archivage) donne « non-figee » : l'appelant
  * compose alors avec le fond courant, mais il doit le dire, et proposer de
  * figer. Tout le reste est ou résolu, ou refusé.
  */
-export function resolveContent(ref?: ContentRef | null): ReleaseResolution {
+function resolve<T>(
+  ref: ContentRef | null | undefined,
+  kind: ContentKind,
+  extraire: (r: (typeof ARCHIVED_RELEASES)[number]) => Record<string, T>,
+): ReleaseResolution<T> {
   if (!ref || !ref.release) return { statut: "non-figee" };
+  // Une référence sans `kind` vient du premier format : elle parle de la
+  // Constitution. La lire comme un autre fond serait une confusion silencieuse.
+  if ((ref.kind ?? "constitution") !== kind) return { statut: "non-figee" };
   const archivee = PAR_ID.get(ref.release);
   if (!archivee) return { statut: "release-absente", release: ref.release };
-  const attendue = archivee.sha256[ref.locale];
-  const data = archivee.data[ref.locale];
+  const attendue = archivee.sha256[fichier(kind, ref.locale)];
+  const data = extraire(archivee)[ref.locale];
   if (!attendue || !data)
     return { statut: "release-absente", release: ref.release };
-  // L'empreinte est comparée telle qu'elle a été archivée : si la composition
-  // en porte une autre, ce n'est pas le même texte, quel qu'en soit le motif.
+  // L'empreinte est comparée telle qu'elle a été archivée : si le document en
+  // porte une autre, ce n'est pas le même texte, quel qu'en soit le motif.
   if (ref.sha256 && ref.sha256 !== attendue)
     return { statut: "empreinte-divergente", release: ref.release };
   return { statut: "resolue", release: ref.release, data };
 }
 
-/** Vrai si cette composition est figée sur une release plus ancienne que la courante. */
+/** Le texte de la Constitution dont une composition sauvegardée est faite. */
+export function resolveContent(
+  ref?: ContentRef | null,
+): ReleaseResolution<ConstitutionData> {
+  return resolve(ref, "constitution", (r) => r.constitution);
+}
+
+/** Les Principes dont une Déclaration sauvegardée est faite. */
+export function resolvePrincipes(
+  ref?: ContentRef | null,
+): ReleaseResolution<PrincipesData> {
+  return resolve(ref, "principes", (r) => r.principes);
+}
+
+/** Vrai si ce document est figé sur une release plus ancienne que la courante. */
 export function isOutdated(ref?: ContentRef | null): boolean {
   return Boolean(ref?.release) && ref!.release !== CURRENT_RELEASE;
 }

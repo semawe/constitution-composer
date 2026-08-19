@@ -10,6 +10,14 @@ import {
 } from "react";
 import { fontVars } from "@/lib/branding";
 import Prose from "@/components/Prose";
+import type { PrincipesData } from "@/lib/principes-data";
+import {
+  type ContentRef,
+  currentContentRef,
+  isOutdated,
+  releaseLabel,
+  resolvePrincipes,
+} from "@/lib/releases";
 import {
   type DeclarationPayload,
   normalizeDeclaration,
@@ -19,22 +27,12 @@ import { COMPOSER, PRINCIPES_UI, type Locale } from "@/lib/i18n";
 
 const LS_PRINCIPES = "cc_principes";
 
-export interface Principle {
-  id: string;
-  n: string;
-  title: string;
-  text: string;
-  warning: string;
-}
-
-export interface PrincipesData {
-  meta: Record<string, string>;
-  intro: string;
-  principles: Principle[];
-}
+// Les types vivent dans `@/lib/principes-data` : l'index des releases doit
+// pouvoir les importer sans dépendre de ce composant.
+export type { Principle, PrincipesData } from "@/lib/principes-data";
 
 export default function Principes({
-  data,
+  data: fondCourant,
   logo,
   font,
   titleColor,
@@ -106,6 +104,16 @@ export default function Principes({
   };
 
   // Compte (mur freemium du PDF de la Déclaration, comme la Constitution).
+  // Comme pour la Constitution : le fond rendu est celui que la Déclaration
+  // désigne, pas toujours celui de la page. Une Déclaration signée doit se relire
+  // telle qu'elle a été signée.
+  const [data, setData] = useState<PrincipesData>(fondCourant);
+  const [contentRef, setContentRef] = useState<ContentRef | null>(() =>
+    currentContentRef(locale, "principes"),
+  );
+  const [releaseMsg, setReleaseMsg] = useState<string | null>(null);
+  const [aFiger, setAFiger] = useState(false);
+
   const supabase = useMemo(() => getSupabase(), []);
   const [account, setAccount] = useState(false);
   const [gate, setGate] = useState(false);
@@ -227,6 +235,10 @@ export default function Principes({
   // (visible côté admin) dès que l'utilisateur est connecté.
   const declarationPayload = useMemo(
     () => ({
+      // La référence suit le document : ce qui est sauvegardé dit de quels
+      // Principes il est fait, sinon la garantie ne survit pas à l'écriture.
+      schemaVersion: 2 as const,
+      content: contentRef ?? currentContentRef(locale, "principes"),
       removed: [...removed],
       custom,
       order,
@@ -235,7 +247,17 @@ export default function Principes({
       ratifiers,
       signatories,
     }),
-    [removed, custom, order, raisonEtre, devise, ratifiers, signatories],
+    [
+      contentRef,
+      locale,
+      removed,
+      custom,
+      order,
+      raisonEtre,
+      devise,
+      ratifiers,
+      signatories,
+    ],
   );
 
   // Y a-t-il quelque chose à perdre dans le brouillon local ?
@@ -258,7 +280,7 @@ export default function Principes({
     let alive = true;
     // Capturé avant l'appel : dans la réponse Supabase, `data` désigne la ligne
     // lue et masquerait la propriété `data` du composant.
-    const builtinIds = data.principles.map((x) => x.id);
+    const builtinIds = fondCourant.principles.map((x) => x.id);
     setRemote("loading");
     setOfferAttach(false);
     supabase
@@ -281,7 +303,40 @@ export default function Principes({
           setRemote("ready");
           return;
         }
-        const p = normalizeDeclaration(data.payload, builtinIds);
+        const brut = normalizeDeclaration(data.payload, builtinIds);
+        const resolution = resolvePrincipes(brut.content);
+        if (resolution.statut === "release-absente") {
+          setRemote("error");
+          setReleaseMsg(
+            c.releaseMissing(releaseLabel(resolution.release, locale)),
+          );
+          return;
+        }
+        if (resolution.statut === "empreinte-divergente") {
+          setRemote("error");
+          setReleaseMsg(
+            c.releaseMismatch(releaseLabel(resolution.release, locale)),
+          );
+          return;
+        }
+        if (resolution.statut === "resolue") {
+          setData(resolution.data);
+          setContentRef(brut.content ?? null);
+          setReleaseMsg(
+            isOutdated(brut.content)
+              ? c.releasePinned(releaseLabel(resolution.release, locale))
+              : null,
+          );
+          setAFiger(false);
+        } else {
+          // Déclaration d'avant l'archivage : ouverte sur les Principes du jour,
+          // et on le dit plutôt que de laisser croire à une garantie.
+          setData(fondCourant);
+          setContentRef(null);
+          setReleaseMsg(c.releaseNotPinned);
+          setAFiger(true);
+        }
+        const p = brut;
         setRemoved(new Set(p.removed));
         setCustom(p.custom);
         setOrder(p.order);
@@ -428,6 +483,14 @@ export default function Principes({
       .map((x) => x.trim())
       .filter(Boolean);
 
+  /** Rattache une Déclaration d'avant l'archivage aux Principes du jour. */
+  const figerDeclaration = () => {
+    setContentRef(currentContentRef(locale, "principes"));
+    setAFiger(false);
+    setReleaseMsg(null);
+    // L'autosauvegarde suit : le payload dérive de l'état, la référence y entre.
+  };
+
   const doPdf = async () => {
     setPdfBusy(true);
     setPdfError(false);
@@ -457,6 +520,7 @@ export default function Principes({
         font,
         titleColor: titleColor || undefined,
         locale,
+        contentRef: contentRef ?? undefined,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -495,6 +559,22 @@ export default function Principes({
       {/* Ce que le compte fait de la Déclaration ne reste pas muet : lecture
           ratée, écriture ratée et export raté se disent, chacun avec la
           conséquence exacte pour la personne. */}
+      {releaseMsg && (
+        <div
+          role="status"
+          className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+        >
+          <p>{releaseMsg}</p>
+          {aFiger && (
+            <button
+              onClick={figerDeclaration}
+              className="mt-2 rounded-full bg-amber-900 px-3 py-1 text-xs font-medium text-white transition hover:bg-amber-800"
+            >
+              {c.releasePinAction}
+            </button>
+          )}
+        </div>
+      )}
       {remote === "error" && (
         <p
           role="alert"

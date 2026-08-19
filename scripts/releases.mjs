@@ -37,6 +37,15 @@ const RELEASES = join(DATA, "releases");
 const MANIFEST = join(RELEASES, "manifest.json");
 const INDEX = join(RELEASES, "index.ts");
 const LOCALES = ["fr", "en"];
+/**
+ * Les fichiers qu'une release archive. Les Principes en font partie : la
+ * Déclaration est le document que les ratificateurs signent, et elle doit pouvoir
+ * être relue telle qu'elle a été signée, au même titre que la Constitution.
+ */
+const FICHIERS = LOCALES.flatMap((l) => [
+  `constitution.${l}.json`,
+  `principes.${l}.json`,
+]);
 
 class ReleaseError extends Error {}
 
@@ -49,8 +58,8 @@ function empreinte(chemin) {
   return createHash("sha256").update(readFileSync(chemin)).digest("hex");
 }
 
-function fondCourant(locale) {
-  return join(DATA, `constitution.${locale}.json`);
+function fondCourant(fichier) {
+  return join(DATA, fichier);
 }
 
 function lireManifeste() {
@@ -90,21 +99,23 @@ function ecrireIndex(manifeste) {
     "// chemin calculé à l'exécution. Chaque release archivée est donc nommée ici.",
     "",
     'import type { ConstitutionData } from "@/lib/constitution";',
+    'import type { PrincipesData } from "@/lib/principes-data";',
     "",
   ];
-  const nom = (id, locale) =>
-    `r_${id.replace(/[^0-9A-Za-z]/g, "_")}_${locale}`;
+  const nom = (id, fichier) =>
+    `r_${id.replace(/[^0-9A-Za-z]/g, "_")}_${fichier.replace(/[^0-9A-Za-z]/g, "_")}`;
   for (const r of manifeste.releases)
-    for (const locale of LOCALES)
+    for (const fichier of FICHIERS)
       lignes.push(
-        `import ${nom(r.id, locale)} from "@/data/releases/${r.id}/constitution.${locale}.json";`,
+        `import ${nom(r.id, fichier)} from "@/data/releases/${r.id}/${fichier}";`,
       );
   lignes.push("");
   lignes.push("export interface ArchivedRelease {");
   lignes.push("  id: string;");
-  lignes.push("  /** Empreinte du fichier archivé, par langue. */");
+  lignes.push("  /** Empreinte de chaque fichier archivé, par nom de fichier. */");
   lignes.push("  sha256: Record<string, string>;");
-  lignes.push("  data: Record<string, ConstitutionData>;");
+  lignes.push("  constitution: Record<string, ConstitutionData>;");
+  lignes.push("  principes: Record<string, PrincipesData>;");
   lignes.push("}");
   lignes.push("");
   lignes.push("/** Les releases du fond, de la plus ancienne à la plus récente. */");
@@ -113,12 +124,15 @@ function ecrireIndex(manifeste) {
     lignes.push("  {");
     lignes.push(`    id: ${JSON.stringify(r.id)},`);
     lignes.push(`    sha256: ${JSON.stringify(r.sha256)},`);
-    lignes.push("    data: {");
-    for (const locale of LOCALES)
-      lignes.push(
-        `      ${locale}: ${nom(r.id, locale)} as unknown as ConstitutionData,`,
-      );
-    lignes.push("    },");
+    for (const genre of ["constitution", "principes"]) {
+      const type = genre === "constitution" ? "ConstitutionData" : "PrincipesData";
+      lignes.push(`    ${genre}: {`);
+      for (const locale of LOCALES)
+        lignes.push(
+          `      ${locale}: ${nom(r.id, `${genre}.${locale}.json`)} as unknown as ${type},`,
+        );
+      lignes.push("    },");
+    }
     lignes.push("  },");
   }
   lignes.push("];");
@@ -130,15 +144,15 @@ function archiver(label) {
   const manifeste = lireManifeste();
   const precedente = derniere(manifeste);
   const empreintes = Object.fromEntries(
-    LOCALES.map((l) => [l, empreinte(fondCourant(l))]),
+    FICHIERS.map((f) => [f, empreinte(fondCourant(f))]),
   );
 
   if (
     precedente &&
-    LOCALES.every((l) => precedente.sha256[l] === empreintes[l])
+    FICHIERS.every((f) => precedente.sha256[f] === empreintes[f])
   ) {
     console.log(
-      `= le fond courant est déjà la release ${precedente.id} (rien à archiver).`,
+      `= les fonds courants sont déjà la release ${precedente.id} (rien à archiver).`,
     );
     return;
   }
@@ -146,16 +160,13 @@ function archiver(label) {
   const id = identifiantDuJour(manifeste, label);
   const dossier = join(RELEASES, id);
   mkdirSync(dossier, { recursive: true });
-  for (const locale of LOCALES)
-    writeFileSync(
-      join(dossier, `constitution.${locale}.json`),
-      readFileSync(fondCourant(locale)),
-    );
+  for (const fichier of FICHIERS)
+    writeFileSync(join(dossier, fichier), readFileSync(fondCourant(fichier)));
 
   manifeste.releases.push({ id, sha256: empreintes });
   writeFileSync(MANIFEST, `${JSON.stringify(manifeste, null, 2)}\n`);
   ecrireIndex(manifeste);
-  console.log(`+ release ${id} archivée (${LOCALES.join(", ")}).`);
+  console.log(`+ release ${id} archivée (${FICHIERS.length} fichiers).`);
 }
 
 function verifier() {
@@ -167,16 +178,16 @@ function verifier() {
 
   // 1. Chaque archive est intacte.
   for (const r of manifeste.releases) {
-    for (const locale of LOCALES) {
-      const chemin = join(RELEASES, r.id, `constitution.${locale}.json`);
+    for (const fichier of FICHIERS) {
+      const chemin = join(RELEASES, r.id, fichier);
       if (!existsSync(chemin)) {
-        problemes.push(`release ${r.id} : ${locale} manquante à l'archive.`);
+        problemes.push(`release ${r.id} : ${fichier} manquant à l'archive.`);
         continue;
       }
       const vue = empreinte(chemin);
-      if (vue !== r.sha256[locale])
+      if (vue !== r.sha256[fichier])
         problemes.push(
-          `release ${r.id} (${locale}) : l'archive a été modifiée. ` +
+          `release ${r.id} (${fichier}) : l'archive a été modifiée. ` +
             "Une release est immuable : reviens sur cette édition, ou crée une nouvelle release.",
         );
     }
@@ -193,11 +204,11 @@ function verifier() {
   // 3. Le fond courant est la release la plus récente.
   const precedente = derniere(manifeste);
   if (precedente) {
-    for (const locale of LOCALES) {
-      const vue = empreinte(fondCourant(locale));
-      if (vue !== precedente.sha256[locale])
+    for (const fichier of FICHIERS) {
+      const vue = empreinte(fondCourant(fichier));
+      if (vue !== precedente.sha256[fichier])
         problemes.push(
-          `src/data/constitution.${locale}.json a divergé de la release ${precedente.id}. ` +
+          `src/data/${fichier} a divergé de la release ${precedente.id}. ` +
             "Le fond servi doit toujours correspondre à une release archivée :\n" +
             "  npm run release:new",
         );

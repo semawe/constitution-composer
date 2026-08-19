@@ -141,12 +141,16 @@ npm run release:new     # archives the current content as a new release
 npm run release:check   # archives are intact, and the served content matches the newest one
 ```
 
-- `src/data/releases/<id>/constitution.{fr,en}.json` — the archived copies. **Immutable**: the
-  check fails if one of them changes.
+- `src/data/releases/<id>/{constitution,principes}.{fr,en}.json` — the archived copies, four files
+  per release. **Immutable**: the check fails if one of them changes. The Principles are archived
+  too: the Declaration is the document ratifiers *sign*, so it must be re-readable exactly as it
+  was signed.
 - `src/data/releases/manifest.json` and `index.ts` — the registry (generated; the check fails if
   it drifts from the manifest). Imports are static because a bundle cannot resolve a computed path.
-- A saved composition stores `{ locale, release, sha256 }`. Reopening it composes **from that
-  release's archive**, not from today's content.
+- A saved composition — and a saved Declaration — stores `{ locale, release, sha256, kind }`.
+  Reopening it composes **from that release's archive**, not from today's content. The two contents
+  of one release are never confused: a Constitution reference handed to the Principles resolver
+  resolves to nothing rather than to the wrong document.
 - Resolution is strict: an unknown release, or a digest that does not match, refuses to open and
   says so. It never silently falls back to the current content — that fallback *is* the defect.
 - Compositions saved before archiving existed carry no reference. They open on the current text,

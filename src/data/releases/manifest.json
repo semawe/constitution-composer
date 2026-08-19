@@ -3,8 +3,10 @@
     {
       "id": "2026-08-19",
       "sha256": {
-        "fr": "69c7be54ae9a01dc7f759202c347725b736573e0fb6dcd860cb1ba86fcf3702e",
-        "en": "0568a101bdcc967e301691566183b2b2333cca69c598fe7b8d8dfd0db0b899cd"
+        "constitution.fr.json": "69c7be54ae9a01dc7f759202c347725b736573e0fb6dcd860cb1ba86fcf3702e",
+        "principes.fr.json": "45cce694d32d78cce732cdce423b8c92c84d0eff643ef04132870155e944822e",
+        "constitution.en.json": "0568a101bdcc967e301691566183b2b2333cca69c598fe7b8d8dfd0db0b899cd",
+        "principes.en.json": "60b846fd9bc80ebdc02bca064396c8acd65ac8e69fd9932fb44ff1b752f34339"
       }
     }
   ]

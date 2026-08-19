@@ -7,6 +7,8 @@
 // un principe personnalisé sans texte sort en titre nu. La revue adverse du
 // 18/08/2026 l'a relevé : les états lus de l'extérieur n'étaient pas normalisés.
 
+import { type ContentRef } from "./releases";
+
 export interface CustomPrinciple {
   id: string;
   title: string;
@@ -14,6 +16,14 @@ export interface CustomPrinciple {
 }
 
 export interface DeclarationPayload {
+  /** 2 depuis l'archivage des releases. Absent = Déclaration d'avant. */
+  schemaVersion?: 2;
+  /**
+   * Les Principes dont cette Déclaration est faite. Une Déclaration est le
+   * document que les ratificateurs signent : elle doit pouvoir être relue telle
+   * qu'elle a été signée, même après une évolution du texte des Principes.
+   */
+  content?: ContentRef;
   removed: string[];
   custom: CustomPrinciple[];
   order: string[];
@@ -24,6 +34,21 @@ export interface DeclarationPayload {
 }
 
 const texte = (v: unknown): string => (typeof v === "string" ? v : "");
+
+/** La référence de contenu, si elle a la forme attendue. */
+function reference(v: unknown): ContentRef | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const r = v as Record<string, unknown>;
+  const locale = texte(r.locale);
+  const release = texte(r.release);
+  if (!release || (locale !== "fr" && locale !== "en")) return undefined;
+  return {
+    locale,
+    release,
+    sha256: texte(r.sha256),
+    kind: "principes",
+  };
+}
 
 /**
  * Normalise un payload venu de l'extérieur contre les principes du fond.
@@ -76,6 +101,8 @@ export function normalizeDeclaration(
     if (!order.includes(id)) order.push(id);
 
   return {
+    ...(p.schemaVersion === 2 ? { schemaVersion: 2 as const } : {}),
+    ...(reference(p.content) ? { content: reference(p.content) } : {}),
     removed: filtrer(p.removed),
     custom,
     order,
