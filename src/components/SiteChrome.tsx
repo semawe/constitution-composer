@@ -162,7 +162,9 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
           </a>
           .
         </p>
-        <p className="text-[0.7rem] text-slate-300">{buildLabel}</p>
+        {/* `text-slate-300` : 1,4:1 sur le fond clair, illisible. La version
+            du build est une information, pas une décoration. */}
+        <p className="text-[0.7rem] text-slate-500">{buildLabel}</p>
       </div>
     </footer>
   );
