@@ -5,16 +5,12 @@ import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars, safeLogo } from "@/lib/branding";
 import { ComposerModales } from "@/components/composer/ComposerModales";
+import { ComposerDocument } from "@/components/composer/ComposerDocument";
+import { ComposerPanel } from "@/components/composer/ComposerPanel";
 import {
-  InsertDivider,
-  Legend,
-  ModuleToggle,
-  PreambleValues,
-  TIER_UI,
   isGatedTier,
 } from "@/components/composer/pieces";
-import Prose from "@/components/Prose";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   type ConstitutionData,
   type RenderedItem,
@@ -23,7 +19,6 @@ import {
   defaultActive,
   modulesForAnchor,
   normalizeActive,
-  requiredByActive,
   toggleModule,
 } from "@/lib/constitution";
 import {
@@ -36,8 +31,8 @@ import {
 } from "@/lib/releases";
 import { getSupabase } from "@/lib/supabase";
 import {
-  type SavedComposition,
   MAX_COMPOSITIONS,
+  type SavedComposition,
   listCompositions,
   migrateComposition,
   repinComposition,
@@ -674,26 +669,14 @@ export default function Composer({
         m.insertions.some((ins) => ins.anchor === anchor),
     );
 
-  // Lite = blocs retirables (tier retirable, cochés par défaut).
-  // Au-delà = modules additifs (extension / app, off par défaut).
-  const retirableMods = useMemo(
-    () => data.modules.filter((m) => m.tier === "retirable"),
-    [data.modules],
-  );
-  const removed = retirableMods.filter((m) => !active.has(m.id)).length;
+  const pct = data.modules.length ? active.size / data.modules.length : 0;
+  // Le nom de la version composée, affiché dans l'en-tête du document.
+  const retirables = data.modules.filter((m) => m.tier === "retirable");
+  const removed = retirables.filter((m) => !active.has(m.id)).length;
   const addonsOn = data.modules.filter(
     (m) =>
       m.tier !== "retirable" && m.tier !== "pedagogique" && active.has(m.id),
   ).length;
-
-  const countLabel =
-    removed === 0 && addonsOn === 0
-      ? t.liteFull
-      : removed > 0 && addonsOn === 0
-        ? t.blocksRetirable(retirableMods.length - removed, retirableMods.length)
-        : t.blocksWithAddons(retirableMods.length - removed, retirableMods.length, addonsOn);
-
-  const pct = data.modules.length ? active.size / data.modules.length : 0;
   const versionLabel =
     removed === 0 && addonsOn === 0
       ? t.versionLite
@@ -704,208 +687,41 @@ export default function Composer({
           : t.versionCustom;
 
   // Sommaire + composer, partagés entre la sidebar (desktop) et le tiroir (mobile).
+  // Le panneau de commandes vit dans son propre fichier (#1057) : il ne compose
+  // pas le document, il le pilote. Les propriétés sont groupées par sujet —
+  // le document, les versions, le compte — pour qu'on voie ce qu'il lit.
   const panel = (
-    <div className="thin-scroll max-h-[calc(100vh-4rem)] overflow-y-auto pr-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-        {t.toc}
-      </h2>
-      <nav className="mt-2 space-y-0.5">
-        {data.blocks.map((b) => {
-          const on = activeId === b.id;
-          return (
-            <button
-              key={b.id}
-              onClick={() => goTo(b.id)}
-              className={`block w-full border-l-2 py-1 pl-3 text-left leading-snug transition ${
-                on
-                  ? "border-teal-500 bg-teal-50/50"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-              }`}
-            >
-              <span className={`block text-[0.82rem] ${on ? "font-medium text-teal-800" : "text-slate-500 hover:text-slate-700"}`}>
-                {b.heading}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-
-      <h2 className="mt-7 text-sm font-semibold uppercase tracking-wide text-slate-500">
-        {t.composerLabel}
-      </h2>
-      <p className="mt-1 text-sm text-slate-500">{countLabel}</p>
-      {gaps.length > 0 && (
-        <p className="mt-1 flex items-start gap-1.5 text-xs text-amber-600">
-          <span className="mt-px">⚠</span>
-          <span>{t.gapWarning(gaps.length)}</span>
-        </p>
-      )}
-
-      <div className="mt-4 flex gap-2 text-xs">
-        <button
-          onClick={() => {
-            if (!account && data.modules.some((m) => isGatedTier(m.tier))) {
-              setGate("modules");
-              return;
-            }
-            setActive(normalizeActive(data, data.modules.map((m) => m.id)));
-          }}
-          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
-        >
-          {t.activateAll}
-        </button>
-        <button
-          onClick={() => setActive(defaultActive(data))}
-          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
-          title={t.baseLiteTitle}
-        >
-          {t.baseLite}
-        </button>
-        <button
-          onClick={() => setActive(new Set())}
-          className="rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
-          title={t.coreOnlyTitle}
-        >
-          {t.coreOnly}
-        </button>
-      </div>
-
-      <div className="mt-6 border-t border-slate-200 pt-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            {t.myVersions}
-          </h2>
-          <span className="text-xs text-slate-400">
-            {versions.length}/{MAX_COMPOSITIONS}
-          </span>
-        </div>
-        <button
-          onClick={handleSaveVersion}
-          disabled={versionBusy}
-          className="mt-2 w-full rounded-full btn-ink px-3 py-1.5 text-xs font-medium transition disabled:opacity-60"
-        >
-          {versionBusy ? t.saving : t.saveVersion}
-        </button>
-        {/* De quel texte vient ce qu'on regarde. Muet quand la version est
-            figée sur le texte courant : il n'y a rien à signaler. */}
-        {releaseMsg && (
-          <div
-            role="status"
-            className="mt-1.5 rounded-md border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs text-amber-900"
-          >
-            <p>{releaseMsg}</p>
-            {aFiger && (
-              <button
-                onClick={() => handlePinVersion(aFiger)}
-                className="mt-1.5 rounded-full bg-amber-900 px-2.5 py-1 text-[0.7rem] font-medium text-white transition hover:bg-amber-800"
-              >
-                {t.releasePinAction}
-              </button>
-            )}
-            {aRejouer && (
-              <button
-                onClick={() => handleMigrateVersion(aRejouer)}
-                className="mt-1.5 rounded-full bg-amber-900 px-2.5 py-1 text-[0.7rem] font-medium text-white transition hover:bg-amber-800"
-              >
-                {t.releaseMigrateAction}
-              </button>
-            )}
-          </div>
-        )}
-        {versionsUnread && (
-          <p role="alert" className="mt-1.5 text-xs text-rose-700">
-            {t.versionsFailed}
-          </p>
-        )}
-        {pdfError && (
-          <p role="alert" className="mt-1.5 text-xs text-rose-700">
-            {t.pdfFailed}
-          </p>
-        )}
-        {versionMsg && (
-          <p className="mt-1.5 text-xs text-slate-500">{versionMsg}</p>
-        )}
-        {!account && (
-          <p className="mt-1.5 text-xs text-slate-400">
-            {t.loginToSave}
-          </p>
-        )}
-        {versions.length > 0 && (
-          <ul className="mt-2 space-y-1">
-            {versions.map((v) => (
-              <li
-                key={v.id}
-                className="group flex items-center gap-1 rounded-md px-1.5 py-1 text-sm hover:bg-slate-100"
-              >
-                <button
-                  onClick={() => handleLoadVersion(v)}
-                  title={t.loadTitle}
-                  className="min-w-0 flex-1 truncate text-left"
-                >
-                  <span className="block truncate text-slate-700">
-                    {v.name || t.untitled}
-                  </span>
-                  <span className="block text-[0.7rem] text-slate-400">
-                    {new Date(v.updated_at).toLocaleDateString(t.dateLocale, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </span>
-                </button>
-                <button
-                  onClick={() => handleRenameVersion(v)}
-                  aria-label={t.rename}
-                  title={t.rename}
-                  className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-slate-700 group-hover:opacity-100"
-                >
-                  ✎
-                </button>
-                <button
-                  onClick={() => handleDeleteVersion(v)}
-                  aria-label={t.delete}
-                  title={t.delete}
-                  className="shrink-0 rounded p-1 text-slate-400 opacity-0 transition hover:text-rose-600 group-hover:opacity-100"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {(["retirable", "pedagogique", "extension", "app"] as Tier[]).map((tier) => (
-        <div key={tier} className="mt-6">
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${TIER_UI[tier].dot}`} />
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              {tierLabel[tier]}
-            </span>
-          </div>
-          <ul className="mt-2 space-y-1.5">
-            {modulesByTier(tier).map((m) => (
-              <ModuleToggle
-                key={m.id}
-                mod={m}
-                on={active.has(m.id)}
-                premium={!account && isGatedTier(m.tier)}
-                lockedBy={requiredByActive(data, active, m.id).map(
-                  (x) => x.label,
-                )}
-                requires={m.requires.flatMap((r) => {
-                  const dep = data.modules.find((d) => d.id === r);
-                  return dep ? [dep.label] : [];
-                })}
-                onToggle={() => toggle(m.id)}
-              />
-            ))}
-          </ul>
-        </div>
-      ))}
-
-      <Legend tierLabel={tierLabel} ui={t} />
-    </div>
+    <ComposerPanel
+      data={data}
+      t={t}
+      doc={{
+        active,
+        activeId,
+        toggle,
+        setActive,
+        goTo,
+        gaps,
+        tierLabel,
+        modulesByTier,
+      }}
+      versions={{
+        liste: versions,
+        message: versionMsg,
+        illisible: versionsUnread,
+        occupe: versionBusy,
+        pdfEnEchec: pdfError,
+        releaseMsg,
+        aFiger,
+        aRejouer,
+        onSave: handleSaveVersion,
+        onLoad: handleLoadVersion,
+        onRename: handleRenameVersion,
+        onDelete: handleDeleteVersion,
+        onPin: handlePinVersion,
+        onMigrate: handleMigrateVersion,
+      }}
+      compte={{ account, onGate: setGate }}
+    />
   );
 
   return (
@@ -1102,198 +918,22 @@ export default function Composer({
           </div>
         </header>
 
-        <article className="doc-prose text-[1.05rem] text-slate-800">
-          {data.blocks.map((block) => {
-            return (
-              // Pas d'entrée animée sur le corps constitutionnel. Elle
-              // s'obtenait par `whileInView`, donc par un `opacity:0` écrit
-              // dans l'HTML prérendu : le texte des six articles partait
-              // invisible et n'apparaissait que si React s'hydratait, et un
-              // lien profond (`/composer#article-4`) laissait sa cible à zéro
-              // — l'IntersectionObserver ne voit pas ce qu'on a sauté. Un
-              // document qu'on vient étudier n'a pas à s'animer pour exister.
-              <section
-                key={block.id}
-                id={block.id}
-                className="mb-10 scroll-mt-24"
-              >
-                <h2 className="mb-3 font-serif text-2xl font-semibold text-slate-900">
-                  {block.heading}
-                </h2>
-                <AnimatePresence initial={false}>
-                  {showIntent && block.intent && (
-                    <motion.p
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="mb-4 overflow-hidden border-l-2 border-slate-200 pl-3 text-sm italic text-slate-500"
-                    >
-                      {block.intent}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-
-                <Prose text={block.text} onTermClick={onTermClick} locale={locale} />
-
-                {/* Insertions actives et remplacements obligatoires, dans
-                    l'ordre où le moteur les compose : une seule passe sur sa
-                    sortie, pas deux filtrages du même tableau. */}
-                <AnimatePresence initial={false}>
-                  {composedFor(block.anchor).map((item) => {
-                    const ui = item.warning ? TIER_UI.warning : TIER_UI[item.tier];
-                    const tinted =
-                      item.warning ||
-                      item.kind === "fallback" ||
-                      item.tier === "pedagogique";
-                    const domId =
-                      item.kind === "fallback"
-                        ? `fb-${item.moduleId}`
-                        : `ins-${item.moduleId}-${item.insertionIndex}`;
-                    return (
-                      <motion.div
-                        key={item.key}
-                        id={domId}
-                        layout
-                        initial={{ opacity: 0, height: 0, y: -6 }}
-                        animate={{ opacity: 1, height: "auto", y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -6 }}
-                        transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                        className={`mt-5 scroll-mt-24 overflow-hidden border-l-2 ${ui.bar} ${
-                          // La teinte de fond ne sert que là où le texte change
-                          // de registre : une piste pédagogique est un
-                          // commentaire, une règle par défaut un avertissement.
-                          // Sur les modules, elle faisait de la page une pile de
-                          // boîtes colorées — quatorze actives par défaut sur
-                          // dix-neuf — là où la promesse est de composer « au fil
-                          // du texte ». Le liseré de teinte et le libellé disent
-                          // l'appartenance ; le texte reste sur le fond de la page.
-                          tinted ? `rounded-r-md ${ui.tint} py-3 pl-4 pr-3` : "py-1 pl-5"
-                        }`}
-                      >
-                        <span
-                          className={`mb-1.5 inline-block text-[0.7rem] font-medium uppercase tracking-wider ${
-                            tinted
-                              ? `rounded-full px-2 py-0.5 normal-case tracking-normal ring-1 ring-inset ${ui.tag}`
-                              : ui.label
-                          }`}
-                        >
-                          {item.kind === "fallback"
-                            ? `⚠ ${t.defaultRule(item.moduleLabel ?? "")}`
-                            : item.moduleLabel}
-                        </span>
-                        <div className="text-[0.98rem]">
-                          <Prose
-                            text={item.text}
-                            onTermClick={onTermClick}
-                            locale={locale}
-                          />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-
-                {/* Blocs retirables retirés : fin liseré + "+" pour réinsérer
-                    dans le fil de lecture. */}
-                {removedRetirables(block.anchor).map((m) => (
-                  <button
-                    key={`reins-${m.id}`}
-                    id={`reins-${m.id}`}
-                    onClick={() => toggle(m.id)}
-                    title={t.reinsert(m.label)}
-                    className="group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
-                  >
-                    <span className="h-px flex-1 bg-slate-200" />
-                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
-                      <span className="text-sm leading-none">+</span> {m.label}
-                    </span>
-                    <span className="h-px flex-1 bg-slate-200" />
-                  </button>
-                ))}
-
-                {block.id === "preambule" && (
-                  <PreambleValues values={values} setValues={setValues} />
-                )}
-
-                {/* "+" entre paragraphes : extensions / apps activables ancrées ici */}
-                <InsertDivider
-                  modules={availableChips(block.anchor)}
-                  onActivate={toggle}
-                  ui={t}
-                />
-
-                {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
-                {inactiveAdvanced(block.anchor).length > 0 && (
-                  <div className="mt-5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-[0.85rem] text-violet-900">
-                    <span className="font-semibold">Ce tier ne couvre pas :</span>{" "}
-                    {inactiveAdvanced(block.anchor).map((m, i, arr) => (
-                      <span key={m.id}>
-                        <button
-                          onClick={() => toggle(m.id)}
-                          className="underline decoration-dotted underline-offset-2 hover:text-violet-700"
-                          title={m.description}
-                        >
-                          {m.label}
-                        </button>
-                        <span className="ml-1 text-[0.75rem] text-violet-600">
-                          [{m.tier === "extension" ? "Extension" : "App"}]
-                        </span>
-                        {i < arr.length - 1 && <span className="mr-1">,</span>}
-                      </span>
-                    ))}{" "}
-                    <span className="text-violet-600">
-                      Activez-les pour voir ce contenu.
-                    </span>
-                  </div>
-                )}
-              </section>
-            );
-          })}
-
-          {COACHES.length > 0 && (
-            <div className="mt-12 rounded-2xl border border-slate-200 bg-gradient-to-br from-teal-50 to-violet-50 p-6">
-              <h2 className="font-serif text-xl font-semibold text-slate-900">
-                Aller plus loin avec un coach
-              </h2>
-              <p className="mt-1 text-sm text-slate-600">
-                Composer, c&apos;est un début. Faites relire et co-construire votre
-                Constitution avec un coach certifié en Holacracy.
-              </p>
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
-                <li>
-                  🎁 <strong>20 minutes de découverte offertes</strong> à la
-                  création de votre compte.
-                </li>
-                <li>
-                  Supervision par un coach senior :{" "}
-                  <strong>500 €/h</strong> ou <strong>3000 €/jour</strong>.
-                </li>
-              </ul>
-              <button
-                onClick={() => setBooking(true)}
-                className="mt-4 inline-flex items-center gap-2 rounded-full btn-ink px-5 py-2.5 text-sm font-medium transition"
-              >
-                🎁 Réserver mes 20 minutes offertes
-              </button>
-            </div>
-          )}
-
-          <footer className="mt-10 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-semawe-light.png"
-              alt="Sémawé"
-              className="h-10 w-auto shrink-0 dark:hidden"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-semawe-dark.png"
-              alt="Sémawé"
-              className="hidden h-10 w-auto shrink-0 dark:block"
-            />
-            <span>{t.pdfFooter(data.meta.license, data.meta.notice)}</span>
-          </footer>
-        </article>
+        <ComposerDocument
+          data={data}
+          t={t}
+          locale={locale}
+          composedFor={composedFor}
+          showIntent={showIntent}
+          onTermClick={onTermClick}
+          values={values}
+          setValues={setValues}
+          toggle={toggle}
+          availableChips={availableChips}
+          removedRetirables={removedRetirables}
+          inactiveAdvanced={inactiveAdvanced}
+          coaches={COACHES}
+          onBook={() => setBooking(true)}
+        />
         </main>
       </div>
 
