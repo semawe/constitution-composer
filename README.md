@@ -228,7 +228,7 @@ Required: set the environment variables above before building, as `NEXT_PUBLIC_*
 **Note on canonical URLs:** some metadata files hard-code `constitution-composer.com` as the canonical. If you deploy a public instance under a different domain, update the canonical URLs in `src/app/**/page.tsx` before building.
 
 The official instance ([constitution-composer.com](https://constitution-composer.com)) is deployed
-to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Three guards are worth reusing if you
+to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Four guards are worth reusing if you
 replicate that setup:
 
 - **SFTP by default.** Plain FTP sends the password in the clear and the account hosts other sites;
@@ -242,6 +242,20 @@ replicate that setup:
   previous version kept until the new one answers. This replaced a purge-then-upload that took the
   English pages offline mid-deploy on 2026-08-19 — a failed upload now leaves the live site
   untouched.
+- **The commit must be current.** A build can be fresh and still be behind: the guard above compares
+  `out/` to the local `HEAD`, which says nothing about whether that `HEAD` is the tip of the branch.
+  On a day when three sessions pushed, a deploy served an up-to-date stamp for a tree that was three
+  commits old. The script now refreshes `origin/main` and refuses a worktree that is behind, naming
+  the missing commits. Two neighbouring cases warn instead of refusing, because blocking there would
+  be a false positive: a `fetch` that cannot run says so rather than implying it checked, and local
+  commits that are not pushed are legitimate to deploy but must not be silent — nobody else could
+  rebuild what is online.
+
+`--dry-run` (or `DEPLOY_DRY_RUN=yes`) runs every guard and uploads nothing — it opens no connection.
+It exists because the guards above could not be exercised without touching production, and a guard
+you cannot rehearse is not a guard: proving the freshness check worked cost three unintended deploys.
+The rehearsal is the *last* of the checks, not the first, so that it cannot reassure by short-circuiting
+what it is meant to prove.
 
 ---
 
