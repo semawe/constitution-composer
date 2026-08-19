@@ -507,6 +507,8 @@ export const PRINCIPES_UI = {
       "Enregistrement impossible : votre Déclaration n'a pas été écrite dans votre compte. Vérifiez votre connexion, puis modifiez un champ pour réessayer.",
     loadFailed:
       "Votre Déclaration n'a pas pu être lue. Elle est intacte dans votre compte : rechargez la page plutôt que de la ressaisir, pour ne pas l'écraser.",
+    saveStale:
+      "Votre Déclaration a été modifiée ailleurs, dans un autre onglet ou sur un autre appareil. Ce que vous voyez ici est plus ancien : rechargez la page pour retrouver la version la plus récente, plutôt que de l'écraser.",
     pdfFailed:
       "Le PDF n'a pas pu être produit. Réessayez ; si cela persiste, dites-le-nous, rien n'est perdu de votre Déclaration.",
     purposeLabel: "Raison d'Être de l'organisation",
@@ -573,6 +575,8 @@ export const PRINCIPES_UI = {
       "Could not save: your Declaration was not written to your account. Check your connection, then edit a field to retry.",
     loadFailed:
       "Your Declaration could not be read. It is untouched in your account: reload the page rather than retyping it, so you do not overwrite it.",
+    saveStale:
+      "Your Declaration was changed elsewhere, in another tab or on another device. What you see here is older: reload the page to get the most recent version, rather than overwriting it.",
     pdfFailed:
       "The PDF could not be produced. Try again; if it keeps failing, tell us — nothing is lost from your Declaration.",
     purposeLabel: "Purpose of the organization",

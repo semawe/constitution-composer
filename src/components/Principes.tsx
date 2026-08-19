@@ -19,10 +19,14 @@ import {
   releaseLabel,
   resolvePrincipes,
 } from "@/lib/releases";
+import { normalizeDeclaration } from "@/lib/declaration";
 import {
-  type DeclarationPayload,
-  normalizeDeclaration,
-} from "@/lib/declaration";
+  type Ecrire,
+  type EtatSauvegarde,
+  type FileDeclaration,
+  creerFileDeclaration,
+  verdict,
+} from "@/lib/declaration-sync";
 import { getSupabase } from "@/lib/supabase";
 import { COMPOSER, PRINCIPES_UI, type Locale, UI } from "@/lib/i18n";
 
@@ -79,9 +83,13 @@ export default function Principes({
   const [remote, setRemote] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
-  const [saveState, setSaveState] = useState<
-    "idle" | "saving" | "saved" | "error"
-  >("idle");
+  // « perimee » est le refus de la base : le compte porte un état plus récent
+  // que celui affiché (un autre onglet, un autre appareil). Écrire par-dessus
+  // écraserait ce travail-là, donc on s'arrête et on le dit.
+  const [saveState, setSaveState] = useState<EtatSauvegarde>("idle");
+  // La révision que porte la Déclaration du compte, lue avec elle. 0 = compte
+  // sans Déclaration, ou Déclaration écrite avant la migration 0009.
+  const [revisionCompte, setRevisionCompte] = useState(0);
   // Brouillon anonyme non vide face à un compte sans Déclaration : on demande
   // avant de rattacher, on ne recopie pas d'office.
   const [offerAttach, setOfferAttach] = useState(false);
@@ -286,7 +294,9 @@ export default function Principes({
     setOfferAttach(false);
     supabase
       .from("declarations")
-      .select("payload")
+      // La révision arrive avec le document : c'est elle qui dit à la file
+      // d'écriture d'où partir (voir 0009_revision_declarations.sql).
+      .select("payload,revision")
       .eq("user_id", userId)
       .maybeSingle()
       .then(({ data, error }) => {
@@ -300,10 +310,14 @@ export default function Principes({
         if (!data?.payload) {
           // Compte sans Déclaration. Si un brouillon anonyme est à l'écran, on
           // ne le verse pas d'office dans ce compte : on propose.
+          setRevisionCompte(0);
           setOfferAttach(!draftIsEmpty);
           setRemote("ready");
           return;
         }
+        setRevisionCompte(
+          typeof data.revision === "number" ? data.revision : 0,
+        );
         const brut = normalizeDeclaration(data.payload, builtinIds);
         const resolution = resolvePrincipes(brut.content);
         if (resolution.statut === "release-absente") {
@@ -355,57 +369,51 @@ export default function Principes({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, userId]);
 
-  // File d'écriture de la Déclaration : une requête en vol au plus, la dernière
-  // valeur en attente. L'état est rendu visible (`saveState`) — une sauvegarde
-  // qui échoue en silence laisse croire que le compte porte le document.
-  const enVol = useRef(false);
-  const enAttente = useRef<DeclarationPayload | null>(null);
-  const enfile = useCallback(
-    async (payload: DeclarationPayload) => {
-      if (!supabase || !userId) return;
-      enAttente.current = payload;
-      if (enVol.current) return;
-      enVol.current = true;
-      setSaveState("saving");
-      try {
-        while (enAttente.current) {
-          const courant = enAttente.current;
-          enAttente.current = null;
-          const { error } = await supabase.from("declarations").upsert({
-            user_id: userId,
-            payload: courant,
-            updated_at: new Date().toISOString(),
-          });
-          if (error) {
-            // La valeur perdue ici n'est pas perdue pour de bon : le payload
-            // dérive de l'état, la frappe suivante la remet dans la file.
-            setSaveState("error");
-            return;
-          }
-        }
-        setSaveState("saved");
-      } finally {
-        enVol.current = false;
-      }
+  // L'écriture elle-même : `save_declaration()` n'accepte qu'une révision
+  // strictement supérieure à celle en base, et dit ce qu'elle a fait.
+  const ecrire = useCallback<Ecrire>(
+    async (payload, revision) => {
+      if (!supabase || !userId) return { statut: "erreur" };
+      const { data, error } = await supabase.rpc("save_declaration", {
+        p_payload: payload,
+        p_revision: revision,
+      });
+      if (error) return { statut: "erreur" };
+      return verdict(data);
     },
     [supabase, userId],
   );
 
+  // File d'écriture de la Déclaration : une requête en vol au plus, la dernière
+  // valeur en attente, et la révision qui refuse de reculer. L'état est rendu
+  // visible (`saveState`) — une sauvegarde qui échoue en silence laisse croire
+  // que le compte porte le document.
+  //
+  // Un ref réarmé par effet, et non un `useMemo` : la révision avance dans
+  // l'instance à chaque écriture acceptée, et une instance reconstruite
+  // repartirait de la valeur lue au chargement, donc se ferait refuser à tort.
+  // Les seuls moments où elle doit repartir sont ceux où la révision de départ
+  // change vraiment : changement de compte, ou relecture de la Déclaration.
+  const file = useRef<FileDeclaration | null>(null);
+  useEffect(() => {
+    file.current = creerFileDeclaration({
+      revision: revisionCompte,
+      ecrire,
+      etat: setSaveState,
+    });
+  }, [userId, revisionCompte, ecrire]);
+
   // Sauvegarde différée dans le compte à chaque changement (connecté).
   // Trois verrous avant d'écrire : le chargement local est fini, la Déclaration
   // du compte a été lue (`remote === "ready"`), et aucun rattachement n'est en
-  // attente de décision.
+  // attente de décision. Le quatrième est dans la file : après un refus, elle
+  // n'écrit plus rien.
   useEffect(() => {
     if (!supabase || !userId || !loaded) return;
     if (remote !== "ready" || offerAttach) return;
-    const t = setTimeout(() => {
-      // Sérialisé : une écriture à la fois, la dernière valeur connue en
-      // attente. Sans cela, deux upserts concurrents pouvaient revenir dans le
-      // désordre et restaurer un état ancien (revue adverse du 18/08/2026).
-      enfile(declarationPayload);
-    }, 1500);
+    const t = setTimeout(() => file.current?.enfiler(declarationPayload), 1500);
     return () => clearTimeout(t);
-  }, [supabase, userId, loaded, remote, offerAttach, declarationPayload, enfile]);
+  }, [supabase, userId, loaded, remote, offerAttach, declarationPayload]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -610,6 +618,14 @@ export default function Principes({
           className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900"
         >
           {t.saveFailed}
+        </p>
+      )}
+      {saveState === "perimee" && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+        >
+          {t.saveStale}
         </p>
       )}
       {pdfError && (
