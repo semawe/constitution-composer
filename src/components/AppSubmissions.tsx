@@ -90,14 +90,14 @@ export default function AppSubmissions({
   };
 
   return (
-    <section className="mt-10 border-t border-slate-200 pt-8">
+    <section className="mt-10 border-t rule-hairline pt-8">
       <h2 className="font-serif text-xl font-semibold text-slate-900">
         {t.proposeTitle}
       </h2>
       <p className="mb-4 mt-1 text-sm text-slate-500">{t.proposeDesc}</p>
 
       {!signedIn ? (
-        <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center">
+        <div className="rounded-xl border border-dashed rule-control p-6 text-center">
           <p className="text-sm text-slate-600">{t.formSignIn}</p>
           <button
             onClick={onRequestSignIn}
@@ -109,14 +109,14 @@ export default function AppSubmissions({
       ) : (
         <form
           onSubmit={submit}
-          className="grid gap-3 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2"
+          className="grid gap-3 rounded-xl border rule-control bg-white p-5 sm:grid-cols-2"
         >
           <label className="text-sm sm:col-span-1">
             <span className="text-slate-600">{t.formName}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border rule-control px-3 py-2 text-sm text-slate-900 outline-none focus:rule-focus"
               required
             />
           </label>
@@ -125,7 +125,7 @@ export default function AppSubmissions({
             <select
               value={kind}
               onChange={(e) => setKind(e.target.value as SubmissionKind)}
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border rule-control bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:rule-focus"
             >
               <option value="app">{t.formKindApp}</option>
               <option value="extension">{t.formKindExtension}</option>
@@ -137,7 +137,7 @@ export default function AppSubmissions({
               value={integrationPoint}
               onChange={(e) => setIntegrationPoint(e.target.value)}
               placeholder={t.formIntegrationPlaceholder}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border rule-control px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:rule-focus"
             />
           </label>
           <label className="text-sm sm:col-span-2">
@@ -146,7 +146,7 @@ export default function AppSubmissions({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border rule-control px-3 py-2 text-sm text-slate-900 outline-none focus:rule-focus"
               required
             />
           </label>
@@ -156,7 +156,7 @@ export default function AppSubmissions({
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border rule-control px-3 py-2 text-sm text-slate-900 outline-none focus:rule-focus"
             />
           </label>
           <div className="flex items-center gap-3 sm:col-span-2">
@@ -184,7 +184,7 @@ export default function AppSubmissions({
             {mine.map((s) => (
               <li
                 key={s.id}
-                className="flex items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3"
+                className="flex items-start justify-between gap-3 rounded-lg border rule-control bg-white p-3"
               >
                 <div>
                   <p className="text-sm font-medium text-slate-800">{s.name}</p>

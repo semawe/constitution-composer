@@ -60,12 +60,12 @@ export default function CartoClientEN() {
             placeholder="Search an organization..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-slate-400 focus:outline-none sm:w-72"
+            className="w-full rounded-lg border rule-control bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:rule-focus focus:outline-none sm:w-72"
           />
           <select
             value={filtreGouv ?? ""}
             onChange={(e) => setFiltreGouv(e.target.value || null)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none"
+            className="rounded-lg border rule-control bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:rule-focus focus:outline-none"
           >
             <option value="">All governance types</option>
             {ALL_GOUVERNANCES.map((g) => (
@@ -75,7 +75,7 @@ export default function CartoClientEN() {
           <select
             value={filtrePays ?? ""}
             onChange={(e) => setFiltrePays(e.target.value || null)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none"
+            className="rounded-lg border rule-control bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:rule-focus focus:outline-none"
           >
             <option value="">All countries</option>
             {ALL_PAYS.map((p) => (
@@ -94,7 +94,7 @@ export default function CartoClientEN() {
           {filtered.map((org) => (
             <div
               key={org.nom}
-              className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300"
+              className="flex flex-col rounded-xl border rule-control bg-white p-4 shadow-sm transition hover:rule-control"
             >
               <div className="flex-1">
                 {org.site ? (
@@ -140,7 +140,7 @@ export default function CartoClientEN() {
           </p>
         )}
 
-        <section className="mt-12 rounded-xl border border-slate-200 bg-slate-50 p-6">
+        <section className="mt-12 rounded-xl border rule-control bg-slate-50 p-6">
           <h2 className="font-medium text-slate-800">Contribute to the directory</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">
             Do you know an organization experimenting with these practices?

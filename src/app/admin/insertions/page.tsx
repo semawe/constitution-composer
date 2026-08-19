@@ -162,7 +162,7 @@ export default function InsertionsConfigPage() {
           return (
             <div
               key={r.key}
-              className="rounded-lg border border-slate-200 bg-white p-4"
+              className="rounded-lg border rule-control bg-white p-4"
             >
               <div className="flex items-baseline justify-between gap-3">
                 <span className="font-medium text-slate-900">{r.label}</span>
@@ -180,7 +180,7 @@ export default function InsertionsConfigPage() {
                   <select
                     value={c.anchor}
                     onChange={(e) => update(r.key, { anchor: e.target.value })}
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border rule-control px-2 py-1 text-sm"
                   >
                     {data.blocks.map((b) => (
                       <option key={b.id} value={b.id}>
@@ -194,7 +194,7 @@ export default function InsertionsConfigPage() {
                   <select
                     value={c.pos}
                     onChange={(e) => update(r.key, { pos: e.target.value })}
-                    className="max-w-xs rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="max-w-xs rounded border rule-control px-2 py-1 text-sm"
                   >
                     <option value="start">Tout début du bloc</option>
                     {paras.map((p, i) => (
@@ -211,7 +211,7 @@ export default function InsertionsConfigPage() {
         })}
       </div>
 
-      <div className="mt-8 border-t border-slate-200 pt-6">
+      <div className="mt-8 border-t rule-hairline pt-6">
         <button
           onClick={copySpec}
           className="rounded-full btn-ink px-4 py-2 text-sm font-medium transition"

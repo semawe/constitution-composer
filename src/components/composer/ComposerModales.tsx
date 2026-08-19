@@ -105,7 +105,7 @@ export function ComposerModales({
                 </div>
                 <button
                   onClick={signInGoogle}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border rule-control bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                 >
                   <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
                     <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
@@ -131,7 +131,7 @@ export function ComposerModales({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={t.emailPlaceholder}
-                      className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
+                      className="min-w-0 flex-1 rounded-lg border rule-control px-3 py-2 text-sm outline-none transition focus:rule-focus"
                     />
                     <button
                       onClick={signInOtp}
@@ -180,7 +180,7 @@ export function ComposerModales({
               onKeyDown={(e) => {
                 if (e.key === "Enter") submitCompany();
               }}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-slate-500"
+              className="mt-1 w-full rounded-lg border rule-control px-3 py-2 text-sm text-slate-800 outline-none transition focus:rule-focus"
             />
             <button
               onClick={submitCompany}
@@ -228,7 +228,7 @@ export function ComposerModales({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setBooking(false)}
-                    className="flex items-center justify-between rounded-lg border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-500 hover:bg-slate-50"
+                    className="flex items-center justify-between rounded-lg border rule-control px-4 py-3 text-sm font-medium text-slate-700 transition hover:rule-focus hover:bg-slate-50"
                   >
                     <span>{t.bookWith(c.name)}</span>
                     <span aria-hidden>→</span>

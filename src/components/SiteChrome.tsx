@@ -27,7 +27,7 @@ export function SiteNav({ locale: localeProp }: { locale?: Locale }) {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b rule-hairline bg-background/85 backdrop-blur">
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         {/* Co-marquage : le produit porte sa marque, et l'éditeur est nommé dès
             l'en-tête plutôt qu'au seul pied de page. Le logo Sémawé est une
@@ -108,7 +108,7 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
   const t = UI[locale].footer;
 
   return (
-    <footer className="border-t border-slate-200 bg-background">
+    <footer className="border-t rule-hairline bg-background">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8 text-sm text-slate-500">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <span>{t.tagline}</span>
@@ -141,7 +141,7 @@ export function SiteFooter({ locale: localeProp }: { locale?: Locale }) {
             </Link>
           </div>
         </div>
-        <p className="border-t border-slate-200 pt-4 text-xs text-slate-400">
+        <p className="border-t rule-hairline pt-4 text-xs text-slate-400">
           {t.createdByPre}{" "}
           <a
             href={HETEROSTASIA_URL}

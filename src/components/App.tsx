@@ -204,7 +204,7 @@ export default function App({
           (`scrollLeft` ne descend pas sous zéro). Ils passent donc sur une
           seconde rangée, pleine largeur, et ne se centrent qu'à partir du
           moment où la barre les contient. */}
-      <nav className="sticky top-0 z-40 border-b border-slate-200 bg-background/90 px-2 backdrop-blur">
+      <nav className="sticky top-0 z-40 border-b rule-hairline bg-background/90 px-2 backdrop-blur">
         <div className="flex h-11 items-center">
           <Link
             href={homeHref}
@@ -235,7 +235,7 @@ export default function App({
             <Link
               href={otherLangHref}
               title={locale === "en" ? "Passer en français" : "Switch to English"}
-              className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
+              className="flex items-center gap-1 rounded-full border rule-control px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700"
             >
               <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
                 <circle cx="8" cy="8" r="6.5" />

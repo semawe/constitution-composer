@@ -86,7 +86,7 @@ export function ComposerDocument({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="doc-measure mb-4 overflow-hidden border-l-2 border-slate-200 pl-3 text-sm italic text-slate-500"
+                      className="doc-measure mb-4 overflow-hidden border-l-2 rule-hairline pl-3 text-sm italic text-slate-500"
                     >
                       {block.intent}
                     </motion.p>
@@ -186,7 +186,7 @@ export function ComposerDocument({
                     className="doc-measure group/reins mt-3 flex w-full scroll-mt-24 items-center gap-2 text-left"
                   >
                     <span className="h-px flex-1 bg-slate-200" />
-                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-dashed rule-control px-2 py-0.5 text-[0.7rem] text-slate-400 transition group-hover/reins:border-teal-400 group-hover/reins:text-teal-600">
                       <span className="text-sm leading-none">+</span> {m.label}
                     </span>
                     <span className="h-px flex-1 bg-slate-200" />
@@ -237,7 +237,7 @@ export function ComposerDocument({
           })}
 
           {coaches.length > 0 && (
-            <div className="doc-measure mt-12 rounded-2xl border border-slate-200 bg-gradient-to-br from-teal-50 to-violet-50 p-6">
+            <div className="doc-measure mt-12 rounded-2xl border rule-control bg-gradient-to-br from-teal-50 to-violet-50 p-6">
               <h2 className="font-serif text-xl font-semibold text-slate-900">
                 Aller plus loin avec un coach
               </h2>
@@ -264,7 +264,7 @@ export function ComposerDocument({
             </div>
           )}
 
-          <footer className="doc-measure mt-10 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
+          <footer className="doc-measure mt-10 flex items-start gap-3 border-t rule-hairline pt-6 text-xs text-slate-400">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo-semawe-light.png"

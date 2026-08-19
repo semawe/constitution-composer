@@ -85,7 +85,7 @@ export default async function AppDetailPage({
         </div>
 
         {/* Badge certification (prototype) */}
-        <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
+        <div className="mt-5 inline-flex items-center gap-2 rounded-full border rule-control bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
           <span className="text-slate-400">
             {meta.certified ? "✓" : "○"}
           </span>
@@ -129,7 +129,7 @@ export default async function AppDetailPage({
             </h2>
             <ol className="mt-4 space-y-4">
               {meta.steps.map((step, i) => (
-                <li key={i} className="rounded-lg border border-slate-100 bg-white p-4 shadow-sm">
+                <li key={i} className="rounded-lg border rule-control bg-white p-4 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="font-medium text-slate-800">
                       <span className="mr-2 font-mono text-sm text-slate-400">{i + 1}.</span>
@@ -177,7 +177,7 @@ export default async function AppDetailPage({
 
         {/* Provenance et créateur */}
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <section className="rounded-xl border rule-control bg-slate-50 p-5">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Origine
             </h2>
@@ -185,7 +185,7 @@ export default async function AppDetailPage({
               {meta.origin}
             </p>
           </section>
-          <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <section className="rounded-xl border rule-control bg-slate-50 p-5">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Créée par
             </h2>
@@ -215,7 +215,7 @@ export default async function AppDetailPage({
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Ce que cela ajoute à votre Constitution
             </h2>
-            <div className="mt-3 rounded-xl border border-slate-200 bg-white px-5 py-4 font-mono text-sm leading-relaxed text-slate-700 shadow-sm">
+            <div className="mt-3 rounded-xl border rule-control bg-white px-5 py-4 font-mono text-sm leading-relaxed text-slate-700 shadow-sm">
               <p className="line-clamp-6 whitespace-pre-wrap">
                 {mod.insertions[0].text}
               </p>
@@ -238,7 +238,7 @@ export default async function AppDetailPage({
           </Link>
           <Link
             href="/composer"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-800"
+            className="inline-flex items-center gap-2 rounded-full border rule-control px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:rule-focus hover:text-slate-800"
           >
             Retour à l&apos;App Store
           </Link>

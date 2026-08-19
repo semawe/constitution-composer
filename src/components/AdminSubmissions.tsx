@@ -72,7 +72,7 @@ export default function AdminSubmissions() {
         {rows.map((s) => (
           <div
             key={s.id}
-            className="rounded-lg border border-slate-200 bg-white p-4"
+            className="rounded-lg border rule-control bg-white p-4"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <span className="font-medium text-slate-900">
@@ -108,14 +108,14 @@ export default function AdminSubmissions() {
               </p>
             )}
             {s.status === "pending" && (
-              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t rule-hairline pt-3">
                 <input
                   value={notes[s.id] ?? ""}
                   onChange={(e) =>
                     setNotes((n) => ({ ...n, [s.id]: e.target.value }))
                   }
                   placeholder="Note (optionnelle)"
-                  className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500"
+                  className="flex-1 rounded-lg border rule-control px-3 py-1.5 text-sm outline-none placeholder:text-slate-400 focus:rule-focus"
                 />
                 <button
                   onClick={() => review(s.id, "approved")}
@@ -127,7 +127,7 @@ export default function AdminSubmissions() {
                 <button
                   onClick={() => review(s.id, "rejected")}
                   disabled={busy === s.id}
-                  className="rounded-full border border-slate-300 px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-500 disabled:opacity-40"
+                  className="rounded-full border rule-control px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:rule-focus disabled:opacity-40"
                 >
                   Refuser
                 </button>

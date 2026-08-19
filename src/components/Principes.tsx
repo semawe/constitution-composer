@@ -663,7 +663,7 @@ export default function Principes({
           </div>
         </div>
       )}
-      <header className="mb-8 border-b border-slate-200 pb-6">
+      <header className="mb-8 border-b rule-hairline pb-6">
         {logo && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -712,7 +712,7 @@ export default function Principes({
       <article className="doc-prose text-[1.05rem] text-slate-800">
         <p className="mb-6 italic leading-relaxed text-slate-600">{data.intro}</p>
 
-        <div className="mb-8 space-y-3 rounded-md border border-slate-200 bg-white/70 p-4">
+        <div className="mb-8 space-y-3 rounded-md border rule-control bg-white/70 p-4">
           <div>
             <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
               {t.purposeLabel}
@@ -722,7 +722,7 @@ export default function Principes({
               onChange={(e) => setRaisonEtre(e.target.value)}
               rows={2}
               placeholder={t.purposePlaceholder}
-              className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-transparent p-2.5 text-[0.98rem] leading-relaxed outline-none transition focus:border-slate-400"
+              className="doc-prose mt-1 w-full resize-y rounded border rule-control bg-transparent p-2.5 text-[0.98rem] leading-relaxed outline-none transition focus:rule-focus"
             />
           </div>
           <div>
@@ -736,7 +736,7 @@ export default function Principes({
               value={devise}
               onChange={(e) => setDevise(e.target.value)}
               placeholder={t.mottoPlaceholder}
-              className="mt-1 w-full rounded border border-slate-200 bg-transparent px-2.5 py-2 text-sm outline-none transition focus:border-slate-400"
+              className="mt-1 w-full rounded border rule-control bg-transparent px-2.5 py-2 text-sm outline-none transition focus:rule-focus"
             />
           </div>
         </div>
@@ -755,7 +755,7 @@ export default function Principes({
             return (
               <div
                 key={id}
-                className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed border-slate-200 px-3 py-2 text-sm text-slate-400"
+                className="mb-3 flex items-center justify-between gap-3 rounded-md border border-dashed rule-control px-3 py-2 text-sm text-slate-400"
               >
                 <span>{t.removedPrinciple(p.title)}</span>
                 <button
@@ -812,7 +812,7 @@ export default function Principes({
               </button>
             </span>
           );
-          const accent = c ? "border-violet-300" : "border-slate-200";
+          const accent = c ? "border-violet-300" : "rule-hairline";
 
           return (
             <section
@@ -830,14 +830,14 @@ export default function Principes({
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       placeholder={t.titlePlaceholder}
-                      className="w-full rounded border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-slate-400"
+                      className="w-full rounded border rule-control px-3 py-2 text-sm outline-none transition focus:rule-focus"
                     />
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
                       rows={3}
                       placeholder={t.textPlaceholder}
-                      className="doc-prose mt-2 w-full resize-y rounded border border-slate-200 p-3 text-[0.98rem] outline-none transition focus:border-slate-400"
+                      className="doc-prose mt-2 w-full resize-y rounded border rule-control p-3 text-[0.98rem] outline-none transition focus:rule-focus"
                     />
                     <div className="mt-2 flex gap-2">
                       <button
@@ -849,7 +849,7 @@ export default function Principes({
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
-                        className="rounded-full border border-slate-300 px-4 py-1.5 text-sm text-slate-600 transition hover:border-slate-500"
+                        className="rounded-full border rule-control px-4 py-1.5 text-sm text-slate-600 transition hover:rule-focus"
                       >
                         {t.cancel}
                       </button>
@@ -911,7 +911,7 @@ export default function Principes({
                       </button>
                       <button
                         onClick={() => setConfirmId(null)}
-                        className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 transition hover:border-slate-500"
+                        className="rounded-full border rule-control px-3 py-1 text-xs text-slate-600 transition hover:rule-focus"
                       >
                         {t.cancel}
                       </button>
@@ -924,19 +924,19 @@ export default function Principes({
         })}
 
         {adding ? (
-          <div className="mt-4 rounded-md border border-slate-200 bg-white/70 p-4">
+          <div className="mt-4 rounded-md border rule-control bg-white/70 p-4">
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder={t.titlePlaceholder}
-              className="w-full rounded border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-slate-400"
+              className="w-full rounded border rule-control px-3 py-2 text-sm outline-none transition focus:rule-focus"
             />
             <textarea
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               rows={3}
               placeholder={t.textPlaceholder}
-              className="doc-prose mt-2 w-full resize-y rounded border border-slate-200 p-3 text-[0.98rem] outline-none transition focus:border-slate-400"
+              className="doc-prose mt-2 w-full resize-y rounded border rule-control p-3 text-[0.98rem] outline-none transition focus:rule-focus"
             />
             <div className="mt-2 flex gap-2">
               <button
@@ -952,7 +952,7 @@ export default function Principes({
                   setNewTitle("");
                   setNewText("");
                 }}
-                className="rounded-full border border-slate-300 px-4 py-1.5 text-sm text-slate-600 transition hover:border-slate-500"
+                className="rounded-full border rule-control px-4 py-1.5 text-sm text-slate-600 transition hover:rule-focus"
               >
                 {t.cancel}
               </button>
@@ -961,13 +961,13 @@ export default function Principes({
         ) : (
           <button
             onClick={() => setAdding(true)}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 px-3 py-1.5 text-sm text-slate-500 transition hover:border-slate-500 hover:text-slate-700"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed rule-control px-3 py-1.5 text-sm text-slate-500 transition hover:rule-focus hover:text-slate-700"
           >
             <span className="text-base leading-none">+</span> {t.addPrinciple}
           </button>
         )}
 
-        <section className="mt-12 border-t border-slate-200 pt-6">
+        <section className="mt-12 border-t rule-hairline pt-6">
           <h2 className="font-serif text-xl font-semibold text-slate-900">
             {t.adoption}
           </h2>
@@ -982,7 +982,7 @@ export default function Principes({
                 onChange={(e) => setRatifiers(e.target.value)}
                 rows={4}
                 placeholder={t.namesPlaceholder}
-                className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-slate-400"
+                className="doc-prose mt-1 w-full resize-y rounded border rule-control bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:rule-focus"
               />
             </div>
             <div>
@@ -994,7 +994,7 @@ export default function Principes({
                 onChange={(e) => setSignatories(e.target.value)}
                 rows={4}
                 placeholder={t.namesPlaceholder}
-                className="doc-prose mt-1 w-full resize-y rounded border border-slate-200 bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:border-slate-400"
+                className="doc-prose mt-1 w-full resize-y rounded border rule-control bg-white/70 p-2.5 text-[0.95rem] outline-none transition focus:rule-focus"
               />
             </div>
           </div>
@@ -1003,7 +1003,7 @@ export default function Principes({
           </p>
         </section>
 
-        <footer className="mt-12 flex items-start gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400">
+        <footer className="mt-12 flex items-start gap-3 border-t rule-hairline pt-6 text-xs text-slate-400">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo-semawe-light.png"
@@ -1048,7 +1048,7 @@ export default function Principes({
             <div className="px-6 py-6">
               <button
                 onClick={signIn}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border rule-control bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
               >
                 <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
                   <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
@@ -1074,7 +1074,7 @@ export default function Principes({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={c.emailPlaceholder}
-                    className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500"
+                    className="min-w-0 flex-1 rounded-lg border rule-control px-3 py-2 text-sm outline-none transition focus:rule-focus"
                   />
                   <button
                     onClick={signInOtp}
