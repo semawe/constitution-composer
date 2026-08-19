@@ -85,3 +85,30 @@ two.
 ## License
 
 By submitting a pull request, you agree that your contribution is licensed under [AGPL v3](LICENSE). Constitution content remains under [CC BY SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+## Deux sondes pour les reprises visuelles
+
+Une refonte de mise en page touche des dizaines de classes ; ni `tsc`, ni `lint`,
+ni les tests ne disent si un paragraphe a disparu ou si un bord est devenu
+invisible. Deux sondes le disent.
+
+**`npm run empreinte:dom <fichier>`** — texte servi, ancres et commandes des
+pages de `out/`, classes et structure volontairement ignorées. Prendre l'empreinte
+avant et après, puis `diff`. Le tampon de build contenant le SHA du commit, deux
+builds de commits différents diffèrent toujours d'une ligne par page : c'est le
+seul écart attendu.
+
+**`scripts/contraste-bords.js`** — à coller dans la console de la page servie :
+contraste calculé de chaque bord, champs et filets comptés séparément (la
+WCAG 1.4.11 ne pose son seuil de 3:1 que sur la limite d'un composant, pas sur un
+filet décoratif). Trois précautions y sont documentées en tête, chacune apprise à
+ses dépens :
+
+- normaliser les couleurs par le canevas — Tailwind sert sa palette en `lab()` ;
+- ne jamais basculer la classe de thème pour mesurer, mais recharger la page. Un
+  sous-arbre masqué ne produit aucune image, sa transition de `border-color` reste
+  figée, et `getComputedStyle` rend la couleur de l'autre thème. Ce faux positif a
+  déjà fait révoquer une passe correcte ;
+- cliquer les onglets montés en `ssr: false` (`Principes`, `Marketplace`) : ils
+  n'existent dans aucun fichier de `out/`, et c'est par ce trou que des sites non
+  convertis atteignent la production.
