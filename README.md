@@ -228,7 +228,7 @@ Required: set the environment variables above before building, as `NEXT_PUBLIC_*
 **Note on canonical URLs:** some metadata files hard-code `constitution-composer.com` as the canonical. If you deploy a public instance under a different domain, update the canonical URLs in `src/app/**/page.tsx` before building.
 
 The official instance ([constitution-composer.com](https://constitution-composer.com)) is deployed
-to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Four guards are worth reusing if you
+to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Six guards are worth reusing if you
 replicate that setup:
 
 - **SFTP by default.** Plain FTP sends the password in the clear and the account hosts other sites;
@@ -242,6 +242,17 @@ replicate that setup:
   previous version kept until the new one answers. This replaced a purge-then-upload that took the
   English pages offline mid-deploy on 2026-08-19 — a failed upload now leaves the live site
   untouched.
+- **The target directory is explicit and confined.** The account hosts three other sites next to
+  this one, and the upload used to default to `/www` — the main site's root. `FTP_REMOTE_DIR` is now
+  mandatory with no default, checked against an absolute-path shape (no traversal, no exotic
+  characters), and refused outright when its last segment is `www` unless `FTP_ALLOW_WWW=yes` says
+  that really is the target. Note the path differs by transport: FTP chroots the session, SFTP starts
+  from the real home.
+- **The bundle must carry a backend.** A build made without the Supabase keys produces a site that
+  *appears* to work — simulated account, saves that stay in the browser, nothing following the user.
+  The script reads the chunks it is about to upload and refuses when no Supabase configuration is
+  baked in, rather than trusting the environment the build ran in. `ALLOW_DEMO_DEPLOY=yes` for a
+  deliberately backend-less instance.
 - **The commit must be current.** A build can be fresh and still be behind: the guard above compares
   `out/` to the local `HEAD`, which says nothing about whether that `HEAD` is the tip of the branch.
   On a day when three sessions pushed, a deploy served an up-to-date stamp for a tree that was three
