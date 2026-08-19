@@ -44,7 +44,7 @@ export default function Marketplace({
     return (
       <div
         key={m.id}
-        className="flex flex-col rounded-xl border rule-control bg-white p-5 transition hover:rule-control hover:shadow-sm"
+        className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
       >
         <div className="flex items-start justify-between gap-3">
           <h2 className="font-serif text-lg font-semibold text-slate-900">
@@ -74,7 +74,7 @@ export default function Marketplace({
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href={`/apps/${m.id}`}
-            className="inline-flex items-center gap-1.5 rounded-full border rule-control px-4 py-2 text-sm font-medium text-slate-700 transition hover:rule-focus hover:text-slate-900"
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
           >
             {t.discover}
           </Link>
@@ -91,7 +91,7 @@ export default function Marketplace({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-8 border-b rule-hairline pb-6">
+      <header className="mb-8 border-b border-slate-200 pb-6">
         <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
           {t.beyond}
         </p>
@@ -134,10 +134,10 @@ export default function Marketplace({
           locale={locale}
         />
       ) : (
-        <section className="mt-10 border-t rule-hairline pt-8">
+        <section className="mt-10 border-t border-slate-200 pt-8">
           <a
             href={proposeMailto}
-            className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed rule-control p-5 text-center transition hover:border-teal-400 hover:bg-teal-50/40"
+            className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-5 text-center transition hover:border-teal-400 hover:bg-teal-50/40"
           >
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-3xl font-light leading-none text-slate-500 transition group-hover:bg-teal-600 group-hover:text-white">
               +

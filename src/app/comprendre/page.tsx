@@ -56,11 +56,11 @@ export default function ComprendrePage() {
         <h2 className="mt-16 font-serif text-2xl font-medium text-slate-900">
           Questions fréquentes
         </h2>
-        <dl className="mt-8 border-t rule-hairline">
+        <dl className="mt-8 border-t border-slate-200">
           {QA.map((item, i) => (
             <div
               key={item.q}
-              className="grid gap-x-8 gap-y-3 border-b rule-hairline py-8 sm:grid-cols-[3rem_1fr]"
+              className="grid gap-x-8 gap-y-3 border-b border-slate-200 py-8 sm:grid-cols-[3rem_1fr]"
             >
               <dt className="font-serif text-lg leading-snug text-slate-400 sm:text-right">
                 {String(i + 1).padStart(2, "0")}

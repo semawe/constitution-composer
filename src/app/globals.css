@@ -36,29 +36,6 @@
    remappé sous `.dark` ne savait pas faire — il retombait sur #334155, soit
    1,6:1 sur le fond, et l'action principale de l'app (« Télécharger le PDF »)
    devenait une pastille grise. */
-/* Bordures, par rôle et non par valeur.
-   Le remappage global traitait `border-slate-200` et `border-slate-300` comme
-   deux nuances, alors qu'ils servaient chacun deux métiers : 35 filets de
-   séparation et 41 contours de contrôle pour le premier, 28 contours et 6
-   pointillés pour le second. Le choix entre les deux valeurs était arbitraire
-   d'un site à l'autre — c'est là qu'était la dette, pas dans le nombre de
-   règles.
-   Deux rôles, deux jetons. Le filet reste discret : il sépare sans se voir. Le
-   contour d'un champ ou d'un bouton doit, lui, se voir — à 1 px sur le fond
-   clair, `slate-200` donnait 1,2:1, autant dire aucune limite visible. */
-:root {
-  --rule-hairline: #e2e8f0;
-  --rule-control: #cbd5e1;
-  --rule-focus: #64748b;
-}
-.dark {
-  --rule-hairline: #334155;
-  --rule-control: #475569;
-  /* Le focus était le seul état jamais remappé : `focus:border-slate-500` posait
-     une valeur de thème clair sur une surface sombre, où elle disparaissait. */
-  --rule-focus: #94a3b8;
-}
-
 :root {
   --action: #0f172a;
   --action-hover: #334155;
@@ -286,9 +263,10 @@ html.intro-off [data-intro] {
 .dark .text-slate-400 { color: #7c8aa0; }
 .dark .text-slate-300 { color: #64748b; }
 
-/* Bordures : `border-slate-*` a laissé place aux deux jetons de rôle
-   (`.rule-hairline`, `.rule-control`). Seul `border-transparent` reste ici : il
-   sert d'état neutre à des bordures qui apparaissent au survol. */
+/* Bordures */
+.dark .border-slate-100 { border-color: #1e293b; }
+.dark .border-slate-200 { border-color: #334155; }
+.dark .border-slate-300 { border-color: #475569; }
 .dark .border-transparent { border-color: transparent; }
 
 /* Teintes des modules (insertions / tags) : versions sombres translucides */
@@ -361,19 +339,4 @@ html.intro-off [data-intro] {
   .cc-rise-3 {
     animation: none;
   }
-}
-
-/* Les trois rôles de bordure, déclarés en `@utility` et non en classes nues :
-   sous cette forme les variantes Tailwind s'y appliquent, donc
-   `focus:rule-focus` et `hover:rule-control` fonctionnent. La géométrie
-   (`border`, `border-b`, l'épaisseur) reste aux utilitaires ; ces trois-là ne
-   portent que la couleur, et se combinent avec n'importe quel côté. */
-@utility rule-hairline {
-  border-color: var(--rule-hairline);
-}
-@utility rule-control {
-  border-color: var(--rule-control);
-}
-@utility rule-focus {
-  border-color: var(--rule-focus);
 }

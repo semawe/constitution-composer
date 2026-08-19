@@ -189,27 +189,27 @@ export function ComposerPanel({
             }
             setActive(normalizeActive(data, data.modules.map((m) => m.id)));
           }}
-          className="whitespace-nowrap rounded-full border rule-control px-3 py-1 text-slate-600 transition hover:rule-focus hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
         >
           {t.activateAll}
         </button>
         <button
           onClick={() => setActive(defaultActive(data))}
-          className="whitespace-nowrap rounded-full border rule-control px-3 py-1 text-slate-600 transition hover:rule-focus hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
           title={t.baseLiteTitle}
         >
           {t.baseLite}
         </button>
         <button
           onClick={() => setActive(new Set())}
-          className="whitespace-nowrap rounded-full border rule-control px-3 py-1 text-slate-600 transition hover:rule-focus hover:text-slate-900"
+          className="whitespace-nowrap rounded-full border border-slate-300 px-3 py-1 text-slate-600 transition hover:border-slate-500 hover:text-slate-900"
           title={t.coreOnlyTitle}
         >
           {t.coreOnly}
         </button>
       </div>
 
-      <div className="mt-6 border-t rule-hairline pt-4">
+      <div className="mt-6 border-t border-slate-200 pt-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             {t.myVersions}

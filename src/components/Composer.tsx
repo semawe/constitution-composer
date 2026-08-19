@@ -274,7 +274,7 @@ export default function Composer({
   return (
     <div>
       {/* Barre mobile */}
-      <div className="sticky top-11 z-20 flex items-center justify-between border-b rule-hairline bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="sticky top-11 z-20 flex items-center justify-between border-b border-slate-200 bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <button
           onClick={() => setMobileOpen(true)}
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-700"

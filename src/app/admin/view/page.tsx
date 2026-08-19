@@ -196,7 +196,7 @@ export default function AdminViewPage() {
               className={
                 it.kind === "block"
                   ? ""
-                  : "rounded-r-md border-l-4 rule-hairline py-2 pl-4"
+                  : "rounded-r-md border-l-4 border-slate-200 py-2 pl-4"
               }
             >
               {it.kind !== "block" && it.moduleLabel && (
@@ -211,7 +211,7 @@ export default function AdminViewPage() {
       </article>
 
       {decl && (
-        <article className="doc-prose mt-12 border-t rule-hairline pt-8 text-[1.05rem] text-slate-800">
+        <article className="doc-prose mt-12 border-t border-slate-200 pt-8 text-[1.05rem] text-slate-800">
           <h1
             className="font-serif text-3xl font-semibold text-slate-900"
             style={titleStyle}
@@ -231,7 +231,7 @@ export default function AdminViewPage() {
           )}
           <p className="mt-4 italic text-slate-600">{principes.intro}</p>
           {declItems.map((it) => (
-            <section key={it.n} className="mt-6 border-l-2 rule-hairline pl-4">
+            <section key={it.n} className="mt-6 border-l-2 border-slate-200 pl-4">
               <h2 className="font-serif text-lg font-semibold text-slate-900">
                 {it.n}. {it.title}
               </h2>
@@ -248,7 +248,7 @@ export default function AdminViewPage() {
                 Ratificateurs
               </p>
               {names(decl.ratifiers).map((n, i) => (
-                <p key={i} className="border-b rule-hairline py-2">
+                <p key={i} className="border-b border-slate-200 py-2">
                   {n}
                 </p>
               ))}
@@ -258,7 +258,7 @@ export default function AdminViewPage() {
                 Signataires
               </p>
               {names(decl.signatories).map((n, i) => (
-                <p key={i} className="border-b rule-hairline py-2">
+                <p key={i} className="border-b border-slate-200 py-2">
                   {n}
                 </p>
               ))}

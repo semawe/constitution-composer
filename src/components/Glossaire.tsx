@@ -29,7 +29,7 @@ export default function Glossaire({
       className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
       style={fontVars(font)}
     >
-      <header className="mb-8 border-b rule-hairline pb-6">
+      <header className="mb-8 border-b border-slate-200 pb-6">
         <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
           {ui.definedTerms}
         </p>
@@ -44,7 +44,7 @@ export default function Glossaire({
           <div
             key={t.key}
             id={`glossaire-${t.key}`}
-            className="scroll-mt-20 border-l-2 rule-hairline pl-4"
+            className="scroll-mt-20 border-l-2 border-slate-200 pl-4"
           >
             <dt className="font-serif text-lg font-semibold text-slate-900">
               {t.term}
