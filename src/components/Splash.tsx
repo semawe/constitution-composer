@@ -50,7 +50,7 @@ export default function Splash() {
           aria-hidden
           className="pointer-events-none absolute -right-10 bottom-0 hidden w-80 rotate-[-3deg] opacity-[0.13] sm:block"
         >
-          <div className="rounded-xl border border-slate-300 bg-white p-4">
+          <div className="rounded-xl border border-field-strong bg-white p-4">
             <div className="mb-3 h-2.5 w-3/5 rounded bg-slate-300" />
             {[true, true, false, true].map((on, i) => (
               <div key={i} className="mb-2.5 flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function Splash() {
         </div>
 
         <div className="relative mx-auto max-w-5xl px-4 pb-20 pt-16 sm:pt-24">
-          <span className="cc-rise inline-block rounded-md border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+          <span className="cc-rise inline-block rounded-md border border-field-strong bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
             {T.unofficial}
           </span>
           <h1
@@ -90,7 +90,7 @@ export default function Splash() {
             </Link>
             <Link
               href="/lite"
-              className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              className="rounded-lg border border-field-strong px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
               Lire la version Lite
             </Link>
@@ -98,7 +98,7 @@ export default function Splash() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200 bg-slate-50/60 dark:bg-slate-800/20">
+      <section className="border-t border-rule bg-slate-50/60 dark:bg-slate-800/20">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-14 sm:grid-cols-3">
           {VALUES.map((v) => (
             <div key={v.title}>
@@ -117,9 +117,14 @@ export default function Splash() {
         </h2>
         <div className="mt-8 grid gap-6 sm:grid-cols-3">
           {STEPS.map((s) => (
+            // Pas de `dark:border-*` ici : la déclaration était morte, le
+            // remappage global la coiffait, et `border-rule` porte désormais la
+            // couleur des deux thèmes. La garder ferait deux sources de vérité
+            // pour un même bord, à deux unités près — et `SplashEN` ne l'avait
+            // pas, donc les deux versions divergeaient déjà en thème sombre.
             <div
               key={s.n}
-              className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800/40"
+              className="rounded-xl border border-rule bg-white p-6 dark:bg-slate-800/40"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-medium text-teal-700">
                 {s.n}
@@ -137,7 +142,7 @@ export default function Splash() {
 
       {/* L'éditeur, nommé et situé. La mention de non-officialité vit ici en
           clair, à hauteur de lecture, et non seulement en pied de page. */}
-      <section className="border-t border-slate-200 bg-slate-50/60 dark:bg-slate-800/20">
+      <section className="border-t border-rule bg-slate-50/60 dark:bg-slate-800/20">
         <div className="mx-auto max-w-5xl px-4 py-14">
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
             {T.author.kicker}
@@ -192,7 +197,7 @@ export default function Splash() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200">
+      <section className="border-t border-rule">
         <div className="mx-auto flex max-w-5xl flex-col items-start gap-5 px-4 py-16 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-serif text-2xl font-medium text-slate-900">

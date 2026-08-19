@@ -36,6 +36,49 @@
    remappé sous `.dark` ne savait pas faire — il retombait sur #334155, soit
    1,6:1 sur le fond, et l'action principale de l'app (« Télécharger le PDF »)
    devenait une pastille grise. */
+/* Le rôle « bord », en jetons.
+
+   Quatre règles de remappage global le traitaient : `.dark .border-slate-100`,
+   `-200`, `-300` et `.dark .border-transparent`. Elles marchaient, mais chacune
+   traitait une couleur littérale comme si elle avait un rôle unique, ce qui est
+   faux — c'est la cause structurelle du bouton principal à 1,6:1 réglé plus haut.
+   Relevé avant conversion, sur 135 emplois :
+
+     `border-slate-200` en porte deux : le filet qui sépare ou borde (les 33
+     bordures d'un seul côté, les cartes, les modales) et le bord d'un contrôle au
+     repos (les 14 champs qui passent en `focus:border-slate-400`).
+     `border-slate-300` en porte deux aussi : le filet accentué au survol d'une
+     carte, et le bord d'un contrôle plus affirmé — bouton en contour, zone
+     pointillée.
+
+   D'où cinq jetons et non trois : un jeton par utilitaire aurait entériné la
+   dette sous un plus joli nom. Les valeurs sont exactement celles d'aujourd'hui
+   dans les deux thèmes, donc la conversion ne déplace pas un pixel ; ce qu'elle
+   change est qu'on peut désormais toucher au filet sans déplacer les champs.
+
+   `.dark .border-transparent` était morte : elle rétablissait `transparent` sur
+   `transparent`, et son seul site n'a aucune autre classe de bord au repos. */
+/* En clair, les jetons pointent sur la palette Tailwind plutôt que d'en recopier
+   l'hexadécimal : `--color-slate-200` se sérialise en `lab(91.7353% …)` et non en
+   `rgb(226, 232, 240)`. Recopié à la main, le jeton donnait la couleur voulue mais
+   pas la même valeur calculée — vérifié au navigateur, les 249 bords du thème
+   clair changeaient tous d'un cran de sérialisation. En sombre les valeurs restent
+   littérales : ce sont celles que portaient les quatre règles retirées. */
+:root {
+  --rule-soft: var(--color-slate-100);
+  --rule: var(--color-slate-200);
+  --rule-strong: var(--color-slate-300);
+  --field: var(--color-slate-200);
+  --field-strong: var(--color-slate-300);
+}
+.dark {
+  --rule-soft: #1e293b;
+  --rule: #334155;
+  --rule-strong: #475569;
+  --field: #334155;
+  --field-strong: #475569;
+}
+
 :root {
   --action: #0f172a;
   --action-hover: #334155;
@@ -55,6 +98,11 @@
 }
 
 @theme inline {
+  --color-rule-soft: var(--rule-soft);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-field: var(--field);
+  --color-field-strong: var(--field-strong);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -262,12 +310,6 @@ html.intro-off [data-intro] {
 .dark .text-slate-500 { color: #94a3b8; }
 .dark .text-slate-400 { color: #7c8aa0; }
 .dark .text-slate-300 { color: #64748b; }
-
-/* Bordures */
-.dark .border-slate-100 { border-color: #1e293b; }
-.dark .border-slate-200 { border-color: #334155; }
-.dark .border-slate-300 { border-color: #475569; }
-.dark .border-transparent { border-color: transparent; }
 
 /* Teintes des modules (insertions / tags) : versions sombres translucides */
 .dark .bg-teal-50 { background-color: rgb(13 148 136 / 0.18); }

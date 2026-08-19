@@ -187,7 +187,7 @@ export default function AdminPage() {
       )}
 
       {state.kind === "denied" && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-6">
+        <div className="rounded-lg border border-rule bg-slate-50 p-6">
           <p className="text-sm text-slate-700">
             Accès réservé. Connectez-vous depuis le composeur avec un compte
             associé pour consulter cet écran.
@@ -217,7 +217,7 @@ export default function AdminPage() {
                 return (
                   <div
                     key={p.id}
-                    className="rounded-lg border border-slate-200 bg-white p-4"
+                    className="rounded-lg border border-rule bg-white p-4"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <span className="font-medium text-slate-900">
@@ -232,7 +232,7 @@ export default function AdminPage() {
                       {p.company ? ` · ${p.company}` : ""}
                     </p>
                     {comps.length > 0 && (
-                      <ul className="mt-2 space-y-1 border-t border-slate-100 pt-2">
+                      <ul className="mt-2 space-y-1 border-t border-rule-soft pt-2">
                         {comps.map((c) => {
                           const labels = (c.actifs ?? []).map(
                             (id) => MODULE_LABEL.get(id) ?? id,
@@ -266,7 +266,7 @@ export default function AdminPage() {
                       </ul>
                     )}
                     {dp && (
-                      <div className="mt-2 border-t border-slate-100 pt-2 text-sm">
+                      <div className="mt-2 border-t border-rule-soft pt-2 text-sm">
                         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                           Déclaration de Principes
                         </p>

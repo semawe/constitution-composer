@@ -60,7 +60,7 @@ export function ComposerEntete({
               dans la police et la taille de l'élément, et deux colonnes calculées
               séparément se centraient sur deux largeurs différentes — 559 px ici,
               586 px pour le corps, soit 27 px de décalage entre leurs bords. */}
-          <div className="doc-measure doc-titre-boite border-b border-slate-200 pb-6">
+          <div className="doc-measure doc-titre-boite border-b border-rule pb-6">
             <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
               {t.editionKicker}
             </p>
@@ -79,7 +79,7 @@ export function ComposerEntete({
               placeholder={data.meta.title}
               spellCheck={false}
               style={titleColor ? { color: titleColor } : undefined}
-              className="doc-titre mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-200 focus:border-slate-400"
+              className="doc-titre mt-1 w-full rounded-sm border-0 border-b border-transparent bg-transparent font-serif font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-field focus:border-slate-400"
             />
             {/* Sous-titre du document : de quoi ce texte est dérivé, et ce qu'il
                 n'est pas. Il suit le titre même quand l'utilisateur renomme sa

@@ -47,7 +47,7 @@ export function ComposerIdentite({
           value={font}
           onChange={(e) => setFont(e.target.value)}
           aria-label="Police du document"
-          className="mt-1 w-full rounded border border-slate-200 bg-transparent px-1.5 py-1 outline-none focus:border-slate-400"
+          className="mt-1 w-full rounded border border-field bg-transparent px-1.5 py-1 outline-none focus:border-slate-400"
         >
           {FONT_OPTIONS.map((f) => (
             <option key={f.key} value={f.key}>
@@ -88,7 +88,7 @@ export function ComposerIdentite({
             value={titleColor || "#0f172a"}
             onChange={(e) => setTitleColor(e.target.value)}
             aria-label="Couleur du titre"
-            className="h-6 w-7 shrink-0 cursor-pointer rounded border border-slate-300 bg-transparent p-0"
+            className="h-6 w-7 shrink-0 cursor-pointer rounded border border-field-strong bg-transparent p-0"
           />
           <input
             type="text"
@@ -96,7 +96,7 @@ export function ComposerIdentite({
             onChange={(e) => setTitleColor(e.target.value)}
             placeholder="#0f172a"
             spellCheck={false}
-            className="min-w-0 flex-1 rounded border border-slate-200 bg-transparent px-1.5 py-1 font-mono outline-none focus:border-slate-400"
+            className="min-w-0 flex-1 rounded border border-field bg-transparent px-1.5 py-1 font-mono outline-none focus:border-slate-400"
           />
           {titleColor && (
             <button

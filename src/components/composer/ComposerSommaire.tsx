@@ -45,7 +45,7 @@ export function ComposerSommaire({
               className={`block w-full border-l-2 py-1 pl-3 text-left leading-snug transition ${
                 on
                   ? "border-teal-500 bg-teal-50/50"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                  : "border-rule hover:border-rule-strong hover:bg-slate-50/50"
               }`}
             >
               <span

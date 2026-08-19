@@ -69,7 +69,7 @@ export default function VersionDoc({
           {ctaLabel}
         </Link>
 
-        <article className="doc-prose mt-12 border-t border-slate-200 pt-10 text-[1.05rem] text-slate-800">
+        <article className="doc-prose mt-12 border-t border-rule pt-10 text-[1.05rem] text-slate-800">
           {items.map((it) => (
             <section key={it.key} className="mb-8">
               {it.heading && (
@@ -81,7 +81,7 @@ export default function VersionDoc({
                 className={
                   it.kind === "block"
                     ? ""
-                    : "rounded-r-md border-l-4 border-slate-200 py-2 pl-4"
+                    : "rounded-r-md border-l-4 border-rule py-2 pl-4"
                 }
               >
                 {it.kind !== "block" && it.moduleLabel && (
@@ -104,7 +104,7 @@ export default function VersionDoc({
           {ctaLabel}
         </Link>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-slate-200 pt-6 text-sm text-slate-500">
+        <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-6 text-sm text-slate-500">
           <a
             href={REPO_V6_URL}
             target="_blank"
