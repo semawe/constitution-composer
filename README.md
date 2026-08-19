@@ -207,6 +207,11 @@ lint and a full static build). What each file guards:
   be reordered entirely from the keyboard (the HTML drag-and-drop offered no path at all), and the
   dialog behaves like a dialog: it announces its role, is named by its heading, takes focus on open,
   traps it, closes on Escape and gives focus back to whatever opened it.
+- **`src/components/App.interaction.test.tsx` — tabs mount when opened.** The Declaration and the
+  App Store no longer run their effects (account read, submissions fetch) on every `/composer` load,
+  and a button of a hidden tab is no longer clickable — a phantom that once corrupted one of our own
+  verifications. The test waits for deferred imports before asserting absence, otherwise it would
+  prove nothing.
 - **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
 
 Tests are named in French and sit next to the module they cover, following the conventions of the

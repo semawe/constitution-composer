@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Composer from "@/components/Composer";
-import Principes, { type PrincipesData } from "@/components/Principes";
+import type { PrincipesData } from "@/lib/principes-data";
+import dynamic from "next/dynamic";
 import Glossaire from "@/components/Glossaire";
-import Marketplace from "@/components/Marketplace";
 import ThemeToggle from "@/components/ThemeToggle";
+
+// Les trois onglets secondaires ne descendent qu'à l'ouverture. Auparavant les
+// quatre étaient montés d'emblée et simplement masqués en CSS : le premier
+// chargement de /composer embarquait tout leur JavaScript, initialisait leurs
+// effets et leurs abonnements invisibles, et un bouton d'un onglet masqué restait
+// cliquable (revue adverse du 18/08/2026 — et un piège rencontré le même jour
+// dans une vérification, qui déclenchait l'export de l'autre onglet).
+//
+// Aucune perte de contenu indexable : /composer est en `noindex`, et chaque
+// onglet restaure son brouillon depuis le navigateur à son montage.
+const Principes = dynamic(() => import("@/components/Principes"), {
+  ssr: false,
+});
+const Marketplace = dynamic(() => import("@/components/Marketplace"), {
+  ssr: false,
+});
 import type { ConstitutionData } from "@/lib/constitution";
 import { getSupabase } from "@/lib/supabase";
 import { isAdminUser } from "@/lib/admin";
@@ -30,9 +46,19 @@ export default function App({
   locale?: Locale;
 }) {
   const t = APP_UI[locale];
-  const [view, setView] = useState<
+  // Un onglet ouvert une fois reste monté : le rouvrir ne doit pas relire le
+  // brouillon ni relancer ses requêtes à chaque aller-retour.
+  const [vus, setVus] = useState<Set<string>>(new Set(["constitution"]));
+  const [view, setViewBrut] = useState<
     "constitution" | "principes" | "glossaire" | "appstore"
   >("constitution");
+  const setView = useCallback(
+    (v: "constitution" | "principes" | "glossaire" | "appstore") => {
+      setVus((s) => (s.has(v) ? s : new Set(s).add(v)));
+      setViewBrut(v);
+    },
+    [],
+  );
 
   const openInComposer = (anchor: string) => {
     setView("constitution");
@@ -234,6 +260,7 @@ export default function App({
         />
       </div>
       <div className={view === "principes" ? "" : "hidden"}>
+        {vus.has("principes") && (
         <Principes
           data={principes}
           logo={logo}
@@ -242,11 +269,13 @@ export default function App({
           onTermClick={goToTerm}
           locale={locale}
         />
+        )}
       </div>
       <div className={view === "glossaire" ? "" : "hidden"}>
-        <Glossaire font={font} locale={locale} />
+        {vus.has("glossaire") && <Glossaire font={font} locale={locale} />}
       </div>
       <div className={view === "appstore" ? "" : "hidden"}>
+        {vus.has("appstore") && (
         <Marketplace
           data={constitution}
           onOpen={openInComposer}
@@ -254,6 +283,7 @@ export default function App({
           signedIn={signedIn}
           onRequestSignIn={requestSignIn}
         />
+        )}
       </div>
     </div>
   );
