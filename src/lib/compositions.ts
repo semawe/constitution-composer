@@ -104,6 +104,38 @@ export async function saveComposition(
   return data as SavedComposition;
 }
 
+/**
+ * Fige une composition existante sur le texte du jour, en place.
+ *
+ * Surtout pas « enregistrer puis supprimer » : au plafond de cinq versions, la
+ * création échoue et la personne perd son geste sans comprendre ; et si la
+ * suppression échoue après une création réussie, elle se retrouve avec un
+ * doublon. Une mise à jour ne peut ni dépasser le plafond ni dédoubler.
+ */
+export async function repinComposition(
+  id: string,
+  payload: CompositionPayload,
+  locale: Locale,
+): Promise<void> {
+  const fige: CompositionPayload = {
+    ...payload,
+    schemaVersion: 2,
+    content: currentContentRef(locale),
+  };
+  const sb = getSupabase();
+  if (!sb) {
+    lsWrite(
+      lsRead().map((r) => (r.id === id ? { ...r, payload: fige } : r)),
+    );
+    return;
+  }
+  const { error } = await sb
+    .from("compositions")
+    .update({ payload: fige, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 export async function renameComposition(
   id: string,
   name: string,

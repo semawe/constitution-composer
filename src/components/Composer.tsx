@@ -30,6 +30,7 @@ import {
   type SavedComposition,
   MAX_COMPOSITIONS,
   listCompositions,
+  repinComposition,
   saveComposition,
   renameComposition,
   deleteComposition,
@@ -599,8 +600,7 @@ export default function Composer({
   /** Fige une version d'avant l'archivage sur le texte du jour, à la demande. */
   const handlePinVersion = async (v: SavedComposition) => {
     try {
-      await saveComposition(v.name, { ...v.payload }, locale);
-      await deleteComposition(v.id);
+      await repinComposition(v.id, v.payload, locale);
       await refreshVersions();
       setAFiger(null);
       setContentRef(currentContentRef(locale));
