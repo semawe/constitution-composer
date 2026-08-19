@@ -42,17 +42,10 @@ describe("entrée animée", () => {
     expect(coupables).toEqual([]);
   });
 
-  it("n'anime pas l'opacité au montage d'un élément rendu côté serveur", () => {
-    // `animate` au montage écrit lui aussi `opacity:0` côté serveur. Les
-    // insertions du composer sont exemptes : elles montent sur une action de
-    // l'utilisateur, dans une `AnimatePresence initial={false}`, et sortent
-    // donc du serveur à `opacity:1`.
-    const coupables = FILES.filter((f) => {
-      const src = readFileSync(f, "utf8");
-      return /animate="show"/.test(src) || /animate=\{\{\s*opacity: 1/.test(src)
-        ? !/AnimatePresence/.test(src)
-        : false;
-    });
-    expect(coupables).toEqual([]);
-  });
+  // Le cas voisin — une animation d'opacité au montage — ne se lit pas
+  // fiablement dans la source : rien ne distingue, à la lecture, un `animate`
+  // qui part de l'invisible d'un `animate` légitime dans une `AnimatePresence`
+  // montée sur action. Il se vérifie sur l'artefact : `npm run export:check`
+  // (scripts/export-visible.mjs) refuse tout `opacity:0` dans les pages de
+  // `out/`, et tourne en CI juste après le build.
 });

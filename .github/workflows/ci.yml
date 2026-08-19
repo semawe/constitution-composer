@@ -57,3 +57,10 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_ALLOW_DEMO_MODE: 'true' 
+
+      # Sur l'artefact qui part en production, et non sur la source : une entrée
+      # animée écrit son état de départ dans le balisage prérendu, et livrait le
+      # corps constitutionnel en `opacity:0`. Le garde-fou de source ne voit que
+      # le motif le plus net ; celui-ci vérifie la propriété elle-même.
+      - name: Export statique sans contenu invisible
+        run: npm run export:check
