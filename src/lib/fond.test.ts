@@ -39,13 +39,13 @@ const SOURCES: Record<Lang, string> = {
 
 /**
  * Divergences connues et assumées entre la source canonique et le fond servi.
- * Toute autre divergence doit rougir. Vider cette liste quand la source est
- * corrigée en amont.
+ * Toute autre divergence doit rougir. La liste est vide : la seule divergence
+ * qu'elle a portée, « Leader du Cercle » défini en gras là où le corps du texte
+ * écrivait « Leader de Cercle », a été corrigée dans la source canonique. Une
+ * entrée ne s'ajoute ici qu'en attendant sa correction en amont.
  */
 const DIVERGENCES_ASSUMEES: Record<Lang, string[]> = {
-  // La source définit « Leader du Cercle » puis écrit « Leader de Cercle »
-  // douze fois. L'application a retenu la forme majoritaire.
-  fr: ["Leader du Cercle"],
+  fr: [],
   en: [],
 };
 
