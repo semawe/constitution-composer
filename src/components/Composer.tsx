@@ -4,6 +4,7 @@ import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import IntroBanner from "@/components/IntroBanner";
 import { FONT_OPTIONS, fontVars, safeLogo } from "@/lib/branding";
+import Modale from "@/components/Modale";
 import Prose from "@/components/Prose";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -1376,23 +1377,7 @@ export default function Composer({
 
       {/* Mur freemium : création de compte (rendu conditionnel simple) */}
       {gate && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          >
-            <div
-              onClick={() => setGate(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 16, scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 280, damping: 26 }}
-              className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
-            >
+          <Modale onClose={() => setGate(null)} labelledBy="titre-mur-compte">
               <button
                 onClick={() => setGate(null)}
                 aria-label={t.close}
@@ -1404,7 +1389,10 @@ export default function Composer({
                 <p className="text-xs font-medium uppercase tracking-widest text-white/80">
                   {t.createFreeAccount}
                 </p>
-                <h2 className="mt-1 font-serif text-2xl font-semibold">
+                <h2
+                  id="titre-mur-compte"
+                  className="mt-1 font-serif text-2xl font-semibold"
+                >
                   {gate === "pdf"
                     ? t.gateTitle.pdf
                     : gate === "save"
@@ -1476,26 +1464,20 @@ export default function Composer({
                   {t.accountNotice}
                 </p>
               </div>
-            </motion.div>
-          </motion.div>
+          </Modale>
         )}
 
       {/* Onboarding : entreprise (non fournie par Google) */}
       {needsCompany && account && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <Modale
+          onClose={() => setNeedsCompany(false)}
+          labelledBy="titre-entreprise"
+          className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
         >
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
-          <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 280, damping: 26 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
-          >
-            <h2 className="font-serif text-xl font-semibold text-slate-900">
+            <h2
+              id="titre-entreprise"
+              className="font-serif text-xl font-semibold text-slate-900"
+            >
               {t.welcome}
               {user?.user_metadata?.given_name
                 ? `, ${user.user_metadata.given_name}`
@@ -1531,28 +1513,12 @@ export default function Composer({
             >
               {t.later}
             </button>
-          </motion.div>
-        </motion.div>
+        </Modale>
       )}
 
       {/* Réservation coaching (pages Google Agenda) */}
       {booking && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        >
-          <div
-            onClick={() => setBooking(false)}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-          />
-          <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 280, damping: 26 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
-          >
+        <Modale onClose={() => setBooking(false)} labelledBy="titre-coaching">
             <button
               onClick={() => setBooking(false)}
               aria-label={t.close}
@@ -1564,7 +1530,7 @@ export default function Composer({
               <p className="text-xs font-medium uppercase tracking-widest text-white/80">
                 {t.freeSession}
               </p>
-              <h2 className="mt-1 font-serif text-2xl font-semibold">
+              <h2 id="titre-coaching" className="mt-1 font-serif text-2xl font-semibold">
                 {t.coachTitle}
               </h2>
               <p className="mt-2 text-sm text-white/90">
@@ -1591,8 +1557,7 @@ export default function Composer({
                 {t.coachingPricing}
               </p>
             </div>
-          </motion.div>
-        </motion.div>
+        </Modale>
       )}
     </div>
   );

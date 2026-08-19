@@ -1,3 +1,8 @@
+// Les assertions de forme (« ce bouton est désactivé », « cet élément a le
+// focus ») viennent de jest-dom : sans elles, un test d'interface énonce ses
+// vérifications en détours illisibles.
+import "@testing-library/jest-dom/vitest";
+
 // Ce que jsdom n'a pas et que l'interface réclame.
 //
 // Les tests d'interaction montent le Composer, qui observe des intersections

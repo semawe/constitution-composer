@@ -203,6 +203,10 @@ lint and a full static build). What each file guards:
   AnimatePresence exit never completes and the node lingers, so a test would measure what the
   animation has not finished removing rather than what React renders. Animations themselves remain
   out of coverage, and that is stated where it matters.
+- **`src/components/Principes.interaction.test.tsx` — accessibility, driven.** The principles can
+  be reordered entirely from the keyboard (the HTML drag-and-drop offered no path at all), and the
+  dialog behaves like a dialog: it announces its role, is named by its heading, takes focus on open,
+  traps it, closes on Escape and gives focus back to whatever opened it.
 - **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
 
 Tests are named in French and sit next to the module they cover, following the conventions of the

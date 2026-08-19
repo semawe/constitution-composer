@@ -511,6 +511,10 @@ export const PRINCIPES_UI = {
     mottoLabel: "Devise",
     mottoPlaceholder: "Une formule courte qui vous rassemble.",
     dragHint: "pour le réordonner ; la numérotation s'adapte.",
+    moveUp: (titre: string) => `Remonter « ${titre} »`,
+    moveDown: (titre: string) => `Descendre « ${titre} »`,
+    keyboardHint:
+      "Au clavier : les deux boutons de chaque principe le déplacent d'un rang.",
     dragHintPre: "Glissez un principe par sa poignée",
     dragTitle: "Glisser pour réordonner",
     removedPrinciple: (title: string) => `Principe retiré : « ${title} »`,
@@ -573,6 +577,10 @@ export const PRINCIPES_UI = {
     mottoPlaceholder: "A short phrase that brings you together.",
     dragHintPre: "Drag a principle by its handle",
     dragHint: "to reorder it; numbering adapts.",
+    moveUp: (titre: string) => `Move “${titre}” up`,
+    moveDown: (titre: string) => `Move “${titre}” down`,
+    keyboardHint:
+      "With a keyboard: the two buttons on each principle move it one rank.",
     dragTitle: "Drag to reorder",
     removedPrinciple: (title: string) => `Principle removed: “${title}”`,
     restore: "Restore",

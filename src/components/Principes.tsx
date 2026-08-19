@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { fontVars } from "@/lib/branding";
+import Modale from "@/components/Modale";
 import Prose from "@/components/Prose";
 import type { PrincipesData } from "@/lib/principes-data";
 import {
@@ -465,6 +466,21 @@ export default function Principes({
     numberById.set(id, runningNo);
   }
 
+  /**
+   * Déplace un principe d'un rang. C'est la voie clavier : le glisser-déposer
+   * HTML n'en offre aucune, et l'ordre des principes était donc inatteignable
+   * sans souris (revue adverse du 18/08/2026).
+   */
+  const decaler = (id: string, sens: -1 | 1) => {
+    const arr = [...orderedIds];
+    const from = arr.indexOf(id);
+    const to = from + sens;
+    if (from < 0 || to < 0 || to >= arr.length) return;
+    arr.splice(from, 1);
+    arr.splice(to, 0, id);
+    setOrder(arr);
+  };
+
   const moveTo = (targetId: string) => {
     if (!dragId || dragId === targetId) return;
     const arr = [...orderedIds];
@@ -704,6 +720,7 @@ export default function Principes({
 
         <p className="mb-4 text-xs text-slate-400">
           {t.dragHintPre} <span aria-hidden>⠿</span> {t.dragHint}
+          <span className="mt-0.5 block">{t.keyboardHint}</span>
         </p>
 
         {orderedIds.map((id) => {
@@ -737,13 +754,39 @@ export default function Principes({
             onDrop: () => moveTo(id),
             onDragEnd: () => setDragId(null),
           };
+          const rang = orderedIds.indexOf(id);
+          const titreLisible = p ? p.title : (c?.title ?? "");
           const grip = (
-            <span
-              className="mt-1 shrink-0 cursor-grab select-none text-slate-300 transition hover:text-slate-500"
-              title={t.dragTitle}
-              aria-hidden
-            >
-              ⠿
+            <span className="mt-1 flex shrink-0 flex-col items-center">
+              <span
+                className="cursor-grab select-none text-slate-300 transition hover:text-slate-500"
+                title={t.dragTitle}
+                aria-hidden
+              >
+                ⠿
+              </span>
+              {/* Deux boutons plutôt qu'une poignée inerte : sans eux, l'ordre
+                  des principes ne s'atteint qu'à la souris. */}
+              <button
+                type="button"
+                onClick={() => decaler(id, -1)}
+                disabled={rang <= 0}
+                aria-label={t.moveUp(titreLisible)}
+                title={t.moveUp(titreLisible)}
+                className="rounded px-1 text-[0.65rem] leading-none text-slate-300 transition hover:text-slate-600 disabled:opacity-0"
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                onClick={() => decaler(id, 1)}
+                disabled={rang >= orderedIds.length - 1}
+                aria-label={t.moveDown(titreLisible)}
+                title={t.moveDown(titreLisible)}
+                className="rounded px-1 text-[0.65rem] leading-none text-slate-300 transition hover:text-slate-600 disabled:opacity-0"
+              >
+                ▼
+              </button>
             </span>
           );
           const accent = c ? "border-violet-300" : "border-slate-200";
@@ -957,12 +1000,7 @@ export default function Principes({
       </article>
 
       {gate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            onClick={() => setGate(false)}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-          />
-          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <Modale onClose={() => setGate(false)} labelledBy="titre-mur-principes">
             <button
               onClick={() => setGate(false)}
               aria-label={c.close}
@@ -974,7 +1012,10 @@ export default function Principes({
               <p className="text-xs font-medium uppercase tracking-widest text-white/80">
                 {c.createFreeAccount}
               </p>
-              <h2 className="mt-1 font-serif text-2xl font-semibold">
+              <h2
+                id="titre-mur-principes"
+                className="mt-1 font-serif text-2xl font-semibold"
+              >
                 {t.gateTitle}
               </h2>
               <p className="mt-2 text-sm text-white/90">
@@ -1022,8 +1063,7 @@ export default function Principes({
                 </div>
               )}
             </div>
-          </div>
-        </div>
+        </Modale>
       )}
     </div>
   );
