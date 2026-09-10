@@ -1,7 +1,7 @@
 name: Supabase keep-alive
 
 # Le plan Free de Supabase met en pause les projets sans activité base
-# pendant plus de 7 jours. Ce cron ping la base une fois par jour pour
+# pendant plus de 7 jours. Ce cron écrit deux fois par semaine pour
 # maintenir l'activité (auth + données comptes/versions/Déclarations vivent
 # dans Supabase). Voir CLAUDE.md § Supabase.
 #
@@ -13,12 +13,17 @@ name: Supabase keep-alive
 
 on:
   schedule:
-    - cron: '17 6 * * *' # tous les jours à 06:17 UTC
-  workflow_dispatch: {}
+    - cron: '17 6 * * 1,4' # lundi et jeudi à 06:17 UTC, écart maximal de 4 jours
+
+concurrency:
+  group: supabase-keepalive-borne
+  cancel-in-progress: false
 
 jobs:
   ping:
+    if: github.run_attempt == 1
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
       - name: Ping Supabase RPC keepalive (écriture réelle côté Postgres)
         env:
