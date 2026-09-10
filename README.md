@@ -1,5 +1,13 @@
 # Constitution Composer
 
+## Preuve avant publication
+
+La preuve complète s'exécute sur une copie isolée du SHA Git exact avec Node 24 :
+`SEMAWE_PROOF_DIR=/chemin/durable ./scripts/preuve-locale-ci.sh`. GitHub ne valide plus chaque
+poussée ni chaque pull request : une contre-épreuve hebdomadaire bornée à dix minutes vérifie
+l'environnement forge. Le keep-alive Supabase écrit le lundi et le jeudi, avec un écart maximal
+de quatre jours et une minute par passage. Les deux workflows refusent les relances.
+
 **Interactive Holacracy® Constitution builder** — select the articles you need, see the document compose in real time, export a ready-to-sign PDF.
 
 🔗 **Live instance:** [constitution-composer.com](https://constitution-composer.com)
