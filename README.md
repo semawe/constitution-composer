@@ -98,7 +98,7 @@ npm run fond:check # verify the content files match the canonical Constitution
 
 The app does not own the text it serves. The canonical Constitution lives in
 [semawe/Holacracy-Constitution](https://github.com/semawe/Holacracy-Constitution) as Markdown
-under `v6-alpha/`, and the JSON in `src/data/` is a machine encoding of it.
+under `edition-semawe/`, and the JSON in `src/data/` is a machine encoding of it.
 
 **How the source is reached: a git submodule**, pinned at `vendor/holacracy-constitution`.
 

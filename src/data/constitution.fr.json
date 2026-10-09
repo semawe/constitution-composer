@@ -1,9 +1,9 @@
 {
   "meta": {
     "lang": "fr",
-    "version": "v6-alpha",
+    "version": "edition-semawe",
     "title": "Constitution Lite · édition Sémawé",
-    "source": "v6-alpha/fr/HC-v6-lite.md (socle incompressible + blocs retirables, cochés par défaut)",
+    "source": "edition-semawe/fr/lite.md (socle incompressible + blocs retirables, cochés par défaut)",
     "license": "CC BY-SA 4.0",
     "notice": "Holacracy® est une marque déposée de HolacracyOne LLC."
   },

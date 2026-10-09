@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import OfflineRedirect from "@/components/OfflineRedirect";
+import { CARTE_ORGANISATIONS_URL } from "@/lib/links";
 
-// Directory temporarily offline (decision 2026-06-17). CartoClientEN and its
-// data remain in the repo for a later relaunch.
+// The directory has left the Composer: the map of organizations practicing
+// Holacracy is published on semawe.fr, in French (ERP task 1086). The address
+// stays for links already shared.
 export const metadata: Metadata = {
-  title: "Directory — offline",
-  robots: { index: false, follow: false },
+  title: "Map of organizations practicing Holacracy",
+  robots: { index: false, follow: true },
 };
 
 export default function CartographiePageEN() {
   return (
     <OfflineRedirect
-      to="/en"
-      message="The directory is temporarily offline. Redirecting to the home page…"
+      to={CARTE_ORGANISATIONS_URL}
+      message="The map of organizations practicing Holacracy is published on semawe.fr (in French). Redirecting…"
     />
   );
 }

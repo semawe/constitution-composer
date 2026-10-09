@@ -33,8 +33,8 @@ const FONDS: [Lang, ConstitutionData][] = [
 ];
 
 const SOURCES: Record<Lang, string> = {
-  fr: "v6-alpha/fr/HC-v6-lite.md",
-  en: "v6-alpha/en/HC-v6-lite.md",
+  fr: "edition-semawe/fr/lite.md",
+  en: "edition-semawe/en/lite.md",
 };
 
 /**

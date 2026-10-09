@@ -1,9 +1,9 @@
 {
   "meta": {
     "lang": "en",
-    "version": "v6-alpha",
+    "version": "edition-semawe",
     "title": "Lite Constitution · Sémawé edition",
-    "source": "v6-alpha/en/HC-v6-lite.md (core base + retirable blocks, checked by default)",
+    "source": "edition-semawe/en/lite.md (core base + retirable blocks, checked by default)",
     "license": "CC BY-SA 4.0",
     "notice": "Holacracy® is a registered trademark of HolacracyOne LLC."
   },

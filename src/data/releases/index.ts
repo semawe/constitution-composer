@@ -25,6 +25,10 @@ export const ARCHIVED_RELEASES: ArchivedRelease[] = [
     id: "2026-08-19-3",
     sha256: {"constitution.fr.json":"58a49af1098112245d0e99bf52955b514aa006a80a7f76f7a276331bc719acc8","principes.fr.json":"39eb3aa974b582c3ce616efdb65cd9ff23f157282969c4f8e4fd5e42aa5cd243","constitution.en.json":"b37cbca7c52ad1ebbab40c3263d0d9fb5e02ed0f5604d969b99f18982a108b7d","principes.en.json":"0af3a34b7075a6b7b00e088dfb4b4a8429b1a7ee9838ccf34b591fdd60fae0e2"},
   },
+  {
+    id: "2026-10-09",
+    sha256: {"constitution.fr.json":"e959e8b1adf61559a6cf0057ab2ea37992fcec8733d9daa122f094dae659c4d2","principes.fr.json":"d4e14135a589b1a322d9623ddc86a786d3501360c1fead54df394e952ed644f4","constitution.en.json":"5ce703c3d91e7aac30449676f7b3d80e95894552810f29f3ca3129638bc47915","principes.en.json":"3e66a0f84418bd2ce8242625f1f37bd57e806c05b62fcaa570f2d0b50ed4eff7"},
+  },
 ];
 
 /** Le contenu d'un fichier archivé, chargé à la demande. */
@@ -61,5 +65,15 @@ export const ARCHIVED_FILES: Record<
       import("@/data/releases/2026-08-19-3/constitution.en.json").then((m) => m.default),
     "principes.en.json": () =>
       import("@/data/releases/2026-08-19-3/principes.en.json").then((m) => m.default),
+  },
+  "2026-10-09": {
+    "constitution.fr.json": () =>
+      import("@/data/releases/2026-10-09/constitution.fr.json").then((m) => m.default),
+    "principes.fr.json": () =>
+      import("@/data/releases/2026-10-09/principes.fr.json").then((m) => m.default),
+    "constitution.en.json": () =>
+      import("@/data/releases/2026-10-09/constitution.en.json").then((m) => m.default),
+    "principes.en.json": () =>
+      import("@/data/releases/2026-10-09/principes.en.json").then((m) => m.default),
   },
 };

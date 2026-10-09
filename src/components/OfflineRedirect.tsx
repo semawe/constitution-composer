@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 
 /**
- * Page volontairement hors ligne : redirige vers `to` côté client (l'export
- * statique ne gère pas les redirections serveur). Le composant cible n'est plus
- * rendu mais reste dans le dépôt pour une remise en ligne ultérieure.
+ * Adresse qui ne sert plus de contenu ici : redirige vers `to` côté client
+ * (l'export statique ne porte pas de redirection serveur), en laissant le lien
+ * visible pour qui a désactivé JavaScript.
  */
 export default function OfflineRedirect({
   to,

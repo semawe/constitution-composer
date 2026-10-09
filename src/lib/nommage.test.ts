@@ -15,8 +15,8 @@
 //    endroits qui la portent (la pastille du site, le sous-titre du document) ;
 //  - le titre du fond nomme son éditeur plutôt qu'un rang dans une lignée.
 //
-// La provenance interne (`meta.version`, `meta.source`, le dossier `v6-alpha/`
-// du sous-module, `REPO_V6_URL`) reste inchangée et hors du champ de ce test :
+// La provenance interne (`meta.version`, `meta.source`, le dossier `edition-semawe/`
+// du sous-module, `REPO_CONSTITUTION_URL`) reste hors du champ de ce test :
 // elle dit d'où vient le texte, elle ne s'affiche pas.
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -35,7 +35,7 @@ const SRC = fileURLToPath(new URL("..", import.meta.url));
 /**
  * Les surfaces d'affichage : les pages (titres, descriptions, contenu) et les
  * composants. `src/data` et `src/lib` en sont exclus — c'est là que vit la
- * provenance, qui a le droit de nommer `v6-alpha`.
+ * provenance, qui a le droit de nommer son origine.
  */
 function fichiersAffiches(): string[] {
   const out: string[] = [];

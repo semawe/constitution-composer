@@ -4,7 +4,7 @@ import { fontVars } from "@/lib/branding";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 import Prose from "@/components/Prose";
 import { COMPOSER, type Locale, UI } from "@/lib/i18n";
-import { REPO_V6_URL, v5Href } from "@/lib/links";
+import { REPO_CONSTITUTION_URL, v5Href } from "@/lib/links";
 
 // Rendu Markdown léger partagé avec le Composer (gras + listes).
 export interface VersionDocProps {
@@ -106,7 +106,7 @@ export default function VersionDoc({
 
         <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-6 text-sm text-muted">
           <a
-            href={REPO_V6_URL}
+            href={REPO_CONSTITUTION_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="transition hover:text-body"

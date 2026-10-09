@@ -6,7 +6,7 @@
  *   node scripts/fond.mjs            synchronise les six JSON de fond
  *   node scripts/fond.mjs --check    ne réécrit rien, sort en 1 si ça a divergé
  *
- * Les principes sont générés depuis le Markdown de `v6-alpha/`. La constitution
+ * Les principes sont générés depuis le Markdown de `edition-semawe/`. La constitution
  * structurée et les glossaires sont publiés dans `composer/` par le même dépôt
  * canonique, puis recopiés octet pour octet. Aucun des six JSON applicatifs ne
  * s'édite à la main.
@@ -35,13 +35,13 @@ const SUBMODULE = "vendor/holacracy-constitution";
 const TARGETS = [
   {
     lang: "fr",
-    source: "v6-alpha/fr/HC-v6-principes.md",
+    source: "edition-semawe/fr/principes.md",
     out: "src/data/principes.fr.json",
     overlay: "src/data/principes.overlay.fr.json",
   },
   {
     lang: "en",
-    source: "v6-alpha/en/HC-v6-principles.md",
+    source: "edition-semawe/en/principles.md",
     out: "src/data/principes.en.json",
     overlay: "src/data/principes.overlay.en.json",
   },
@@ -91,11 +91,12 @@ function parseMarkdown(markdown, sourcePath) {
   }
   const [, title, rawVersion] = titled;
 
-  // « v6 [candidat 3] » à l'écrit devient « v6, candidat 3 » en interface :
+  // « édition Sémawé [candidat 3] » à l'écrit devient « édition Sémawé, candidat 3 »
+  // en interface :
   // les crochets signalent un état d'avancement, pas une notation de version.
   const bracketed = /^(.*?)\s*\[(.+)\]$/.exec(rawVersion);
   if (!bracketed) {
-    fail(`${sourcePath} : version « ${rawVersion} » attendue sous la forme « v6 [candidat 3] ».`);
+    fail(`${sourcePath} : version « ${rawVersion} » attendue sous la forme « édition Sémawé [candidat 3] ».`);
   }
   const version = `${bracketed[1]}, ${bracketed[2]}`;
 
@@ -280,7 +281,7 @@ function main() {
     console.error(
       "Le fond du Composer a divergé de la source canonique.\n" +
         diverged.map((f) => `  ${f}`).join("\n") +
-        `\n\nCes fichiers viennent de ${SUBMODULE}/v6-alpha/ et ${SUBMODULE}/composer/ : ne les édite pas à la main.` +
+        `\n\nCes fichiers viennent de ${SUBMODULE}/edition-semawe/ et ${SUBMODULE}/composer/ : ne les édite pas à la main.` +
         "\nRégénère-les et committe le résultat :\n" +
         "  git submodule update --init --recursive\n" +
         "  npm run fond:build\n",
