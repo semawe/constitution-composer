@@ -65,7 +65,7 @@ describe("la page de confirmation", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: TEXTES_CONFIRMATION.fr.envoyer }));
     });
-    expect(demanderLien).toHaveBeenCalledWith("ada@exemple.test", `${window.location.origin}/composer`);
+    expect(demanderLien).toHaveBeenCalledWith("ada@exemple.test", `${window.location.origin}/composer`, false);
     expect(await screen.findByRole("status")).toHaveTextContent("Lien envoyé");
   });
 

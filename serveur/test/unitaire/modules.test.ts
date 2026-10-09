@@ -9,6 +9,7 @@ import { planMigrations, chargerMigrations } from "../../db/migrer.ts";
 import { configurationDepuisEnv, lireSecrets } from "../../src/configuration.ts";
 import { creerEtat, lireEtat, signerEtat } from "../../src/google.ts";
 import { cheminLocal, cookie, gardeOrigine, lireCookie, nomCookie } from "../../src/http.ts";
+import { inscrireChezBrevo } from "../../src/infolettre.ts";
 import { cleDeBoite, envoyerLien, normaliserAdresse } from "../../src/lien.ts";
 import { LOGO_MAX_CARACTERES, logoAdmis } from "../../src/logo.ts";
 import { chargerManifeste, referenceConnue } from "../../src/releases.ts";
@@ -105,6 +106,10 @@ test("configuration : secrets d'au moins 32 octets, HTTPS hors local, Google com
   assert.throws(() => configurationDepuisEnv({ ...base, APP_ORIGIN: "http://constitution-composer.com" }));
   assert.throws(() => configurationDepuisEnv({ ...base, GOOGLE_CLIENT_ID: "seul" }));
   assert.throws(() => configurationDepuisEnv({ ...base, BREVO_API_KEY: "cle" }));
+  const brevo = { ...base, BREVO_API_KEY: "cle", EMAIL_FROM: "connexion@composer.test" };
+  assert.equal(configurationDepuisEnv(brevo).brevo?.listeInscrits, null);
+  assert.equal(configurationDepuisEnv({ ...brevo, BREVO_LISTE_INSCRITS: "215" }).brevo?.listeInscrits, 215);
+  assert.throws(() => configurationDepuisEnv({ ...brevo, BREVO_LISTE_INSCRITS: "Composer" }));
 });
 
 test("migrations : un fichier appliqué ne se réécrit pas, l'historique reste linéaire", async () => {
@@ -148,7 +153,7 @@ test("courriel de connexion : suivi des ouvertures et des clics anonymisé pour 
     return new Response("{}", { status: 201 });
   };
   const ok = await envoyerLien(
-    { cle: "cle", expediteur: { email: "connexion@composer.test", name: "Composer" } },
+    { cle: "cle", expediteur: { email: "connexion@composer.test", name: "Composer" }, listeInscrits: null },
     "ada@exemple.test",
     "https://composer.test/connexion/confirmer?jeton=abc",
     "fr",
@@ -156,4 +161,30 @@ test("courriel de connexion : suivi des ouvertures et des clics anonymisé pour 
   );
   assert.equal(ok, true);
   assert.deepEqual(envois[0].to, [{ email: "ada@exemple.test", contactPixelTrackingConsent: false }]);
+});
+
+test("nouvelles du Composer : seule l'adresse part chez Brevo, dans la liste désignée", async () => {
+  const appels: { url: string; corps: Record<string, unknown> }[] = [];
+  const fetcher = async (url: string, init?: RequestInit) => {
+    appels.push({ url, corps: JSON.parse(String(init?.body)) });
+    return new Response(null, { status: 204 });
+  };
+  const config = { cle: "cle", expediteur: { email: "c@composer.test", name: "C" }, listeInscrits: 215 };
+  assert.equal(await inscrireChezBrevo(config, 215, "ada@exemple.test", fetcher), true);
+  assert.equal(appels[0].url, "https://api.brevo.com/v3/contacts");
+  assert.deepEqual(appels[0].corps, { email: "ada@exemple.test", listIds: [215], updateEnabled: true });
+  const enPanne = async () => new Response("panne", { status: 503 });
+  assert.equal(await inscrireChezBrevo(config, 215, "ada@exemple.test", enPanne), false);
+  const injoignable = async (): Promise<Response> => {
+    throw new Error("réseau");
+  };
+  assert.equal(await inscrireChezBrevo(config, 215, "ada@exemple.test", injoignable), false);
+});
+
+test("état Google : la case des nouvelles survit à la signature, absente vaut non", async () => {
+  const secrets = [new Uint8Array(randomBytes(32))];
+  const coche = creerEtat("/composer", true);
+  assert.equal((await lireEtat(await signerEtat(coche, secrets), coche.state, secrets))?.infolettre, true);
+  const nue = creerEtat("/composer");
+  assert.equal((await lireEtat(await signerEtat(nue, secrets), nue.state, secrets))?.infolettre, false);
 });

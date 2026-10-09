@@ -8,6 +8,7 @@ import { creerPool } from "./base.ts";
 import { configurationDepuisEnv } from "./configuration.ts";
 import { clesGoogle } from "./google.ts";
 import { ENTETES_JSON } from "./http.ts";
+import { RELANCE_MS, synchroniser } from "./infolettre.ts";
 
 /** Au-delà, 413 avant toute lecture applicative : une charge vaut 1,5 Mo au plus. */
 export const LIMITE_CORPS = 2 * 1024 * 1024;
@@ -83,7 +84,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   serveur.listen(port, hote, () =>
     console.log(JSON.stringify({ evenement: "demarrage", hote, port })),
   );
+  // Reprise des consentements que Brevo n'a pas encore acceptés.
+  const journal = (evenement: string, champs: Record<string, unknown> = {}) =>
+    console.log(JSON.stringify({ t: new Date().toISOString(), evenement, ...champs }));
+  const relance = setInterval(() => void synchroniser(pool, config.brevo, fetch, journal), RELANCE_MS);
+  relance.unref();
   const arreter = () => {
+    clearInterval(relance);
     serveur.close(() => void pool.end().then(() => process.exit(0)));
   };
   process.on("SIGTERM", arreter);

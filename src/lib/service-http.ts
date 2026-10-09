@@ -334,7 +334,7 @@ export function adaptateurHttp(options: OptionsHttp = {}): Service {
       };
     },
 
-    async demanderLien(email, retour) {
+    async demanderLien(email, retour, infolettre = false) {
       // Une sortie en attente passe d'abord : la session qu'on ouvrira ne doit
       // pas être fermée par elle au chargement suivant.
       if (!(await rejouerSortie())) return { ok: false };
@@ -343,14 +343,18 @@ export function adaptateurHttp(options: OptionsHttp = {}): Service {
         email,
         retour: chemin,
         langue: chemin === "/en" || chemin.startsWith("/en/") ? "en" : "fr",
+        ...(infolettre ? { infolettre: true } : {}),
       });
       return { ok: r.ok };
     },
 
-    async partirChezGoogle(retour) {
+    async partirChezGoogle(retour, infolettre = false) {
       if (!(await rejouerSortie())) return { ok: false };
       const chemin = cheminDeRetour(retour, origine());
-      naviguer(`${base}/api/connexion/google?retour=${encodeURIComponent(chemin)}`);
+      naviguer(
+        `${base}/api/connexion/google?retour=${encodeURIComponent(chemin)}` +
+          (infolettre ? "&infolettre=1" : ""),
+      );
       return { ok: true };
     },
 

@@ -50,10 +50,14 @@ export interface Service {
 
   // Connexion. Chaque demande dit si le service l'a acceptée ; une panne du
   // réseau se traduit par une exception.
-  /** Envoie un lien de connexion à `email`, qui ramènera sur `retour`. */
-  demanderLien(email: string, retour: string): Promise<{ ok: boolean }>;
-  /** Part chez Google ; le retour se fait sur `retour`. */
-  partirChezGoogle(retour: string): Promise<{ ok: boolean }>;
+  /**
+   * Envoie un lien de connexion à `email`, qui ramènera sur `retour`.
+   * `infolettre` : la case des nouvelles est cochée ; l'accord ne vaut qu'à la
+   * connexion réussie (tâche ERP 846).
+   */
+  demanderLien(email: string, retour: string, infolettre?: boolean): Promise<{ ok: boolean }>;
+  /** Part chez Google ; le retour se fait sur `retour`. Même `infolettre`. */
+  partirChezGoogle(retour: string, infolettre?: boolean): Promise<{ ok: boolean }>;
   /**
    * Sort. Si le service ne répond pas, la sortie locale est forcée : sur un
    * poste partagé, c'est elle qui compte. Ne lève jamais.

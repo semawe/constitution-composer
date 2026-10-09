@@ -442,6 +442,19 @@ describe("la connexion", () => {
     await expect(port.demanderLien("a@exemple.test", `${ORIGINE}/composer`)).resolves.toEqual({ ok: false });
   });
 
+  it("case des nouvelles cochée : elle part avec le lien comme avec Google, et seulement alors", async () => {
+    const { port, srv, naviguer } = monter();
+    await port.demanderLien("a@exemple.test", `${ORIGINE}/composer`, true);
+    expect(srv.etat.appels.at(-1)?.corps).toEqual({
+      email: "a@exemple.test",
+      retour: "/composer",
+      langue: "fr",
+      infolettre: true,
+    });
+    await port.partirChezGoogle(`${ORIGINE}/composer`, true);
+    expect(naviguer).toHaveBeenLastCalledWith("/api/connexion/google?retour=%2Fcomposer&infolettre=1");
+  });
+
   it("le chemin de retour ne sort jamais de l'origine", () => {
     expect(cheminDeRetour(`${ORIGINE}/composer?vue=principes`, ORIGINE)).toBe("/composer");
     expect(cheminDeRetour("/lite", ORIGINE)).toBe("/lite");

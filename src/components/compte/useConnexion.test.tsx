@@ -67,6 +67,8 @@ describe("le lien de connexion par e-mail", () => {
     expect(result.current.envoi).toBe("envoye");
     expect(envoyer).toHaveBeenCalledTimes(1);
     expect(envoyer.mock.calls[0][0]).toBe("personne@example.invalid");
+    // La case des nouvelles est décochée par défaut.
+    expect(envoyer.mock.calls[0][2]).toBe(false);
     // Le brouillon et le geste en cours ont été mis à l'abri avant l'envoi.
     expect(avant).toHaveBeenCalledTimes(1);
   });
@@ -185,6 +187,22 @@ describe("la connexion Google", () => {
       await result.current.signInOtp();
     });
     expect(envoyer.mock.calls[0][1]).toBe("https://composer.test/composer");
+  });
+
+  it("case des nouvelles cochée : elle part avec Google comme avec le lien", async () => {
+    const envoyer = vi.fn<Service["demanderLien"]>(async () => ({ ok: true }));
+    const demarrer = vi.fn<Service["partirChezGoogle"]>(async () => ({ ok: true }));
+    const { result } = monter(service({ demanderLien: envoyer, partirChezGoogle: demarrer }));
+    act(() => result.current.setInfolettre(true));
+    await act(async () => {
+      await result.current.signInGoogle();
+    });
+    expect(demarrer.mock.calls[0][1]).toBe(true);
+    act(() => result.current.setEmail("personne@example.invalid"));
+    await act(async () => {
+      await result.current.signInOtp();
+    });
+    expect(envoyer.mock.calls[0][2]).toBe(true);
   });
 
   it("sans service, c'est le compte simulé qui prend le relais", async () => {

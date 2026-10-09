@@ -279,6 +279,8 @@ export const COMPOSER = {
     moduleAlreadyActive: (label: string) =>
       `« ${label} » est déjà activé dans votre Constitution.`,
     emailLabel: "Votre adresse e-mail",
+    newsOptIn:
+      "Recevoir les nouvelles du Constitution Composer par e-mail (facultatif, désinscription en un clic)",
     emailSending: "Envoi...",
     emailFailed:
       "Le lien n'a pas pu être envoyé. Vérifiez l'adresse, patientez une minute, puis réessayez.",
@@ -453,6 +455,8 @@ export const COMPOSER = {
     moduleAlreadyActive: (label: string) =>
       `“${label}” is already active in your Constitution.`,
     emailLabel: "Your email address",
+    newsOptIn:
+      "Receive Constitution Composer news by email (optional, one-click unsubscribe)",
     emailSending: "Sending...",
     emailFailed:
       "The link could not be sent. Check the address, wait a minute, then try again.",

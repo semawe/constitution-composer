@@ -56,6 +56,9 @@ export function useConnexion({
   const [email, setEmail] = useState("");
   const [envoi, setEnvoi] = useState<EnvoiLien>("repos");
   const [googleEchec, setGoogleEchec] = useState(false);
+  // Facultative et décochée par défaut (tâche ERP 846) : elle part avec la
+  // demande, qu'elle passe par Google ou par le lien.
+  const [infolettre, setInfolettre] = useState(false);
 
   // Retour de Google en échec : l'ancre est lue une fois, puis retirée de
   // l'adresse (un rechargement ne doit pas redire un échec ancien).
@@ -82,7 +85,7 @@ export function useConnexion({
     setGoogleEchec(false);
     onAvantRedirection();
     try {
-      const { ok } = await service.partirChezGoogle(retour());
+      const { ok } = await service.partirChezGoogle(retour(), infolettre);
       if (!ok) setGoogleEchec(true);
     } catch {
       setGoogleEchec(true);
@@ -101,7 +104,7 @@ export function useConnexion({
     setEnvoi("encours");
     onAvantRedirection();
     try {
-      const { ok } = await service.demanderLien(adresse, retour());
+      const { ok } = await service.demanderLien(adresse, retour(), infolettre);
       setEnvoi(ok ? "envoye" : "echec");
     } catch {
       setEnvoi("echec");
@@ -118,6 +121,8 @@ export function useConnexion({
     },
     envoi,
     googleEchec,
+    infolettre,
+    setInfolettre,
     signInGoogle,
     signInOtp,
   };

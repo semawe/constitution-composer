@@ -26,6 +26,7 @@ export const ORIGINE = "https://composer.test";
 const ICI = dirname(fileURLToPath(import.meta.url));
 export const MANIFESTE = chargerManifeste(join(ICI, "..", "..", "..", "src", "data", "releases", "manifest.json"));
 const WEBHOOK = "https://hooks.slack.com/services/T0TEST/B0TEST/secretdetest";
+export const LISTE_INSCRITS = 215;
 const CLIENT_GOOGLE = "client-test.apps.googleusercontent.com";
 
 export interface Courriel {
@@ -43,7 +44,9 @@ export interface Banc {
   ownerUrl: string;
   courriels: Courriel[];
   slack: string[];
-  pannes: { brevo: boolean; slack: boolean };
+  /** Adresses ajoutées à la liste des inscrits, dans l'ordre. */
+  inscrits: { email: string; listIds: number[] }[];
+  pannes: { brevo: boolean; slack: boolean; contacts: boolean };
   /** Signe un jeton d'identité comme Google le ferait. */
   jetonGoogle(claims: Record<string, unknown>): Promise<string>;
   /** Le prochain id_token que l'échange de code rendra. */
@@ -101,7 +104,8 @@ export async function ouvrirBanc(): Promise<Banc> {
 
   const courriels: Courriel[] = [];
   const slack: string[] = [];
-  const pannes = { brevo: false, slack: false };
+  const inscrits: { email: string; listIds: number[] }[] = [];
+  const pannes = { brevo: false, slack: false, contacts: false };
   const google = { prochainJeton: null as string | null, codesRecus: [] as string[] };
 
   const fetcher = async (entree: string, init?: RequestInit): Promise<Response> => {
@@ -111,6 +115,12 @@ export async function ouvrirBanc(): Promise<Banc> {
       const c = JSON.parse(corps);
       courriels.push({ a: c.to[0].email, html: c.htmlContent, texte: c.textContent });
       return Response.json({ messageId: randomUUID() }, { status: 201 });
+    }
+    if (entree === "https://api.brevo.com/v3/contacts") {
+      if (pannes.contacts) return new Response("panne", { status: 503 });
+      const c = JSON.parse(corps);
+      inscrits.push({ email: c.email, listIds: c.listIds });
+      return new Response(null, { status: 201 });
     }
     if (entree === WEBHOOK) {
       if (pannes.slack) return new Response("panne", { status: 500 });
@@ -130,7 +140,7 @@ export async function ouvrirBanc(): Promise<Banc> {
     origine: ORIGINE,
     secrets: [new Uint8Array(randomBytes(32))],
     google: { clientId: CLIENT_GOOGLE, clientSecret: "secret-test" },
-    brevo: { cle: "cle-test", expediteur: { email: "connexion@composer.test", name: "Composer" } },
+    brevo: { cle: "cle-test", expediteur: { email: "connexion@composer.test", name: "Composer" }, listeInscrits: LISTE_INSCRITS },
     slack: { webhookUrl: WEBHOOK },
     manifeste: MANIFESTE,
   };
@@ -151,6 +161,7 @@ export async function ouvrirBanc(): Promise<Banc> {
     ownerUrl,
     courriels,
     slack,
+    inscrits,
     pannes,
     google,
     async jetonGoogle(claims) {

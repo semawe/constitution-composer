@@ -64,6 +64,7 @@ import {
   normaliserAdresse,
   type Langue,
 } from "./lien.ts";
+import { consentir, synchroniser } from "./infolettre.ts";
 import { logoAdmis } from "./logo.ts";
 import { referenceConnue } from "./releases.ts";
 import {
@@ -221,6 +222,7 @@ export function creerApplication(deps: Dependances): Gestionnaire {
     if (!config.brevo) return json(503, { ok: false, erreur: "INDISPONIBLE" });
     const retour = cheminLocal(corps.retour) ?? RETOUR_PAR_DEFAUT;
     const langue: Langue = corps.langue === "en" ? "en" : "fr";
+    const infolettre = corps.infolettre === true;
 
     // Un navigateur qui redemande garde son secret : ses liens précédents
     // restent valables jusqu'à leur échéance.
@@ -234,9 +236,9 @@ export function creerApplication(deps: Dependances): Gestionnaire {
     const accorde = await enTransaction(pool, null, async (c) => {
       if (!(await envoiAutorise(c, adresse, info.ip))) return false;
       await c.query(
-        `insert into composer.liens (empreinte, email, navigateur, retour, expire_le)
-         values ($1, $2, $3, $4, now() + make_interval(secs => $5))`,
-        [empreinte(jeton), adresse, empreinte(secret), retour, DUREE_LIEN_S],
+        `insert into composer.liens (empreinte, email, navigateur, retour, infolettre, expire_le)
+         values ($1, $2, $3, $4, $5, now() + make_interval(secs => $6))`,
+        [empreinte(jeton), adresse, empreinte(secret), retour, infolettre, DUREE_LIEN_S],
       );
       await c.query("delete from composer.liens where expire_le < now() - interval '1 day'");
       return true;
@@ -275,15 +277,23 @@ export function creerApplication(deps: Dependances): Gestionnaire {
 
     type Issue =
       | { refus: "LIEN_INVALIDE" | "NAVIGATEUR" }
-      | { refus?: undefined; compte: Compte; session: string; retour: string; annoncer: boolean };
+      | {
+          refus?: undefined;
+          compte: Compte;
+          session: string;
+          retour: string;
+          annoncer: boolean;
+          consentement: boolean;
+        };
     const issue = await enTransaction(pool, null, async (c): Promise<Issue> => {
       const { rows } = await c.query<{
         email: string;
         navigateur: string;
         retour: string;
+        infolettre: boolean;
         valide: boolean;
       }>(
-        `select email, navigateur, retour,
+        `select email, navigateur, retour, infolettre,
                 (utilise_le is null and expire_le > now()) as valide
            from composer.liens where empreinte = $1 for update`,
         [empreinte(jeton)],
@@ -299,11 +309,13 @@ export function creerApplication(deps: Dependances): Gestionnaire {
       const rattachement = await compteParAdresse(c, lien.email);
       const session = await ouvrirSession(c, rattachement.id, "lien");
       const compte = (await lireCompte(c, rattachement.id)) as Compte;
-      return { compte, session, retour: lien.retour, annoncer: rattachement.annoncer };
+      const consentement = lien.infolettre && (await consentir(c, rattachement.id, "lien"));
+      return { compte, session, retour: lien.retour, annoncer: rattachement.annoncer, consentement };
     });
 
     if (issue.refus) return echec(issue.refus === "NAVIGATEUR" ? 403 : 410, issue.refus);
     if (issue.annoncer) await annoncer(messageInscription(issue.compte.nom, issue.compte.email));
+    if (issue.consentement) await synchroniser(pool, config.brevo, fetcher, journal, issue.compte.id);
     const cookies = [
       cookie(COOKIE_SESSION, issue.session, DUREE_SESSION_S, config.origine),
       effacerCookie(COOKIE_LIEN, config.origine),
@@ -319,7 +331,10 @@ export function creerApplication(deps: Dependances): Gestionnaire {
 
   async function partirChezGoogle(url: URL): Promise<Response> {
     if (!config.google) return erreur(503, "INDISPONIBLE");
-    const etat = creerEtat(cheminLocal(url.searchParams.get("retour")) ?? RETOUR_PAR_DEFAUT);
+    const etat = creerEtat(
+      cheminLocal(url.searchParams.get("retour")) ?? RETOUR_PAR_DEFAUT,
+      url.searchParams.get("infolettre") === "1",
+    );
     return redirection(urlAutorisation(config.google, redirectUriGoogle, etat).toString(), [
       cookie(COOKIE_OIDC, await signerEtat(etat, config.secrets), DUREE_ETAT_S, config.origine),
     ]);
@@ -352,9 +367,11 @@ export function creerApplication(deps: Dependances): Gestionnaire {
       const rattachement = await compteParGoogle(c, identite);
       const session = await ouvrirSession(c, rattachement.id, "google");
       const compte = (await lireCompte(c, rattachement.id)) as Compte;
-      return { compte, session, annoncer: rattachement.annoncer };
+      const consentement = etat.infolettre && (await consentir(c, rattachement.id, "google"));
+      return { compte, session, annoncer: rattachement.annoncer, consentement };
     });
     if (issue.annoncer) await annoncer(messageInscription(issue.compte.nom, issue.compte.email));
+    if (issue.consentement) await synchroniser(pool, config.brevo, fetcher, journal, issue.compte.id);
     return redirection(etat.retour, [
       sansEtat,
       cookie(COOKIE_SESSION, issue.session, DUREE_SESSION_S, config.origine),

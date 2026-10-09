@@ -29,10 +29,13 @@ export interface EtatOidc {
   nonce: string;
   verifier: string;
   retour: string;
+  /** Case « nouvelles du Composer » cochée au départ (tâche ERP 846). */
+  infolettre: boolean;
 }
 
-export function creerEtat(retour: string): EtatOidc {
+export function creerEtat(retour: string, infolettre = false): EtatOidc {
   return {
+    infolettre,
     state: randomBytes(32).toString("base64url"),
     nonce: randomBytes(32).toString("base64url"),
     verifier: randomBytes(48).toString("base64url"),
@@ -58,7 +61,7 @@ export async function lireEtat(
   for (const cle of secrets) {
     try {
       const { payload } = await jwtVerify(jeton, cle, { algorithms: ["HS256"] });
-      const { state, nonce, verifier, retour } = payload as Record<string, unknown>;
+      const { state, nonce, verifier, retour, infolettre } = payload as Record<string, unknown>;
       if (
         typeof state !== "string" ||
         typeof nonce !== "string" ||
@@ -67,7 +70,7 @@ export async function lireEtat(
         !egaliteConstante(state, stateRecu)
       )
         return null;
-      return { state, nonce, verifier, retour };
+      return { state, nonce, verifier, retour, infolettre: infolettre === true };
     } catch {
       // clé suivante (rotation)
     }

@@ -15,8 +15,16 @@ export function ConnexionChoix({
   t: Ui;
   connexion: Connexion;
 }) {
-  const { email, setEmail, envoi, googleEchec, signInGoogle, signInOtp } =
-    connexion;
+  const {
+    email,
+    setEmail,
+    envoi,
+    googleEchec,
+    infolettre,
+    setInfolettre,
+    signInGoogle,
+    signInOtp,
+  } = connexion;
   return (
     <>
       <button
@@ -80,6 +88,17 @@ export function ConnexionChoix({
             </p>
           )}
         </>
+      )}
+      {envoi !== "envoye" && (
+        <label className="mt-3 flex items-start gap-2 text-xs leading-snug text-muted">
+          <input
+            type="checkbox"
+            checked={infolettre}
+            onChange={(e) => setInfolettre(e.target.checked)}
+            className="mt-0.5 h-3.5 w-3.5 shrink-0"
+          />
+          <span>{t.newsOptIn}</span>
+        </label>
       )}
     </>
   );

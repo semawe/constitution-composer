@@ -14,6 +14,8 @@ export interface ConfigurationGoogle {
 export interface ConfigurationBrevo {
   cle: string;
   expediteur: { email: string; name: string };
+  /** Liste « Composer — inscrits » (BREVO_LISTE_INSCRITS) ; null : aucune inscription. */
+  listeInscrits: number | null;
 }
 
 export interface Configuration {
@@ -71,6 +73,9 @@ export function configurationDepuisEnv(env: Env = process.env): Configuration {
   const cle = env.BREVO_API_KEY?.trim() ?? "";
   const expediteur = env.EMAIL_FROM?.trim() ?? "";
   if (cle && !expediteur) throw new Error("EMAIL_FROM est requis avec BREVO_API_KEY.");
+  const listeBrute = env.BREVO_LISTE_INSCRITS?.trim() ?? "";
+  if (listeBrute && !/^[1-9]\d{0,9}$/.test(listeBrute))
+    throw new Error("BREVO_LISTE_INSCRITS doit être l'identifiant numérique d'une liste Brevo.");
 
   return {
     origine: origineValide(origine),
@@ -83,6 +88,7 @@ export function configurationDepuisEnv(env: Env = process.env): Configuration {
             email: expediteur,
             name: env.EMAIL_FROM_NAME?.trim() || "Constitution Composer",
           },
+          listeInscrits: listeBrute ? Number(listeBrute) : null,
         }
       : null,
     slack: configurationSlack(env.SLACK_WEBHOOK_URL),
