@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     "**/.next/**",
     "**/out/**",
     ".claude/**",
+    // Service des comptes : projet Node à part (dépendances, tsconfig, suite).
+    "serveur/**",
   ]),
 ]);
 

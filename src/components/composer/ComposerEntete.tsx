@@ -68,7 +68,7 @@ export function ComposerEntete({
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logo}
-                alt="Logo de l'organisation"
+                alt={t.logoAlt}
                 className="mb-3 mt-1 max-h-16 w-auto"
               />
             )}

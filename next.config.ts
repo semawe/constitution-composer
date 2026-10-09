@@ -31,6 +31,10 @@ const nextConfig: NextConfig = {
   // si le fichier existe + redirections de canonicalisation slash/.html).
   trailingSlash: false,
   images: { unoptimized: true },
+  // Le site a deux layouts racine, un par langue (`<html lang>`). Il n'y a donc
+  // plus de layout unique pour porter la page 404 : `app/global-not-found.tsx`
+  // la définit pour tout le site, et ce drapeau l'active.
+  experimental: { globalNotFound: true },
   env: {
     NEXT_PUBLIC_BUILD_VERSION: buildVersion,
     NEXT_PUBLIC_BUILD_COMMIT: buildCommit,

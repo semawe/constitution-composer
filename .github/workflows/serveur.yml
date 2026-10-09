@@ -1,0 +1,72 @@
+name: Serveur
+
+# Preuve du service des comptes (dossier serveur/) contre un PostgreSQL 15 réel,
+# la version du cluster de production.
+#
+# Même règle de budget que ci.yml et keep-alive.yml (commit 600685a) : aucun
+# déclenchement par poussée. La preuve part d'un geste délibéré, l'étiquette
+# « preuve-serveur » posée sur une pull request ; elle est bornée à cinq minutes
+# et refuse les relances. Pour rejouer après une correction : retirer puis
+# reposer l'étiquette.
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: composer-serveur-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  serveur:
+    if: github.event.label.name == 'preuve-serveur' && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: serveur
+
+    env:
+      COMPOSER_TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: serveur/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: PostgreSQL 15
+        run: |
+          version="$(psql "$COMPOSER_TEST_ADMIN_URL" -tAc 'show server_version_num')"
+          echo "server_version_num=$version"
+          test "${version:0:2}" = "15"
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Tests unitaires
+        run: npm test
+
+      - name: Suite d'intégration contre PostgreSQL
+        run: npm run test:integration

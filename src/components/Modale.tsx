@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
 
 // La seule modale de l'application.
 //
@@ -23,25 +29,29 @@ const FOCUSABLES = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(",");
 
-export function Modale({
-  onClose,
-  labelledBy,
-  label,
-  children,
-  className = "relative w-full max-w-md overflow-hidden rounded-2xl bg-surface shadow-2xl",
-}: {
-  /** Fermeture demandée : Échap, clic sur le fond, ou bouton de l'appelant. */
-  onClose: () => void;
-  /** Identifiant du titre qui nomme la boîte, quand elle en a un. */
-  labelledBy?: string;
-  /** Nom de la boîte à défaut de titre visible. */
-  label?: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  const boite = useRef<HTMLDivElement>(null);
-  const rendu = useId();
+/**
+ * Le contrat clavier d'une boîte de dialogue : le focus y entre à l'ouverture,
+ * y tourne en boucle, Échap la ferme, et le focus revient d'où il venait à la
+ * fermeture. Partagé avec le tiroir mobile du Composer, qui est lui aussi une
+ * boîte modale et n'en portait aucune des garanties (audit du 04/10/2026, F17).
+ */
+export function useDialogue(
+  boite: RefObject<HTMLElement | null>,
+  onClose: () => void,
+  { figerLeFond = false }: { figerLeFond?: boolean } = {},
+) {
+  // La fermeture demandée est lue au moment de la touche, pas capturée par
+  // l'effet. Les appelants passent une fonction fléchée neuve à chaque rendu :
+  // en dépendance, elle relançait l'effet à chaque caractère saisi dans un champ
+  // de la boîte, et le focus repartait sur le premier contrôle (audit du
+  // 04/10/2026, F03 — l'adresse de connexion ne se tapait pas au-delà d'une
+  // lettre).
+  const fermer = useRef(onClose);
+  useEffect(() => {
+    fermer.current = onClose;
+  });
 
+  // Prise et restitution du focus : au montage et au démontage, rien d'autre.
   useEffect(() => {
     const ouvrantElement = document.activeElement as HTMLElement | null;
     // Le focus entre dans la boîte : sans cela, la tabulation reprend au début
@@ -53,7 +63,7 @@ export function Modale({
     const surTouche = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.stopPropagation();
-        onClose();
+        fermer.current();
         return;
       }
       if (e.key !== "Tab" || !boite.current) return;
@@ -73,14 +83,43 @@ export function Modale({
       }
     };
 
+    // Le document derrière un panneau plein écran ne doit pas défiler sous le
+    // doigt : on fige, et on rend la valeur d'origine en sortant.
+    const debordement = document.body.style.overflow;
+    if (figerLeFond) document.body.style.overflow = "hidden";
+
     document.addEventListener("keydown", surTouche, true);
     return () => {
       document.removeEventListener("keydown", surTouche, true);
+      if (figerLeFond) document.body.style.overflow = debordement;
       // Le focus revient d'où il venait : sinon la personne se retrouve en haut
       // de la page, sans savoir ce qui vient de se passer.
       ouvrantElement?.focus?.();
     };
-  }, [onClose]);
+    // `boite` est un ref stable ; `figerLeFond` ne change pas en cours de vie.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
+export function Modale({
+  onClose,
+  labelledBy,
+  label,
+  children,
+  className = "relative w-full max-w-md overflow-hidden rounded-2xl bg-surface shadow-2xl",
+}: {
+  /** Fermeture demandée : Échap, clic sur le fond, ou bouton de l'appelant. */
+  onClose: () => void;
+  /** Identifiant du titre qui nomme la boîte, quand elle en a un. */
+  labelledBy?: string;
+  /** Nom de la boîte à défaut de titre visible. */
+  label?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  const boite = useRef<HTMLDivElement>(null);
+  const rendu = useId();
+  useDialogue(boite, onClose);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

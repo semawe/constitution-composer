@@ -58,7 +58,7 @@ export default async function AppDetailPage({
       <main className="flex-1 mx-auto max-w-3xl px-4 pb-24 pt-16">
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-sm text-muted">
-          <Link href="/composer" className="hover:text-body">
+          <Link href="/composer?vue=appstore" className="hover:text-body">
             App Store
           </Link>
           <span>/</span>
@@ -231,13 +231,13 @@ export default async function AppDetailPage({
         {/* CTA */}
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
-            href={`/composer#${mod.insertions[0]?.anchor ?? ""}`}
+            href={`/composer?activer=${encodeURIComponent(mod.id)}`}
             className="inline-flex items-center gap-2 rounded-full btn-ink px-5 py-2.5 text-sm font-medium transition"
           >
             Activer dans le composeur →
           </Link>
           <Link
-            href="/composer"
+            href="/composer?vue=appstore"
             className="inline-flex items-center gap-2 rounded-full border border-field px-5 py-2.5 text-sm font-medium text-body transition hover:border-field-accent hover:text-body"
           >
             Retour à l&apos;App Store

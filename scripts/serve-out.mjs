@@ -1,22 +1,28 @@
-// Serveur statique de vérification : sert `out/` en appliquant les mêmes
-// en-têtes que le .htaccess de production (dont la CSP), pour vérifier que
-// l'export réel tourne sous la politique réelle. Usage : node scripts/serve-out.mjs
-import { createServer } from 'node:http';
+// Serveur statique de vérification : sert `out/` avec les en-têtes de la cible
+// réelle (dont la CSP), pour vérifier que l'export tourne sous la politique
+// réelle. La politique suit le backend du build (marque `cc-backend` de
+// out/index.html) : celle de l'instance pour un build « serveur », celle du
+// mutualisé pour un build Supabase (scripts/lib/csp.mjs).
+//
+// Usage : node scripts/serve-out.mjs
+// Avec API_ORIGIN=http://127.0.0.1:3100, le chemin /api/ est transmis à un
+// service des comptes local, comme le fait nginx sur l'instance : le parcours
+// de connexion se rejoue alors dans un vrai navigateur, sur la même origine.
+import { createServer, request as requeteHttp } from 'node:http';
+import { readFileSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, resolve } from 'node:path';
+import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
+import { cspPourMarque } from './lib/csp.mjs';
+import { lireMarqueBackend } from './lib/deploiement.mjs';
 
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'out');
 const PORT = Number(process.env.PORT || 4173);
-
-// Recopie de la directive du .htaccess (garder les deux en phase).
-const CSP =
-  "default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is; " +
-  "connect-src 'self' https://zzebhtyvbzfnfrjhqiia.supabase.co wss://zzebhtyvbzfnfrjhqiia.supabase.co " +
-  "https://cloud.umami.is https://gateway.umami.is; img-src 'self' data: blob:; " +
-  "font-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; " +
-  "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
+// Outil de vérification locale : il n'écoute que la boucle locale. Sans adresse,
+// Node écoute toutes les interfaces, et le serveur se retrouvait joignable du
+// réseau (audit du 04/10/2026, F18). `HOST=0.0.0.0` reste possible, et se demande.
+const HOST = process.env.HOST || '127.0.0.1';
+const API = process.env.API_ORIGIN || '';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -32,47 +38,117 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
-async function resolveFile(pathname) {
-  const clean = pathname.split('?')[0].replace(/\/+$/, '') || '/index';
-  const candidates = [
-    join(OUT, clean),
-    join(OUT, `${clean}.html`),
-    join(OUT, clean, 'index.html'),
-  ];
-  for (const c of candidates) {
-    if (!c.startsWith(OUT)) continue;
-    try {
-      const s = await stat(c);
-      if (s.isFile()) return c;
-    } catch {}
+/** La CSP qui convient au build de `out`, d'après la marque de sa page d'accueil. */
+export function cspDuBuild(out) {
+  try {
+    return cspPourMarque(lireMarqueBackend(readFileSync(join(out, 'index.html'), 'utf8')));
+  } catch {
+    return cspPourMarque(null);
   }
-  return null;
 }
 
-createServer(async (req, res) => {
-  const file = await resolveFile(decodeURIComponent(req.url || '/'));
-  const headers = {
-    'Content-Security-Policy': CSP,
+/**
+ * Le gestionnaire de requêtes pour un export donné. Toute erreur (décodage de
+ * l'URL, lecture du fichier) se termine en réponse et non en arrêt du
+ * processus : `GET /%` levait une `URIError` hors de toute interception, et le
+ * serveur tombait (audit du 04/10/2026, F18).
+ */
+export function creerGestionnaire({ out = OUT, api = API } = {}) {
+  const EN_TETES = {
+    'Content-Security-Policy': cspDuBuild(out),
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'X-Frame-Options': 'SAMEORIGIN',
   };
-  if (!file) {
-    const notFound = join(OUT, '404.html');
-    try {
-      res.writeHead(404, { ...headers, 'Content-Type': TYPES['.html'] });
-      res.end(await readFile(notFound));
-    } catch {
-      res.writeHead(404, headers);
-      res.end('404');
+
+  async function resolveFile(pathname) {
+    const clean = pathname.split('?')[0].replace(/\/+$/, '') || '/index';
+    const candidates = [join(out, clean), join(out, `${clean}.html`), join(out, clean, 'index.html')];
+    for (const c of candidates) {
+      // Avec son séparateur : `out-autre/` commence aussi par `out`.
+      if (c !== out && !c.startsWith(out + sep)) continue;
+      try {
+        const s = await stat(c);
+        if (s.isFile()) return c;
+      } catch {}
     }
-    return;
+    return null;
   }
-  res.writeHead(200, {
-    ...headers,
-    'Content-Type': TYPES[extname(file)] || 'application/octet-stream',
+
+  /** Transmet une requête /api/ au service local, comme `proxy_pass` de nginx. */
+  function transmettre(req, res) {
+    const amont = requeteHttp(
+      new URL(req.url || '/', api),
+      {
+        method: req.method,
+        headers: { ...req.headers, 'x-real-ip': req.socket.remoteAddress ?? '' },
+      },
+      (reponse) => {
+        res.writeHead(reponse.statusCode ?? 502, reponse.headers);
+        reponse.pipe(res);
+      },
+    );
+    amont.on('error', () => {
+      if (!res.headersSent) res.writeHead(502, EN_TETES);
+      res.end('502 : service des comptes injoignable');
+    });
+    req.pipe(amont);
+  }
+
+  return async function servir(req, res) {
+    if (api && (req.url === '/api' || req.url?.startsWith('/api/'))) {
+      transmettre(req, res);
+      return;
+    }
+    let chemin;
+    try {
+      chemin = decodeURIComponent(req.url || '/');
+    } catch {
+      res.writeHead(400, { ...EN_TETES, 'Content-Type': TYPES['.txt'] });
+      res.end('400 : URL mal formée');
+      return;
+    }
+    try {
+      const file = await resolveFile(chemin);
+      if (!file) {
+        try {
+          const corps = await readFile(join(out, '404.html'));
+          res.writeHead(404, { ...EN_TETES, 'Content-Type': TYPES['.html'] });
+          res.end(corps);
+        } catch {
+          res.writeHead(404, EN_TETES);
+          res.end('404');
+        }
+        return;
+      }
+      const corps = await readFile(file);
+      res.writeHead(200, {
+        ...EN_TETES,
+        'Content-Type': TYPES[extname(file)] || 'application/octet-stream',
+      });
+      res.end(corps);
+    } catch {
+      // Fichier disparu entre le `stat` et la lecture, droits, disque : une
+      // réponse, pas un arrêt. Les en-têtes peuvent être déjà partis.
+      if (!res.headersSent) res.writeHead(500, EN_TETES);
+      res.end('500');
+    }
+  };
+}
+
+/** Démarre le serveur ; rendu pour qu'un test puisse l'arrêter. */
+export function demarrer(port = PORT, hote = HOST, options = {}) {
+  const servir = creerGestionnaire(options);
+  const api = options.api ?? API;
+  return createServer((req, res) => void servir(req, res)).listen(port, hote, () => {
+    console.log(
+      `out/ servi sur http://${hote}:${port} (CSP de la cible appliquée)` +
+        (api ? `, /api/ transmis à ${api}` : ''),
+    );
   });
-  res.end(await readFile(file));
-}).listen(PORT, () => {
-  console.log(`out/ servi sur http://localhost:${PORT} (CSP de prod appliquée)`);
-});
+}
+
+// Lancé directement (`node scripts/serve-out.mjs`), il démarre ; importé par un
+// test, il ne fait rien.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  demarrer();

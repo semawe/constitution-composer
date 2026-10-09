@@ -17,13 +17,14 @@ const TIER_BADGE: Partial<Record<Tier, { label: string; cls: string }>> = {
 
 export default function Marketplace({
   data,
-  onOpen,
+  onActiver,
   locale = "fr",
   signedIn = false,
   onRequestSignIn = () => {},
 }: {
   data: ConstitutionData;
-  onOpen: (anchor: string) => void;
+  /** Active le module dans le Composer, et y conduit. */
+  onActiver: (id: string) => void;
   locale?: Locale;
   signedIn?: boolean;
   onRequestSignIn?: () => void;
@@ -40,7 +41,6 @@ export default function Marketplace({
 
   const renderCard = (m: Module) => {
     const badge = TIER_BADGE[m.tier];
-    const anchor = m.insertions[0]?.anchor ?? "";
     return (
       <div
         key={m.id}
@@ -72,14 +72,17 @@ export default function Marketplace({
           </p>
         )}
         <div className="mt-4 flex flex-wrap gap-2">
+          {/* Les fiches n'existent qu'en français : depuis le catalogue anglais,
+              le libellé et `hrefLang` le disent avant le clic. */}
           <Link
             href={`/apps/${m.id}`}
+            hrefLang="fr"
             className="inline-flex items-center gap-1.5 px-1 py-2 text-sm font-medium text-body underline decoration-rule-strong underline-offset-4 transition hover:text-strong"
           >
             {t.discover} →
           </Link>
           <button
-            onClick={() => onOpen(anchor)}
+            onClick={() => onActiver(m.id)}
             className="inline-flex items-center gap-1.5 rounded-full btn-ink px-4 py-2 text-sm font-medium transition"
           >
             {t.activate}

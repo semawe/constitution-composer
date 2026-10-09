@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
+import { Tete } from "../tete";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://constitution-composer.com"),
@@ -32,6 +33,8 @@ export const metadata: Metadata = {
   },
 };
 
+// Racine française du site. Sa jumelle anglaise est `(en)/layout.tsx` : deux
+// layouts racine, parce que la langue se déclare sur `<html>`.
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,22 +47,7 @@ export default function RootLayout({
       className="dark h-full antialiased"
     >
       <head>
-        {/* Applique avant le paint le thème choisi (dark par défaut) et le
-            masquage du bandeau d'introduction s'il a été fermé. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(localStorage.getItem('cc-theme')==='light')document.documentElement.classList.remove('dark');if(localStorage.getItem('cc-intro-dismissed')==='1')document.documentElement.classList.add('intro-off')}catch(e){}",
-          }}
-        />
-        {/* Umami Cloud (mesure sans cookie) : actif seulement si l'id est fourni au build. */}
-        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
-          <script
-            defer
-            src="https://cloud.umami.is/script.js"
-            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-          />
-        )}
+        <Tete />
       </head>
       <body className="min-h-full">{children}</body>
     </html>

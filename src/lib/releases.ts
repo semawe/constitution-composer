@@ -13,7 +13,7 @@
 
 import { type ConstitutionData } from "./constitution";
 import { type PrincipesData } from "./principes-data";
-import { ARCHIVED_RELEASES } from "@/data/releases";
+import { ARCHIVED_FILES, ARCHIVED_RELEASES } from "@/data/releases";
 
 export type Locale = "fr" | "en";
 
@@ -41,7 +41,13 @@ export type ReleaseResolution<T> =
   /** Release retenue mais absente de l'archive : on refuse de composer autre chose. */
   | { statut: "release-absente"; release: string }
   /** Release présente, empreinte différente : l'archive a bougé, on refuse. */
-  | { statut: "empreinte-divergente"; release: string };
+  | { statut: "empreinte-divergente"; release: string }
+  /**
+   * Release connue, mais son texte n'a pas pu descendre (réseau, fragment
+   * retiré par une publication). Ce n'est pas un refus de fond : réessayer a un
+   * sens, et l'appelant le dit ainsi.
+   */
+  | { statut: "chargement-echoue"; release: string };
 
 const PAR_ID = new Map(ARCHIVED_RELEASES.map((r) => [r.id, r]));
 
@@ -106,46 +112,106 @@ export function shortSha(sha256: string): string {
 }
 
 /**
+ * La référence telle que l'archive la connaît, ou null si elle n'y correspond à
+ * rien. Sert de frontière à l'écriture : on n'inscrit dans un document sauvegardé
+ * qu'une référence que l'archive sait relire, empreinte comprise.
+ */
+export function canonicalRef(
+  ref: ContentRef | null | undefined,
+  kind: ContentKind = "constitution",
+): ContentRef | null {
+  if (!ref || !ref.release) return null;
+  if ((ref.kind ?? "constitution") !== kind) return null;
+  if (ref.locale !== "fr" && ref.locale !== "en") return null;
+  const attendue = releaseSha(ref.release, ref.locale, kind);
+  if (!attendue) return null;
+  if (ref.sha256 && ref.sha256 !== attendue) return null;
+  return { locale: ref.locale, release: ref.release, sha256: attendue, kind };
+}
+
+/** Vrai si la référence désigne le fond servi aujourd'hui dans cette langue. */
+export function isCurrentRef(
+  ref: ContentRef | null | undefined,
+  locale: Locale,
+  kind: ContentKind = "constitution",
+): boolean {
+  const canonique = canonicalRef(ref, kind);
+  return (
+    canonique !== null &&
+    canonique.release === CURRENT_RELEASE &&
+    canonique.locale === locale
+  );
+}
+
+// Un fichier archivé ne descend qu'une fois : la promesse est gardée, pas son
+// résultat, pour que deux ouvertures simultanées partagent la même requête. Un
+// échec n'est pas gardé — sinon une coupure réseau condamnerait la release
+// jusqu'au rechargement de la page.
+const EN_COURS = new Map<string, Promise<unknown>>();
+
+function charger(release: string, nom: string): Promise<unknown> | null {
+  const chargeur = ARCHIVED_FILES[release]?.[nom];
+  if (!chargeur) return null;
+  const cle = `${release}/${nom}`;
+  let promesse = EN_COURS.get(cle);
+  if (!promesse) {
+    promesse = chargeur();
+    EN_COURS.set(cle, promesse);
+    promesse.catch(() => EN_COURS.delete(cle));
+  }
+  return promesse;
+}
+
+/**
  * Le fond dont un document doit être rendu.
  *
  * `undefined` (payload d'avant l'archivage) donne « non-figee » : l'appelant
  * compose alors avec le fond courant, mais il doit le dire, et proposer de
  * figer. Tout le reste est ou résolu, ou refusé.
+ *
+ * Asynchrone depuis que les fonds archivés ne descendent qu'à la demande : la
+ * décision (release connue, empreinte conforme) se prend sur le manifeste, sans
+ * rien charger ; seul le texte d'une référence acceptée fait une requête.
  */
-function resolve<T>(
+async function resolve<T>(
   ref: ContentRef | null | undefined,
   kind: ContentKind,
-  extraire: (r: (typeof ARCHIVED_RELEASES)[number]) => Record<string, T>,
-): ReleaseResolution<T> {
+): Promise<ReleaseResolution<T>> {
   if (!ref || !ref.release) return { statut: "non-figee" };
   // Une référence sans `kind` vient du premier format : elle parle de la
   // Constitution. La lire comme un autre fond serait une confusion silencieuse.
   if ((ref.kind ?? "constitution") !== kind) return { statut: "non-figee" };
   const archivee = PAR_ID.get(ref.release);
   if (!archivee) return { statut: "release-absente", release: ref.release };
-  const attendue = archivee.sha256[fichier(kind, ref.locale)];
-  const data = extraire(archivee)[ref.locale];
-  if (!attendue || !data)
+  const nom = fichier(kind, ref.locale);
+  const attendue = archivee.sha256[nom];
+  const chargement = attendue ? charger(ref.release, nom) : null;
+  if (!attendue || !chargement)
     return { statut: "release-absente", release: ref.release };
   // L'empreinte est comparée telle qu'elle a été archivée : si le document en
   // porte une autre, ce n'est pas le même texte, quel qu'en soit le motif.
   if (ref.sha256 && ref.sha256 !== attendue)
     return { statut: "empreinte-divergente", release: ref.release };
-  return { statut: "resolue", release: ref.release, data };
+  try {
+    const data = (await chargement) as T;
+    return { statut: "resolue", release: ref.release, data };
+  } catch {
+    return { statut: "chargement-echoue", release: ref.release };
+  }
 }
 
 /** Le texte de la Constitution dont une composition sauvegardée est faite. */
 export function resolveContent(
   ref?: ContentRef | null,
-): ReleaseResolution<ConstitutionData> {
-  return resolve(ref, "constitution", (r) => r.constitution);
+): Promise<ReleaseResolution<ConstitutionData>> {
+  return resolve<ConstitutionData>(ref, "constitution");
 }
 
 /** Les Principes dont une Déclaration sauvegardée est faite. */
 export function resolvePrincipes(
   ref?: ContentRef | null,
-): ReleaseResolution<PrincipesData> {
-  return resolve(ref, "principes", (r) => r.principes);
+): Promise<ReleaseResolution<PrincipesData>> {
+  return resolve<PrincipesData>(ref, "principes");
 }
 
 /** Vrai si ce document est figé sur une release plus ancienne que la courante. */

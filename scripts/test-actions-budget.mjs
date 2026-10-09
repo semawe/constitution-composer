@@ -18,4 +18,15 @@ for (const [name, policy] of Object.entries(expected)) {
   assert(source.includes(`timeout-minutes: ${policy.timeout}`));
 }
 
+// Preuve du serveur : jamais à la poussée ; seulement sur l'étiquette
+// « preuve-serveur » posée à la main sur une PR, cinq minutes au plus, sans relance.
+{
+  const source = readFileSync(join(root, ".github", "workflows", "serveur.yml"), "utf8");
+  assert(!/^\s+(push|workflow_dispatch|schedule|pull_request_target):/m.test(source));
+  assert(/^\s+pull_request:\n\s+types: \[labeled\]\n/m.test(source));
+  assert(source.includes("if: github.event.label.name == 'preuve-serveur' && github.run_attempt == 1"));
+  assert(source.includes("timeout-minutes: 5"));
+  assert(source.includes("image: postgres:15"));
+}
+
 console.log("PASS actions_bornees_sans_evenement_non_borne");

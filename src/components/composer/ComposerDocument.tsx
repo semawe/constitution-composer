@@ -195,7 +195,7 @@ export function ComposerDocument({
 
                 {block.id === "preambule" && (
                   <div className="doc-measure">
-                    <PreambleValues values={values} setValues={setValues} />
+                    <PreambleValues values={values} setValues={setValues} ui={t} />
                   </div>
                 )}
 
@@ -211,7 +211,7 @@ export function ComposerDocument({
                 {/* Renvoi inter-tiers : ce que ce tier ne couvre pas pour cet article */}
                 {inactiveAdvanced(block.anchor).length > 0 && (
                   <div className="doc-measure mt-5 rounded-lg border border-extension-border bg-extension-soft px-4 py-3 text-[0.85rem] text-extension-strong">
-                    <span className="font-semibold">Ce tier ne couvre pas :</span>{" "}
+                    <span className="font-semibold">{t.notCovered}</span>{" "}
                     {inactiveAdvanced(block.anchor).map((m, i, arr) => (
                       <span key={m.id}>
                         <button
@@ -228,7 +228,7 @@ export function ComposerDocument({
                       </span>
                     ))}{" "}
                     <span className="text-extension-muted">
-                      Activez-les pour voir ce contenu.
+                      {t.notCoveredHint}
                     </span>
                   </div>
                 )}
@@ -239,27 +239,28 @@ export function ComposerDocument({
           {coaches.length > 0 && (
             <div className="doc-measure mt-12 rounded-2xl border border-rule bg-gradient-to-br from-accent-gradient to-extension-gradient p-6">
               <h2 className="font-serif text-xl font-semibold text-strong">
-                Aller plus loin avec un coach
+                {t.coachSectionTitle}
               </h2>
               <p className="mt-1 text-sm text-body">
-                Composer, c&apos;est un début. Faites relire et co-construire votre
-                Constitution avec un coach certifié en Holacracy.
+                {t.coachSectionBody}
               </p>
               <ul className="mt-3 space-y-1.5 text-sm text-body">
                 <li>
-                  🎁 <strong>20 minutes de découverte offertes</strong> à la
-                  création de votre compte.
+                  🎁 <strong>{t.coachSectionFree}</strong>{" "}
+                  {t.coachSectionFreeRest}
                 </li>
                 <li>
-                  Supervision par un coach senior :{" "}
-                  <strong>500 €/h</strong> ou <strong>3000 €/jour</strong>.
+                  {t.coachSectionPaid}{" "}
+                  <strong>{t.coachSectionRates[0]}</strong>{" "}
+                  {t.coachSectionRates[1]}{" "}
+                  <strong>{t.coachSectionRates[2]}</strong>.
                 </li>
               </ul>
               <button
                 onClick={onBook}
                 className="mt-4 inline-flex items-center gap-2 rounded-full btn-ink px-5 py-2.5 text-sm font-medium transition"
               >
-                🎁 Réserver mes 20 minutes offertes
+                🎁 {t.coachSectionCta}
               </button>
             </div>
           )}

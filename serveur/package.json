@@ -1,0 +1,27 @@
+{
+  "name": "constitution-composer-serveur",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Service des comptes du Constitution Composer : connexion, versions, Déclarations, propositions.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/serveur.ts",
+    "migrer": "node db/migrer.ts",
+    "importer": "node db/importer.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --test-concurrency=1 \"test/unitaire/*.test.ts\"",
+    "test:integration": "node --test --test-concurrency=1 \"test/integration/*.test.ts\""
+  },
+  "dependencies": {
+    "jose": "^6.1.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.5",
+    "typescript": "^5.9.2"
+  }
+}

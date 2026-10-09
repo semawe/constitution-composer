@@ -2,7 +2,9 @@
 
 import {
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import IntroBanner from "@/components/IntroBanner";
@@ -15,8 +17,15 @@ import { ComposerSommaire } from "@/components/composer/ComposerSommaire";
 import { ComposerTiroir } from "@/components/composer/ComposerTiroir";
 import { COACHES } from "@/components/composer/coachs";
 import { chargerLogo } from "@/components/composer/logo";
-import { useComposerBrouillon } from "@/components/composer/useComposerBrouillon";
-import { useComposerCompte } from "@/components/composer/useComposerCompte";
+import { isGatedTier } from "@/components/composer/pieces";
+import {
+  type BrouillonRestaure,
+  useComposerBrouillon,
+} from "@/components/composer/useComposerBrouillon";
+import {
+  type Porte,
+  useComposerCompte,
+} from "@/components/composer/useComposerCompte";
 import { useComposerExport } from "@/components/composer/useComposerExport";
 import {
   type VersionAppliquee,
@@ -32,8 +41,11 @@ import {
 import {
   type ContentRef,
   currentContentRef,
+  isOutdated,
+  releaseLabel,
 } from "@/lib/releases";
-import { getSupabase } from "@/lib/supabase";
+import { reprendreIntention, retenirIntention } from "@/lib/intention";
+import { getService } from "@/lib/service";
 import { COMPOSER, type Locale } from "@/lib/i18n";
 
 // Freemium par paliers : Cœur + Intégrale en accès libre ; les Extensions, les
@@ -53,11 +65,17 @@ export default function Composer({
   branding,
   onTermClick,
   locale = "fr",
+  demande = null,
 }: {
   data: ConstitutionData;
   branding: Branding;
   onTermClick: (key: string) => void;
   locale?: Locale;
+  /**
+   * Un module à activer, demandé d'ailleurs (App Store, fiche d'une app). `n`
+   * distingue deux demandes successives du même module.
+   */
+  demande?: { module: string; n: number } | null;
 }) {
   // Le fond rendu n'est pas toujours celui de la page : rouvrir une version
   // figée sur une release archivée doit afficher **le texte de cette release**,
@@ -80,7 +98,7 @@ export default function Composer({
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const reduce = useReducedMotion();
-  const supabase = useMemo(() => getSupabase(), []);
+  const service = useMemo(() => getService(), []);
 
   // L'export vit dans son hook (#1057) : il connaît le document, le compte
   // (l'export est derrière le mur) et la proposition de session offerte qui suit
@@ -108,51 +126,100 @@ export default function Composer({
     precharger,
   } = exportCtl;
 
-  // Le brouillon et la navigation dans le document vivent dans leur hook (#1057) :
-  // lecture au montage, persistance différée, surlignage du sommaire au
-  // défilement, et le défilement vers ce qu'une bascule vient de changer.
-  const { activeId, goTo, viser, mettreAbriBrouillon } = useComposerBrouillon({
-    data,
-    active,
-    setActive,
-    title,
-    setTitle,
-    values,
-    setValues,
-    onNavigation: () => setMobileOpen(false),
-  });
-
   // Le compte, sa session et ses portes vivent dans leur hook (#1057). Le
   // Composer n'en garde que ce qu'il montre, et ce qu'il fait juste après une
-  // connexion réussie (reprendre l'export qui l'avait déclenchée).
+  // connexion réussie (reprendre le geste qui l'avait demandée).
+  //
+  // Le module dont la bascule a ouvert le mur : c'est lui qu'on activera au
+  // retour de la connexion, pas « un module » en général.
+  const moduleDemande = useRef<string | null>(null);
+  const gesteDe = (raison: Porte): string =>
+    raison === "modules" && moduleDemande.current
+      ? `activer:${moduleDemande.current}`
+      : (raison ?? "account");
+  // Rempli plus bas, une fois le brouillon connu : le compte se déclare avant
+  // lui, parce que le brouillon a besoin de savoir qui est là.
+  const abri = useRef<(raison: Porte) => void>(() => {});
   const compte = useComposerCompte({
-    supabase,
-    onAvantRedirection: mettreAbriBrouillon,
-    onConnexionSimulee: (raison) => {
-      if (raison === "pdf") doGeneratePdf();
-    },
+    service,
+    onAvantRedirection: (raison) => abri.current(raison),
+    // Le compte simulé ne quitte pas la page, mais le geste suit le même
+    // chemin : retenu ici, repris quand l'identité est établie.
+    onConnexionSimulee: (raison) => retenirIntention(gesteDe(raison)),
   });
   const {
     account,
     user,
+    identite,
+    sessionConnue,
     gate,
     setGate,
-    email,
-    setEmail,
-    otpSent,
+    connexion,
     needsCompany,
     setNeedsCompany,
     company,
     setCompany,
-    signInGoogle,
-    signInOtp,
+    companyEchec,
     submitCompany,
     signOut,
   } = compte;
 
+  /** Pose sur le document ce que le brouillon du navigateur a gardé. */
+  const restaurerBrouillon = useCallback((b: BrouillonRestaure) => {
+    setData(b.fond);
+    setContentRef(b.contentRef);
+    // Le brouillon vient du navigateur : il passe par la même frontière
+    // d'entrée qu'une version lue en base.
+    if (b.active) setActive(normalizeActive(b.fond, b.active));
+    if (b.title) setTitle(b.title);
+    setValues(b.values);
+  }, []);
+
+  /** L'identité visuelle revient au défaut : logo, police, couleur du titre. */
+  const oublierIdentiteVisuelle = useCallback(() => {
+    setLogo("");
+    setFont("source-serif");
+    setTitleColor("");
+  }, [setFont, setLogo, setTitleColor]);
+
+  // Le brouillon et la navigation dans le document vivent dans leur hook (#1057) :
+  // lecture au montage, persistance différée, surlignage du sommaire au
+  // défilement, et le défilement vers ce qu'une bascule vient de changer.
+  const {
+    activeId,
+    goTo,
+    viser,
+    brouillonPret,
+    mettreAbriBrouillon,
+    cederLaPlace,
+    oublierBrouillon,
+  } = useComposerBrouillon({
+    fondCourant,
+    locale,
+    data,
+    contentRef,
+    active,
+    title,
+    values,
+    sessionConnue,
+    identite,
+    onRestaurer: restaurerBrouillon,
+    onEcarter: oublierIdentiteVisuelle,
+    onNavigation: () => setMobileOpen(false),
+  });
+  useEffect(() => {
+    abri.current = (raison) => {
+      mettreAbriBrouillon();
+      retenirIntention(gesteDe(raison));
+    };
+  });
+
   /** Pose sur le document ce qu'une version ouverte (ou rejouée) rend. */
   const appliquerVersion = useCallback(
     ({ fond, contentRef: ref, payload }: VersionAppliquee) => {
+      // Un document ouvert explicitement passe avant tout brouillon encore en
+      // cours de restauration.
+      cederLaPlace();
       setData(fond);
       setContentRef(ref);
       // Le payload vient de la base : ancien, incohérent ou forgé. Il passe par
@@ -164,6 +231,8 @@ export default function Composer({
       setFont(payload.font ?? "source-serif");
       setLogo(safeLogo(payload.logo));
     },
+    // `cederLaPlace` ne lit qu'un ref : il n'a pas à relancer ce rappel.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setFont, setLogo, setTitleColor],
   );
 
@@ -174,6 +243,7 @@ export default function Composer({
     t,
     locale,
     account,
+    identite,
     fondCourant,
     onGate: (raison) => setGate(raison),
     onApply: appliquerVersion,
@@ -185,6 +255,11 @@ export default function Composer({
       font,
       logo: logo || undefined,
     }),
+    // Le fond du document affiché. Une version d'avant l'archivage n'en porte
+    // aucun (`contentRef` nul) et s'affiche, en le disant, sur le texte du jour
+    // dans la langue de la page : c'est donc ce texte-là, celui que la personne
+    // a sous les yeux, qu'un nouvel enregistrement retient.
+    reference: () => contentRef ?? currentContentRef(locale),
   });
   const {
     versions,
@@ -200,7 +275,54 @@ export default function Composer({
     handleDeleteVersion,
     handlePinVersion,
     handleMigrateVersion,
+    refreshVersions,
+    oublierVersionOuverte,
   } = versionsCtl;
+
+  // Le document appartient à qui l'a composé. Quand ce compte s'en va —
+  // déconnexion, session perdue, ou un autre compte qui prend sa place — rien
+  // de lui ne reste : ni à l'écran, ni dans le brouillon du navigateur, ni dans
+  // l'identité visuelle (audit du 04/10/2026, F06). Une version ouverte est une
+  // copie d'un document privé ; la personne suivante sur le même poste la
+  // retrouvait, y compris après rechargement.
+  //
+  // Le brouillon anonyme, lui, suit la personne à travers sa connexion : passer
+  // de « personne » à un compte ne remet rien à zéro.
+  const identiteVue = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (!sessionConnue) return;
+    const avant = identiteVue.current;
+    identiteVue.current = identite;
+    if (avant === undefined || avant === null || avant === identite) return;
+    cederLaPlace();
+    oublierBrouillon();
+    setData(fondCourant);
+    setContentRef(currentContentRef(locale));
+    setActive(defaultActive(fondCourant));
+    setTitle(fondCourant.meta.title);
+    setValues("");
+    oublierIdentiteVisuelle();
+    // Ne réagit qu'au changement d'identité : le reste est lu tel qu'il est à
+    // ce moment-là.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionConnue, identite]);
+
+  /** Revient au texte du jour en gardant la configuration : sortie d'un brouillon ancien. */
+  const rejoindreTexteDuJour = () => {
+    cederLaPlace();
+    setData(fondCourant);
+    setContentRef(currentContentRef(locale));
+    setActive(normalizeActive(fondCourant, [...active]));
+    oublierVersionOuverte();
+  };
+  // Un document rendu sur un texte ancien le dit toujours, y compris quand il
+  // revient d'un brouillon et non d'une version qu'on vient d'ouvrir.
+  const horsTexteDuJour = Boolean(contentRef && isOutdated(contentRef));
+  const messageFond =
+    releaseMsg ??
+    (horsTexteDuJour && contentRef
+      ? t.releasePinned(releaseLabel(contentRef.release, locale))
+      : null);
 
   // Les sélecteurs de composition vivent dans leur hook (#1057) : ils dérivent du
   // fond et de l'état actif, rien d'autre. Le document rend leur sortie.
@@ -210,7 +332,10 @@ export default function Composer({
     t,
     setActive,
     estConnecte: () => account,
-    onGate: () => setGate("modules"),
+    onGate: (id) => {
+      moduleDemande.current = id;
+      setGate("modules");
+    },
     viser,
   });
   const {
@@ -225,6 +350,75 @@ export default function Composer({
     pct,
     versionLabel,
   } = vue;
+
+  // Ce que le Composer vient de faire à la demande d'un autre écran, dit en
+  // toutes lettres : « Activer » dans l'App Store changeait d'onglet et ne
+  // disait rien de l'état du module (audit du 04/10/2026, F13).
+  const [annonce, setAnnonce] = useState<string | null>(null);
+  useEffect(() => {
+    if (!annonce) return;
+    const timer = setTimeout(() => setAnnonce(null), 6000);
+    return () => clearTimeout(timer);
+  }, [annonce]);
+
+  /** Active un module demandé d'ailleurs, et dit ce qu'il en est. */
+  const activer = (id: string) => {
+    const mod = data.modules.find((m) => m.id === id);
+    if (!mod) return;
+    if (active.has(id)) {
+      setAnnonce(t.moduleAlreadyActive(mod.label));
+      setTimeout(
+        () =>
+          document.getElementById(`ins-${id}-0`)?.scrollIntoView({
+            behavior: reduce ? "auto" : "smooth",
+            block: "center",
+          }),
+        60,
+      );
+      return;
+    }
+    if (!account && isGatedTier(mod.tier)) {
+      // Le mur s'ouvre, et le module est retenu : il s'activera au retour.
+      moduleDemande.current = id;
+      setGate("modules");
+      return;
+    }
+    toggle(id);
+    setAnnonce(t.moduleActivated(mod.label));
+  };
+
+  /** Reprend le geste qui avait demandé la connexion. */
+  const reprendre = (geste: string) => {
+    if (geste === "pdf") doGeneratePdf();
+    else if (geste === "save") void handleSaveVersion();
+    else if (geste.startsWith("activer:")) activer(geste.slice(8));
+  };
+  // Le geste n'est repris qu'une fois la session confirmée et le brouillon
+  // reposé : avant, on exporterait le document d'accueil au lieu du sien.
+  useEffect(() => {
+    if (!sessionConnue || !brouillonPret || !identite) return;
+    const geste = reprendreIntention(
+      (g) => g === "pdf" || g === "save" || g.startsWith("activer:"),
+    );
+    // Reprise d'un geste retenu hors de React (le navigateur l'a gardé pendant
+    // l'aller-retour de connexion) : l'effet est la forme juste.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (geste) reprendre(geste);
+    // Les gestes sont ceux du rendu courant : seule l'arrivée d'une identité,
+    // session et brouillon établis, déclenche la reprise.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionConnue, brouillonPret, identite]);
+
+  // Une activation demandée par un autre écran attend, elle aussi, de savoir qui
+  // est là : au chargement, un compte déjà connecté ne doit pas se heurter au mur.
+  const demandeTraitee = useRef(0);
+  useEffect(() => {
+    if (!demande || !sessionConnue || !brouillonPret) return;
+    if (demande.n === demandeTraitee.current) return;
+    demandeTraitee.current = demande.n;
+    activer(demande.module);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demande, sessionConnue, brouillonPret]);
 
   const sommaire = (
     <ComposerSommaire data={data} t={t} activeId={activeId} goTo={goTo} />
@@ -246,11 +440,16 @@ export default function Composer({
         liste: versions,
         message: versionMsg,
         illisible: versionsUnread,
+        onRetry: () => void refreshVersions(),
         occupe: versionBusy,
         pdfEnEchec: pdfError,
-        releaseMsg,
+        releaseMsg: messageFond,
         aFiger,
         aRejouer,
+        // Sans version à rejouer, un document resté sur un texte ancien (un
+        // brouillon rechargé) garde une sortie vers le texte du jour.
+        onRejoindre:
+          horsTexteDuJour && !aRejouer ? rejoindreTexteDuJour : undefined,
         onSave: handleSaveVersion,
         onLoad: handleLoadVersion,
         onRename: handleRenameVersion,
@@ -258,7 +457,14 @@ export default function Composer({
         onPin: handlePinVersion,
         onMigrate: handleMigrateVersion,
       }}
-      compte={{ account, onGate: setGate }}
+      compte={{
+        account,
+        onGate: (g) => {
+          // « Tout activer » ne désigne aucun module en particulier.
+          moduleDemande.current = null;
+          setGate(g);
+        },
+      }}
       identite={{
         logo,
         onLogoChange: (e) => chargerLogo(e, setLogo),
@@ -274,7 +480,12 @@ export default function Composer({
   return (
     <div>
       {/* Barre mobile */}
-      <div className="sticky top-11 z-20 flex items-center justify-between border-b border-rule bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
+      {/* La barre se cale sous la navigation, dont la hauteur varie : une rangée
+          à partir de 640 px, deux en dessous. Elle était à 44 px en dur, et sur
+          téléphone la seconde rangée d'onglets la recouvrait — toucher
+          « Sommaire & modules » ouvrait l'onglet Constitution (audit du
+          04/10/2026, F04). `--cc-nav-h` est posée par la navigation elle-même. */}
+      <div className="sticky top-[var(--cc-nav-h)] z-20 flex items-center justify-between border-b border-rule bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
         <button
           onClick={() => setMobileOpen(true)}
           className="inline-flex items-center gap-2 text-sm font-medium text-body"
@@ -356,7 +567,7 @@ export default function Composer({
           reduce={Boolean(reduce)}
           compte={{
             connecte: account,
-            nom: user?.user_metadata?.full_name,
+            nom: user?.nom ?? undefined,
             onSignOut: signOut,
           }}
         />
@@ -390,6 +601,7 @@ export default function Composer({
         ouvert={mobileOpen}
         onClose={() => setMobileOpen(false)}
         fermer={t.close}
+        nom={t.mobilePanel}
       >
         {sommaire}
         <div className="mt-6 border-t border-rule pt-4">{atelier}</div>
@@ -400,21 +612,27 @@ export default function Composer({
         gate={gate}
         setGate={setGate}
         user={user}
-        email={email}
-        setEmail={setEmail}
-        otpSent={otpSent}
-        signInGoogle={signInGoogle}
-        signInOtp={signInOtp}
+        connexion={connexion}
         needsCompany={needsCompany}
         setNeedsCompany={setNeedsCompany}
         account={account}
         company={company}
         setCompany={setCompany}
+        companyEchec={companyEchec}
         submitCompany={submitCompany}
         booking={booking}
         setBooking={setBooking}
         coaches={COACHES}
       />
+
+      {annonce && (
+        <p
+          role="status"
+          className="fixed inset-x-4 bottom-4 z-30 mx-auto max-w-md rounded-lg border border-accent-border bg-accent-soft px-4 py-3 text-center text-sm text-accent-strong shadow-lg"
+        >
+          {annonce}
+        </p>
+      )}
     </div>
   );
 }

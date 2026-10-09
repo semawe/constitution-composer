@@ -20,6 +20,12 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import {
+  jugerBackend,
+  lireEmpreintesAttendues,
+  publierParSftp,
+  verificateurCleHote,
+} from './lib/deploiement.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '..', 'out');
@@ -230,21 +236,40 @@ const aBlanc =
 
 // Un build fait sans les clés Supabase produit un site qui *paraît* marcher :
 // compte simulé, sauvegardes dans le navigateur, rien qui suive le compte. On
-// vérifie donc dans les fichiers à envoyer que la configuration est bien là,
-// plutôt que de faire confiance à l'environnement du build.
+// lit donc dans les fichiers à envoyer ce que le build embarque, plutôt que de
+// faire confiance à l'environnement du build.
+//
+// La garde cherchait la sous-chaîne `.supabase.co` dans le bundle — que le SDK
+// contient de lui-même. Un build de démonstration la satisfaisait (audit du
+// 04/10/2026, F05). Chaque page exportée dit maintenant son backend
+// (`<meta name="cc-backend">`, posée par `src/app/tete.tsx`), et c'est elle
+// qu'on lit. `DEPLOY_EXPECT_BACKEND` épingle en plus l'hôte attendu.
 {
-  const chunks = join(OUT, '_next', 'static', 'chunks');
-  const found = existsSync(chunks)
-    && readdirSync(chunks, { recursive: true })
-      .filter((f) => String(f).endsWith('.js'))
-      .some((f) => readFileSync(join(chunks, String(f)), 'utf8').includes('.supabase.co'));
-  if (!found && process.env.ALLOW_DEMO_DEPLOY !== 'yes') {
-    console.error(
-      'Erreur : le build de out/ ne porte aucune configuration Supabase — ' +
-        'compte simulé et sauvegardes locales. Rebuild avec ' +
-        'NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY, ou assume ' +
-        'la démonstration avec ALLOW_DEMO_DEPLOY=yes.',
+  const verdict = jugerBackend(OUT, {
+    autoriserDemo: process.env.ALLOW_DEMO_DEPLOY === 'yes',
+    attendu: process.env.DEPLOY_EXPECT_BACKEND || '',
+    // Le mutualisé ne sert que des fichiers : un build « serveur » y aurait
+    // des comptes qui répondent 404. Il part sur l'instance (deploy-instance.mjs).
+    familles: ['supabase'],
+  });
+  if (!verdict.ok) {
+    console.error(`Erreur : ${verdict.message}`);
+    process.exit(1);
+  }
+  (verdict.demo ? console.warn : console.log)(verdict.message);
+}
+
+// La clé du serveur SFTP se vérifie avant de s'y connecter, et son absence de
+// la configuration est une erreur de configuration : elle se dit ici, avec les
+// autres gardes, et la répétition à blanc l'éprouve aussi.
+let empreintesAttendues = [];
+if (protocol === 'sftp') {
+  try {
+    empreintesAttendues = lireEmpreintesAttendues(
+      process.env.SFTP_HOST_FINGERPRINT,
     );
+  } catch (err) {
+    console.error(`Erreur : ${err.message}`);
     process.exit(1);
   }
 }
@@ -272,82 +297,12 @@ if (protocol === 'sftp') {
   const { default: SftpClient } = await import('ssh2-sftp-client');
   const sftp = new SftpClient();
 
-  const CIBLE = config.remoteDir;
-  // Répertoires frères, dans le même compte : la bascule est un renommage, donc
-  // instantané pour Apache. Le nom porte l'intention pour qui les découvrirait.
-  const TRANSIT = `${CIBLE}.transit`;
-  const PRECEDENT = `${CIBLE}.precedent`;
-
-  const absent = (err) => /No such (file|directory)|not exist/i.test(String(err));
-
-  /** Vide un répertoire, sans jamais sortir de la racine qu'on lui donne. */
-  async function purger(dir, racine) {
-    if (dir !== racine && !dir.startsWith(racine + '/')) {
-      throw new Error(`Purge hors cible refusée : ${dir}`);
-    }
-    for (const e of await sftp.list(dir)) {
-      const p = `${dir}/${e.name}`;
-      // Un lien symbolique se supprime, il ne se descend pas : y recurser
-      // sortirait de la cible sans que le contrôle lexical du chemin le voie.
-      if (e.type === 'l') {
-        await sftp.delete(p).catch(() => {});
-        continue;
-      }
-      if (e.type === 'd') {
-        await purger(p, racine);
-        await sftp.rmdir(p).catch((err) => {
-          if (!absent(err)) throw err;
-        });
-      } else {
-        // Le serveur liste parfois ce qu'il vient de perdre : une entrée déjà
-        // disparue n'interrompt pas la purge (19/08 : les pages /en ont disparu
-        // en ligne parce qu'un rmdir sur un répertoire absent a tout arrêté).
-        await sftp.delete(p).catch((err) => {
-          if (!absent(err)) throw err;
-        });
-      }
-    }
-  }
-
-  async function supprimer(dir) {
-    if (!(await sftp.exists(dir))) return;
-    await purger(dir, dir);
-    await sftp.rmdir(dir).catch((err) => {
-      if (!absent(err)) throw err;
-    });
-  }
-
-  /**
-   * Le transit est-il un site complet ? On ne bascule pas sur un envoi partiel :
-   * c'est tout l'intérêt de la manœuvre.
-   */
-  async function controler(dir) {
-    const manquants = [];
-    for (const attendu of ['index.html', '.htaccess', '_next']) {
-      if (!(await sftp.exists(`${dir}/${attendu}`))) manquants.push(attendu);
-    }
-    // Les fragments que la page d'accueil réclame doivent être là : un envoi
-    // interrompu au milieu de _next/ passerait sinon pour complet.
-    const pages = readdirSync(OUT).filter((f) => f.endsWith('.html'));
-    const references = new Set();
-    for (const f of pages)
-      for (const m of readFileSync(join(OUT, f), 'utf8').matchAll(
-        /\/(_next\/static\/[A-Za-z0-9._\/-]+?\.(?:js|css))/g,
-      ))
-        references.add(m[1]);
-    const echantillon = [...references].slice(0, 12);
-    for (const ref of echantillon) {
-      if (!(await sftp.exists(`${dir}/${ref}`))) manquants.push(ref);
-    }
-    if (manquants.length) {
-      throw new Error(
-        `Envoi incomplet dans ${dir} : ${manquants.slice(0, 5).join(', ')}` +
-          (manquants.length > 5 ? ` (+${manquants.length - 5})` : '') +
-          '. La version en ligne n’a pas été touchée.',
-      );
-    }
-    return { pages: pages.length, fragments: echantillon.length };
-  }
+  // ssh2 accepte toute clé de serveur quand on ne lui donne pas de quoi la
+  // vérifier. Le canal était donc chiffré, mais vers n'importe qui : un
+  // intermédiaire actif pouvait présenter son propre serveur et recevoir le mot
+  // de passe de publication (audit du 04/10/2026, F08). Le vérificateur est
+  // appelé pendant l'échange de clés, avant toute authentification.
+  const cleHote = verificateurCleHote(empreintesAttendues);
 
   try {
     await sftp.connect({
@@ -355,46 +310,31 @@ if (protocol === 'sftp') {
       username: config.user,
       password: config.password,
       port: Number(process.env.FTP_PORT || 22),
+      hostVerifier: cleHote.verifier,
     });
-    console.log(`Connecté à ${config.host} en SFTP.`);
-
-    // 1. Envoi complet à côté du site en ligne, qui continue de servir.
-    await supprimer(TRANSIT);
-    await sftp.mkdir(TRANSIT, true);
-    console.log(`Envoi de out/ vers ${TRANSIT} (le site en ligne continue) …`);
-    await sftp.uploadDir(OUT, TRANSIT);
-
-    // 2. Contrôle avant de toucher à quoi que ce soit.
-    const vu = await controler(TRANSIT);
     console.log(
-      `Envoi complet : ${vu.pages} pages, ${vu.fragments} fragments vérifiés.`,
+      `Connecté à ${config.host} en SFTP (clé du serveur vérifiée : ${cleHote.etat.vue}).`,
     );
 
-    // 3. Bascule par renommages. Entre les deux, le site est absent le temps
-    //    d'un appel — sans commune mesure avec une purge suivie d'un envoi.
-    await supprimer(PRECEDENT);
-    const avaitUneVersion = await sftp.exists(CIBLE);
-    if (avaitUneVersion) await sftp.rename(CIBLE, PRECEDENT);
-    try {
-      await sftp.rename(TRANSIT, CIBLE);
-    } catch (err) {
-      // Le pire moment : la cible est partie et le transit n'a pas pris sa
-      // place. On remet la version précédente avant de rendre la main.
-      if (avaitUneVersion) await sftp.rename(PRECEDENT, CIBLE).catch(() => {});
-      throw err;
-    }
-
-    // 4. Contrôle après bascule, puis seulement, on jette l'ancienne version.
-    if (!(await sftp.exists(`${CIBLE}/index.html`))) {
-      throw new Error(
-        `Bascule douteuse : ${CIBLE}/index.html est absent. La version ` +
-          `précédente est conservée dans ${PRECEDENT}.`,
-      );
-    }
-    await supprimer(PRECEDENT);
+    await publierParSftp({
+      sftp,
+      out: OUT,
+      cible: config.remoteDir,
+      retentionJours: Number(process.env.DEPLOY_FRAGMENT_RETENTION_DAYS || 30),
+    });
     console.log('Déploiement terminé (bascule atomique).');
   } catch (err) {
-    console.error('Échec du déploiement :', err.message);
+    if (cleHote.etat.vue && !empreintesAttendues.includes(cleHote.etat.vue)) {
+      console.error(
+        `Échec du déploiement : la clé présentée par ${config.host} ` +
+          `(${cleHote.etat.vue}) n'est pas celle attendue. Aucun identifiant ` +
+          "n'a été envoyé. Ne change SFTP_HOST_FINGERPRINT qu'après avoir " +
+          'vérifié cette empreinte par une source sûre : une clé qui change ' +
+          'sans annonce de l’hébergeur est exactement ce que cette garde arrête.',
+      );
+    } else {
+      console.error('Échec du déploiement :', err.message);
+    }
     process.exitCode = 1;
   } finally {
     await sftp.end().catch(() => {});

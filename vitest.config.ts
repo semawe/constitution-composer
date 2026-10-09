@@ -11,7 +11,9 @@ export default defineConfig({
     // Sans cette exclusion, un worktree git imbriqué (.claude/worktrees/…, créé
     // par les sessions Claude) fait découvrir deux fois chaque fichier de test :
     // la suite passe au vert sur des tests d'une autre branche, en double.
-    exclude: ["**/node_modules/**", "**/dist/**", ".claude/**"],
+    // Le service des comptes (serveur/) a ses propres dépendances et sa propre
+    // suite, jouée par node:test contre un PostgreSQL réel.
+    exclude: ["**/node_modules/**", "**/dist/**", ".claude/**", "serveur/**"],
   },
   resolve: {
     alias: {

@@ -5,6 +5,7 @@
  *
  *   node scripts/releases.mjs --new [--label <id>]   archive le fond courant
  *   node scripts/releases.mjs --check                vérifie l'archive et l'index
+ *   node scripts/releases.mjs --index                régénère l'index seul
  *
  * Le problème réglé ici : une composition sauvegardée ne portait que sa
  * configuration (modules cochés, titre, valeurs). Après une retouche éditoriale
@@ -89,53 +90,59 @@ function identifiantDuJour(manifeste, label) {
   return memeJour === 0 ? jour : `${jour}-${memeJour + 1}`;
 }
 
-/** L'index TypeScript : des imports statiques, seule forme qu'un bundle sait suivre. */
+/**
+ * L'index TypeScript : un manifeste léger (identifiants et empreintes), et un
+ * chargeur nommé par fichier archivé.
+ *
+ * Les fonds étaient importés statiquement : ouvrir le Composer faisait descendre
+ * toutes les releases dans les deux langues (104 Ko gzip au 04/10/2026, et le
+ * coût montait à chaque release), alors qu'une composition neuve n'en lit aucune.
+ * Chaque fichier a maintenant son `import()` littéral — un bundle ne suit pas un
+ * chemin calculé à l'exécution, mais il sait découper un chemin écrit en toutes
+ * lettres — et ne descend que lorsqu'un document le demande.
+ */
 function ecrireIndex(manifeste) {
   const lignes = [
     "// Fichier généré par `npm run release:new`. Ne pas éditer à la main :",
     "// `npm run release:check` compare son contenu à l'archive et rougit sinon.",
     "//",
-    "// Les imports sont statiques par nécessité : un bundle ne résout pas un",
-    "// chemin calculé à l'exécution. Chaque release archivée est donc nommée ici.",
+    "// Le manifeste (identifiants, empreintes) est statique et léger. Les fonds,",
+    "// eux, ne descendent qu'à la demande : chaque fichier archivé a son",
+    "// `import()` littéral, seule forme différée qu'un bundle sait suivre.",
     "",
-    'import type { ConstitutionData } from "@/lib/constitution";',
-    'import type { PrincipesData } from "@/lib/principes-data";',
+    "export interface ArchivedRelease {",
+    "  id: string;",
+    "  /** Empreinte de chaque fichier archivé, par nom de fichier. */",
+    "  sha256: Record<string, string>;",
+    "}",
     "",
+    "/** Les releases du fond, de la plus ancienne à la plus récente. */",
+    "export const ARCHIVED_RELEASES: ArchivedRelease[] = [",
   ];
-  const nom = (id, fichier) =>
-    `r_${id.replace(/[^0-9A-Za-z]/g, "_")}_${fichier.replace(/[^0-9A-Za-z]/g, "_")}`;
-  for (const r of manifeste.releases)
-    for (const fichier of FICHIERS)
-      lignes.push(
-        `import ${nom(r.id, fichier)} from "@/data/releases/${r.id}/${fichier}";`,
-      );
-  lignes.push("");
-  lignes.push("export interface ArchivedRelease {");
-  lignes.push("  id: string;");
-  lignes.push("  /** Empreinte de chaque fichier archivé, par nom de fichier. */");
-  lignes.push("  sha256: Record<string, string>;");
-  lignes.push("  constitution: Record<string, ConstitutionData>;");
-  lignes.push("  principes: Record<string, PrincipesData>;");
-  lignes.push("}");
-  lignes.push("");
-  lignes.push("/** Les releases du fond, de la plus ancienne à la plus récente. */");
-  lignes.push("export const ARCHIVED_RELEASES: ArchivedRelease[] = [");
   for (const r of manifeste.releases) {
     lignes.push("  {");
     lignes.push(`    id: ${JSON.stringify(r.id)},`);
     lignes.push(`    sha256: ${JSON.stringify(r.sha256)},`);
-    for (const genre of ["constitution", "principes"]) {
-      const type = genre === "constitution" ? "ConstitutionData" : "PrincipesData";
-      lignes.push(`    ${genre}: {`);
-      for (const locale of LOCALES)
-        lignes.push(
-          `      ${locale}: ${nom(r.id, `${genre}.${locale}.json`)} as unknown as ${type},`,
-        );
-      lignes.push("    },");
-    }
     lignes.push("  },");
   }
   lignes.push("];");
+  lignes.push("");
+  lignes.push("/** Le contenu d'un fichier archivé, chargé à la demande. */");
+  lignes.push("export const ARCHIVED_FILES: Record<");
+  lignes.push("  string,");
+  lignes.push("  Record<string, () => Promise<unknown>>");
+  lignes.push("> = {");
+  for (const r of manifeste.releases) {
+    lignes.push(`  ${JSON.stringify(r.id)}: {`);
+    for (const fichier of FICHIERS) {
+      lignes.push(`    ${JSON.stringify(fichier)}: () =>`);
+      lignes.push(
+        `      import("@/data/releases/${r.id}/${fichier}").then((m) => m.default),`,
+      );
+    }
+    lignes.push("  },");
+  }
+  lignes.push("};");
   lignes.push("");
   writeFileSync(INDEX, lignes.join("\n"));
 }
@@ -224,7 +231,7 @@ function verifier() {
       writeFileSync(INDEX, avant);
       problemes.push(
         "src/data/releases/index.ts n'est plus celui que le manifeste décrit :\n" +
-          "  npm run release:new",
+          "  npm run release:index",
       );
     }
   } else if (manifeste.releases.length) {
@@ -248,7 +255,15 @@ try {
     : undefined;
   if (process.argv.includes("--check")) verifier();
   else if (process.argv.includes("--new")) archiver(label);
-  else fail("Usage : node scripts/releases.mjs --new [--label <id>] | --check");
+  // Régénère l'index seul, sans archiver : `--new` ne le réécrit pas quand le
+  // fond n'a pas bougé, et un changement de forme de l'index resterait bloqué.
+  else if (process.argv.includes("--index")) {
+    ecrireIndex(lireManifeste());
+    console.log("= index des releases régénéré depuis le manifeste.");
+  } else
+    fail(
+      "Usage : node scripts/releases.mjs --new [--label <id>] | --check | --index",
+    );
 } catch (error) {
   if (error instanceof ReleaseError) {
     console.error(error.message);

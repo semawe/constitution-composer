@@ -1,53 +1,49 @@
 import type { Metadata } from "next";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 import { HETEROSTASIA_URL } from "@/lib/links";
+import { DonneesComptes, HebergementComptes } from "@/components/MentionsDonnees";
 
 export const metadata: Metadata = {
-  title: "Legal notice",
+  title: "Mentions légales",
   description:
-    "Publisher, host, intellectual property and personal data processing for constitution-composer.com.",
+    "Éditeur, hébergeur, propriété intellectuelle et traitement des données personnelles du site constitution-composer.com.",
 };
 
-export default function LegalNoticePage() {
+export default function MentionsLegalesPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <SiteNav locale="en" />
+      <SiteNav locale="fr" />
       <main className="flex-1 mx-auto max-w-3xl px-4 pb-24 pt-16">
         <h1 className="font-serif text-4xl font-medium leading-tight text-strong">
-          Legal notice
+          Mentions légales
         </h1>
 
         <section className="mt-12">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Publisher
+            Éditeur du site
           </h2>
           <div className="mt-4 space-y-1 text-sm leading-relaxed text-body">
             <p className="font-medium text-body">Sémawé</p>
+            <p>Société par actions simplifiée coopérative à capital variable</p>
+            <p>Siège social : 1 rue des Pins, 38100 Grenoble, France</p>
+            <p>RCS Grenoble 839 472 420 — SIRET 839 472 420 00026</p>
+            <p>Président : Aliocha Iordanoff</p>
             <p>
-              Worker cooperative (SAS SCOP) with variable capital, registered in
-              France
-            </p>
-            <p>Registered office: 1 rue des Pins, 38100 Grenoble, France</p>
-            <p>
-              Grenoble Trade Register 839 472 420 — SIRET 839 472 420 00026
-            </p>
-            <p>President: Aliocha Iordanoff</p>
-            <p>
-              Contact:{" "}
+              Contact :{" "}
               <a
                 href="mailto:contact@semawe.fr"
                 className="text-accent-text underline transition hover:text-teal-800"
               >
                 contact@semawe.fr
               </a>{" "}
-              — +33 4 86 65 26 22
+              — 04 86 65 26 22
             </p>
           </div>
         </section>
 
         <section className="mt-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Publication director
+            Directrice de la publication
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-body">
             Juliette Brunerie
@@ -56,7 +52,7 @@ export default function LegalNoticePage() {
 
         <section className="mt-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Design and maintenance
+            Conception et maintenance
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-body">
             <a
@@ -67,14 +63,14 @@ export default function LegalNoticePage() {
             >
               Heterostasia
             </a>
-            , simplified joint-stock company, 1 rue des Pins, 38100 Grenoble,
-            France, Grenoble Trade Register 108 072 919.
+            , société par actions simplifiée, 1 rue des Pins, 38100 Grenoble,
+            RCS Grenoble 108 072 919.
           </p>
         </section>
 
         <section className="mt-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Hosting
+            Hébergement
           </h2>
           <div className="mt-4 space-y-1 text-sm leading-relaxed text-body">
             <p className="font-medium text-body">OVH SAS</p>
@@ -89,56 +85,53 @@ export default function LegalNoticePage() {
                 ovhcloud.com
               </a>
             </p>
+            <HebergementComptes locale="fr" />
           </div>
         </section>
 
         <section className="mt-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Intellectual property and licence
+            Propriété intellectuelle et licence
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-body">
-            The Composer source code is released under the{" "}
+            Le code source du Composeur est publié sous licence{" "}
             <a
-              href="https://www.gnu.org/licenses/agpl-3.0.html"
+              href="https://www.gnu.org/licenses/agpl-3.0.fr.html"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent-text underline transition hover:text-teal-800"
             >
               AGPL-3.0
-            </a>{" "}
-            licence. The Holacracy Constitution and its translations remain
-            under their own licences, stated at the source. Graphic assets and
-            the Sémawé trademark remain the property of Sémawé.
+            </a>
+            . Le texte de la Constitution Holacracy et ses traductions relèvent
+            de leurs licences respectives, indiquées à la source. Les éléments
+            graphiques et la marque Sémawé restent la propriété de Sémawé.
           </p>
           <p>
-            Holacracy® is a registered trademark of HolacracyOne LLC. Sémawé is
-            neither affiliated with HolacracyOne nor mandated by it. The text
-            composed on this site is a Sémawé edition derived from the Holacracy
-            Constitution 5.0: it is not a new official version of the
-            Constitution, and it does not bind HolacracyOne. The official
-            reference version is published by HolacracyOne.
+            Holacracy® est une marque déposée de HolacracyOne LLC. Sémawé
+            n&apos;est ni affilié à HolacracyOne, ni mandaté par elle. Le texte
+            composé sur ce site est une édition Sémawé, dérivée de la
+            Constitution Holacracy 5.0 : il ne constitue pas une nouvelle
+            version officielle de la Constitution, et n&apos;engage pas
+            HolacracyOne. La version officielle de référence est publiée par
+            HolacracyOne.
           </p>
         </section>
 
         <section className="mt-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Personal data
+            Données personnelles
           </h2>
           <div className="mt-4 space-y-4 text-sm leading-relaxed text-body">
+            <DonneesComptes locale="fr" />
             <p>
-              Creating an account collects an email address and, where
-              provided, a name and an organisation. This data is used solely to
-              authenticate you and to store your compositions. It is neither
-              sold nor shared with third parties. Storage and authentication are
-              handled by Supabase, acting as a processor.
+              La mesure d’audience passe par Umami, qui n’utilise pas de cookie
+              et ne collecte aucune donnée personnelle.
             </p>
             <p>
-              Audience measurement uses Umami, which sets no cookie and collects
-              no personal data.
-            </p>
-            <p>
-              Under the General Data Protection Regulation, you have the right
-              to access, rectify, port and erase your data by writing to{" "}
+              Conformément au Règlement général sur la protection des données,
+              vous disposez d’un droit d’accès, de rectification, de portabilité
+              et de suppression des données vous concernant, en écrivant à{" "}
               <a
                 href="mailto:contact@semawe.fr"
                 className="text-accent-text underline transition hover:text-teal-800"
@@ -150,7 +143,7 @@ export default function LegalNoticePage() {
           </div>
         </section>
       </main>
-      <SiteFooter locale="en" />
+      <SiteFooter locale="fr" />
     </div>
   );
 }

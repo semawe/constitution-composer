@@ -46,7 +46,7 @@ export function ComposerIdentite({
         <select
           value={font}
           onChange={(e) => setFont(e.target.value)}
-          aria-label="Police du document"
+          aria-label={t.fontAria}
           className="mt-1 w-full rounded border border-field bg-transparent px-1.5 py-1 outline-none focus:border-field-accent"
         >
           {FONT_OPTIONS.map((f) => (
@@ -87,7 +87,7 @@ export function ComposerIdentite({
             type="color"
             value={titleColor || "#0f172a"}
             onChange={(e) => setTitleColor(e.target.value)}
-            aria-label="Couleur du titre"
+            aria-label={t.colorAria}
             className="h-6 w-7 shrink-0 cursor-pointer rounded border border-field bg-transparent p-0"
           />
           <input

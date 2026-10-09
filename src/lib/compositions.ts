@@ -1,9 +1,14 @@
-// Sauvegarde des compositions (Phase B). Backend Supabase quand il est
+// Sauvegarde des compositions (Phase B). Le service de comptes quand il est
 // configuré et l'utilisateur connecté ; sinon repli localStorage (compte
 // simulé / dev sans clés). Plafond ≤5 appliqué côté app ET côté base (trigger).
 
-import { getSupabase } from "./supabase";
-import { type ContentRef, type Locale, currentContentRef } from "./releases";
+import { getService } from "./service";
+import {
+  type ContentRef,
+  type Locale,
+  canonicalRef,
+  currentContentRef,
+} from "./releases";
 
 export interface CompositionPayload {
   /**
@@ -51,35 +56,42 @@ function lsWrite(rows: SavedComposition[]) {
   } catch {}
 }
 
-const SELECT = "id,name,payload,updated_at";
-
 export async function listCompositions(): Promise<SavedComposition[]> {
-  const sb = getSupabase();
-  if (!sb) return lsRead();
-  const { data, error } = await sb
-    .from("compositions")
-    .select(SELECT)
-    .order("updated_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as SavedComposition[];
+  const service = getService();
+  if (!service) return lsRead();
+  return service.listerVersions();
 }
 
 /**
  * L'estampille se pose ici, à la frontière : aucun appelant ne peut sauvegarder
  * une composition sans dire de quel texte elle vient.
+ *
+ * `reference` est le fond **du document affiché**, pas celui du jour. Elle était
+ * recalculée ici sur le texte courant et la langue de la page : enregistrer une
+ * version relue sur une release ancienne la rattachait donc en silence au texte
+ * du jour, et une composition anglaise ouverte depuis la route française
+ * devenait française (audit du 04/10/2026, F01). Porter un document d'un texte
+ * à un autre reste possible, mais c'est un geste à part : `migrateComposition()`.
+ *
+ * La référence n'est pas crue sur parole pour autant : elle doit désigner une
+ * release que l'archive sait relire, avec son empreinte. Sinon on refuse
+ * (« REFERENCE ») plutôt que d'inscrire une garantie qu'on ne pourrait pas tenir.
+ * Ce que le payload prétend de lui-même (`payload.content`) est toujours ignoré.
  */
 export async function saveComposition(
   name: string,
   payload: CompositionPayload,
-  locale: Locale,
+  reference: ContentRef,
 ): Promise<SavedComposition> {
+  const content = canonicalRef(reference, "constitution");
+  if (!content) throw new Error("REFERENCE");
   payload = {
     ...payload,
     schemaVersion: 2,
-    content: currentContentRef(locale),
+    content,
   };
-  const sb = getSupabase();
-  if (!sb) {
+  const service = getService();
+  if (!service) {
     const rows = lsRead();
     if (rows.length >= MAX_COMPOSITIONS) throw new Error("LIMIT");
     const row: SavedComposition = {
@@ -91,17 +103,7 @@ export async function saveComposition(
     lsWrite([row, ...rows]);
     return row;
   }
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) throw new Error("AUTH");
-  const { data, error } = await sb
-    .from("compositions")
-    .insert({ user_id: user.id, name, payload })
-    .select(SELECT)
-    .single();
-  if (error) throw error;
-  return data as SavedComposition;
+  return service.creerVersion(name, payload);
 }
 
 /**
@@ -122,18 +124,14 @@ export async function repinComposition(
     schemaVersion: 2,
     content: currentContentRef(locale),
   };
-  const sb = getSupabase();
-  if (!sb) {
+  const service = getService();
+  if (!service) {
     lsWrite(
       lsRead().map((r) => (r.id === id ? { ...r, payload: fige } : r)),
     );
     return;
   }
-  const { error } = await sb
-    .from("compositions")
-    .update({ payload: fige, updated_at: new Date().toISOString() })
-    .eq("id", id);
-  if (error) throw error;
+  await service.remplacerVersion(id, fige);
 }
 
 /**
@@ -157,31 +155,30 @@ export async function migrateComposition(
   const { schemaVersion: _s, content: _c, ...configuration } = source.payload;
   void _s;
   void _c;
-  return saveComposition(name.slice(0, 120), configuration, locale);
+  return saveComposition(
+    name.slice(0, 120),
+    configuration,
+    currentContentRef(locale),
+  );
 }
 
 export async function renameComposition(
   id: string,
   name: string,
 ): Promise<void> {
-  const sb = getSupabase();
-  if (!sb) {
+  const service = getService();
+  if (!service) {
     lsWrite(lsRead().map((r) => (r.id === id ? { ...r, name } : r)));
     return;
   }
-  const { error } = await sb
-    .from("compositions")
-    .update({ name, updated_at: new Date().toISOString() })
-    .eq("id", id);
-  if (error) throw error;
+  await service.renommerVersion(id, name);
 }
 
 export async function deleteComposition(id: string): Promise<void> {
-  const sb = getSupabase();
-  if (!sb) {
+  const service = getService();
+  if (!service) {
     lsWrite(lsRead().filter((r) => r.id !== id));
     return;
   }
-  const { error } = await sb.from("compositions").delete().eq("id", id);
-  if (error) throw error;
+  await service.supprimerVersion(id);
 }

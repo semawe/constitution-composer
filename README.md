@@ -5,8 +5,8 @@
 La preuve complète s'exécute sur une copie isolée du SHA Git exact avec Node 24 :
 `SEMAWE_PROOF_DIR=/chemin/durable ./scripts/preuve-locale-ci.sh`. GitHub ne valide plus chaque
 poussée ni chaque pull request : une contre-épreuve hebdomadaire bornée à dix minutes vérifie
-l'environnement forge. Le keep-alive Supabase écrit le lundi et le jeudi, avec un écart maximal
-de quatre jours et une minute par passage. Les deux workflows refusent les relances.
+l'environnement forge. Elle refuse les relances. Le keep-alive Supabase est désactivé depuis la
+bascule de la production vers le serveur de Sémawé, le 05/10/2026.
 
 **Interactive Holacracy® Constitution builder** — select the articles you need, see the document compose in real time, export a ready-to-sign PDF.
 
@@ -31,7 +31,6 @@ Built by [Sémawé](https://semawe.fr), a French Holacracy consulting firm.
 - **Auth** — Google login or magic link (Supabase)
 - **PDF export** — constitution + declaration, custom logo and font
 - **Dark mode** · **French / English** · **Freemium** (free core, account for extensions)
-- **Admin panel** — `/admin` (accounts, versions, insertions config)
 
 ---
 
@@ -78,7 +77,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=
 ```
 
-> **Supabase setup:** apply the migrations in `supabase/migrations/` to your project. See [Supabase docs](https://supabase.com/docs/guides/cli/local-development).
+> **Supabase setup:** apply the migrations in `supabase/migrations/` to your project, in order. See [Supabase docs](https://supabase.com/docs/guides/cli/local-development).
+>
+> **Administration:** there is no admin screen in this app. Administrative rights exist only in
+> the database: `public.is_admin()` reads the `admin` claim of `app_metadata`, which only the
+> service role can set (migration `0007_admin_claim.sql`). No environment variable grants them.
 
 ### Run
 
@@ -154,13 +157,22 @@ npm run release:check   # archives are intact, and the served content matches th
   too: the Declaration is the document ratifiers *sign*, so it must be re-readable exactly as it
   was signed.
 - `src/data/releases/manifest.json` and `index.ts` — the registry (generated; the check fails if
-  it drifts from the manifest). Imports are static because a bundle cannot resolve a computed path.
+  it drifts from the manifest; `npm run release:index` regenerates it alone). The registry itself
+  is light — ids and digests — and each archived file has its own literal `import()`, so a release
+  is downloaded only when a document asks for it. Importing them all statically made every visit
+  to the Composer download every release in both languages, a cost that grew with each release.
 - A saved composition — and a saved Declaration — stores `{ locale, release, sha256, kind }`.
   Reopening it composes **from that release's archive**, not from today's content. The two contents
   of one release are never confused: a Constitution reference handed to the Principles resolver
   resolves to nothing rather than to the wrong document.
 - Resolution is strict: an unknown release, or a digest that does not match, refuses to open and
   says so. It never silently falls back to the current content — that fallback *is* the defect.
+  An archive that could not be downloaded is a separate, retryable outcome, and says so too.
+- Saving keeps the text of the document on screen. `saveComposition()` takes the content
+  reference of what is displayed — release *and* language — and validates it against the archive
+  before writing. Moving a document to today's text is a separate, explicit gesture
+  (`migrateComposition()`). The local draft carries its reference as well, so a reload brings the
+  same document back on the same text.
 - Compositions saved before archiving existed carry no reference. They open on the current text,
   say so, and offer to pin themselves in one click.
 - The exported PDF prints the release and a short digest, so anyone can tell later which text a
@@ -220,7 +232,31 @@ lint and a full static build). What each file guards:
   and a button of a hidden tab is no longer clickable — a phantom that once corrupted one of our own
   verifications. The test waits for deferred imports before asserting absence, otherwise it would
   prove nothing.
-- **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data.
+- **`src/components/Composer.document.test.tsx` — a document is content plus its text.** Saving a
+  version reopened on an older release keeps that release and its language; opening a version is
+  never overwritten by the previous draft; signing out leaves nothing of the document on screen,
+  in the browser draft or in the branding, while an anonymous draft follows its author through
+  sign-in and the gesture that asked for the account is resumed afterwards.
+- **`src/components/Principes.compte.test.tsx` — the Declaration and the account.** Driven against
+  a stand-in service whose session is switched by hand: one account replacing another without a
+  sign-out in between does not inherit its Declaration; a write says which account it was prepared
+  for; and after a failed save, reloading offers the unsaved changes back instead of losing them —
+  warning first when the account has moved on elsewhere.
+- **`src/components/Modale.interaction.test.tsx` — dialogs, typed into.** The earlier dialog tests
+  opened and closed the box without typing a character, which is how a focus reset on every
+  keystroke went unnoticed. These type whole addresses and sentences through the re-render. The
+  mobile drawer is held to the same contract.
+- **`src/components/composer/useComposerVersions.test.tsx`, `compte/useConnexion.test.tsx`,
+  `src/lib/intention.test.ts`** — a failed first read of the saved versions is reported rather
+  than shown as an empty account, a reply sent for one account never lands on the next, and
+  sign-in only announces success on a successful response.
+- **`scripts/deploiement.test.mjs` — the deployment, without the host.** The backend guard, the
+  retention of previous-generation chunks (against a file-backed stand-in for the SFTP client), and
+  the host key check — the latter against a real local SSH server, asserting that a wrong key is
+  refused before any credential leaves.
+- **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data, the
+  language each root layout declares, and a heuristic guard against French strings hard-coded in
+  the components both languages share.
 
 Tests are named in French and sit next to the module they cover, following the conventions of the
 other Sémawé applications.
@@ -233,10 +269,24 @@ The app compiles to a static export (`out/`). You can host it on any static host
 
 Required: set the environment variables above before building, as `NEXT_PUBLIC_*` values are baked into the bundle at build time.
 
-**Note on canonical URLs:** some metadata files hard-code `constitution-composer.com` as the canonical. If you deploy a public instance under a different domain, update the canonical URLs in `src/app/**/page.tsx` before building.
+**Note on canonical URLs:** some metadata files hard-code `constitution-composer.com` as the canonical. If you deploy a public instance under a different domain, update the canonical URLs in `src/app/**/page.tsx` and the two root layouts (`src/app/(fr)/layout.tsx`, `src/app/(en)/layout.tsx`) before building.
 
-The official instance ([constitution-composer.com](https://constitution-composer.com)) is deployed
-to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Six guards are worth reusing if you
+**`public/.htaccess` is part of the configuration, not only the build variables.** It redirects
+every other host to `constitution-composer.com`, and its Content-Security-Policy names one Supabase
+project. On another domain or another project, the redirect sends your visitors to the official
+instance and the CSP blocks your own backend: adapt both, and keep the CSP of
+`scripts/serve-out.mjs` in step (it serves `out/` locally under the production policy).
+
+**Since 2026-10-05, the official instance runs on Sémawé's own server.** nginx serves the static
+export built with `NEXT_PUBLIC_BACKEND=serveur`, and the accounts service in `serveur/` (Node,
+PostgreSQL) answers under `/api` on the same origin. It is deployed with
+`npm run deploy:instance -- --avec-serveur`. The procedure, the vhosts and the units live in a
+`deploy/` folder that stays in Sémawé's private repository: it describes a server shared with
+other applications, and this public mirror does not carry it. The Supabase backend is still
+supported by the code until it is removed.
+
+Before that date, the official instance ([constitution-composer.com](https://constitution-composer.com)) was deployed
+to an OVH shared hosting by `scripts/deploy-ovh.mjs`. Eight guards are worth reusing if you
 replicate that setup:
 
 - **SFTP by default.** Plain FTP sends the password in the clear and the account hosts other sites;
@@ -256,11 +306,24 @@ replicate that setup:
   characters), and refused outright when its last segment is `www` unless `FTP_ALLOW_WWW=yes` says
   that really is the target. Note the path differs by transport: FTP chroots the session, SFTP starts
   from the real home.
-- **The bundle must carry a backend.** A build made without the Supabase keys produces a site that
+- **The build must carry a backend.** A build made without the Supabase keys produces a site that
   *appears* to work — simulated account, saves that stay in the browser, nothing following the user.
-  The script reads the chunks it is about to upload and refuses when no Supabase configuration is
-  baked in, rather than trusting the environment the build ran in. `ALLOW_DEMO_DEPLOY=yes` for a
-  deliberately backend-less instance.
+  Every exported page states what the build embeds (`<meta name="cc-backend">`: `supabase:<host>`
+  or `demo`), and the script reads that from the files it is about to upload rather than trusting
+  the environment the build ran in. It refuses a demo build, a build without the mark, an `out/`
+  mixing two builds, and a mark the JavaScript does not corroborate. `DEPLOY_EXPECT_BACKEND=<host>`
+  additionally pins the expected project; `ALLOW_DEMO_DEPLOY=yes` allows a deliberately
+  backend-less instance and says so in the output. The previous guard looked for the substring
+  `.supabase.co` in the bundle — which the Supabase SDK contains by itself, so a demo build passed.
+  The mark states what the build embeds; it does not prove the project answers.
+- **The server's host key is verified.** See [SFTP host key](#sftp-host-key--clé-du-serveur-sftp).
+- **Chunks of the previous generation are kept for a while.** A tab opened before a publication
+  still runs the old JavaScript and will later ask for lazily loaded chunks — the PDF engine, the
+  Declaration tab, an archived release — under their old names. After the switch, the script moves
+  the previous generation's `_next/static/` files that the new one does not have into the live
+  directory (a server-side rename, nothing is re-uploaded), and drops them 30 days after they
+  stopped being current (`DEPLOY_FRAGMENT_RETENTION_DAYS`). The date is the one they stopped being
+  current, not their upload date, kept in a registry next to — not inside — the served directory.
 - **The commit must be current.** A build can be fresh and still be behind: the guard above compares
   `out/` to the local `HEAD`, which says nothing about whether that `HEAD` is the tip of the branch.
   On a day when three sessions pushed, a deploy served an up-to-date stamp for a tree that was three
@@ -269,6 +332,27 @@ replicate that setup:
   be a false positive: a `fetch` that cannot run says so rather than implying it checked, and local
   commits that are not pushed are legitimate to deploy but must not be silent — nobody else could
   rebuild what is online.
+
+### SFTP host key — clé du serveur SFTP
+
+SFTP encrypts, but encryption alone does not say *who* is at the other end. Without a host key
+check, an attacker on the network path can present their own SSH server, receive the publication
+password, and relay or fake the upload. The SSH library used here accepts any host key unless
+told otherwise, so the script now requires `SFTP_HOST_FINGERPRINT` and refuses to connect without
+it. There is deliberately no "accept on first contact": the first contact is exactly when an
+intermediary would present its own key.
+
+- **Format:** `SHA256:` followed by 43 characters, as printed by `ssh-keygen -lf`. Several values
+  may be given, comma-separated — a server presents one key per algorithm.
+- **Obtaining it:** `ssh-keyscan -t ed25519,rsa <host> | ssh-keygen -lf -` prints the candidates,
+  but a scan travels the same network an attacker would sit on. Confirm the value through a channel
+  you trust: the hosting provider's documentation or support, or the same scan from a second,
+  unrelated network that agrees with the first.
+- **When the check fails:** the script prints the fingerprint the server presented and sends no
+  credential. Do not paste that value into the configuration to make the error go away — a key that
+  changes without an announcement from the provider is what this guard exists to stop.
+- **Rotation:** when the provider announces a new key, add its fingerprint next to the old one,
+  deploy, then remove the old one.
 
 `--dry-run` (or `DEPLOY_DRY_RUN=yes`) runs every guard and uploads nothing — it opens no connection.
 It exists because the guards above could not be exercised without touching production, and a guard
@@ -297,7 +381,7 @@ By contributing, you agree that your code is licensed under AGPL v3.
 
 - **Constitution engine:** `src/lib/constitution.ts` — `compose()` resolves the active set of blocks; `toggleModule()` handles `requires`/`conflicts` constraints
 - **Content source of truth:** the canonical Constitution, vendored as a submodule at `vendor/holacracy-constitution`. `src/data/principes.{fr,en}.json` are generated from it by `scripts/fond.mjs` and guarded in CI — see [Constitution content pipeline](#constitution-content-pipeline). `src/data/constitution.fr.json` and `constitution.en.json` are still hand-mirrored: their structured source (`composer/`) lives in the private working repo, which is deliberately not vendored here
-- **Markup:** `src/lib/markup.ts` owns the grammar of the light markup the content uses; `src/components/Prose.tsx` is the only HTML renderer of it (Composer, `/lite`, `/micro`, admin viewer) and `src/lib/pdf.tsx` the only PDF one. Five copies of that grammar used to coexist and had drifted apart — the PDF ignored italics, and `/lite` printed raw asterisks on an indexed page. One grammar, two renderers: there is no longer anywhere for the drift to happen
+- **Markup:** `src/lib/markup.ts` owns the grammar of the light markup the content uses; `src/components/Prose.tsx` is the only HTML renderer of it (Composer, `/lite`, `/micro`) and `src/lib/pdf.tsx` the only PDF one. Five copies of that grammar used to coexist and had drifted apart — the PDF ignored italics, and `/lite` printed raw asterisks on an indexed page. One grammar, two renderers: there is no longer anywhere for the drift to happen
 - **PDF:** `src/lib/pdf.tsx` — uses `.woff` fonts (not `.woff2`) due to a react-pdf decoder limitation. Each of the five families ships regular, bold **and italic**: react-pdf does not synthesize obliques, and asking for `fontStyle: "italic"` on a family with no italic variant makes it *throw* — which silently broke the Principles export for weeks. The fonts are all under the SIL Open Font License; each licence sits next to the files as `public/fonts/<family>-OFL.txt`
 
 ---

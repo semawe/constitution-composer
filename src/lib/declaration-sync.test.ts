@@ -220,3 +220,52 @@ describe("verdict()", () => {
       expect(verdict(brut).statut).toBe("erreur");
   });
 });
+
+describe("une file arrêtée", () => {
+  // Le défaut relevé par l'audit du 04/10/2026 (F07) : la file d'un compte,
+  // remplacée sans être arrêtée, finissait sa boucle. Sa valeur en attente
+  // partait après le changement de session — donc sous le jeton du compte
+  // suivant, la RPC écrivant sous `auth.uid()`.
+  it("n'écrit pas la valeur en attente, et ne dit plus rien", async () => {
+    let lacher!: () => void;
+    const porte = new Promise<void>((r) => (lacher = r));
+    const ecrites: string[] = [];
+    const etats: EtatSauvegarde[] = [];
+    const ancienne = creerFileDeclaration({
+      revision: 8,
+      ecrire: async (p, r) => {
+        ecrites.push(p.raisonEtre);
+        // La première écriture reste en vol jusqu'à ce qu'on la lâche.
+        if (ecrites.length === 1) await porte;
+        return { statut: "ecrite", revision: r };
+      },
+      etat: (e) => etats.push(e),
+    });
+
+    ancienne.enfiler(declaration("A, première"));
+    await Promise.resolve();
+    ancienne.enfiler(declaration("A, en attente"));
+    // Le compte change : la file de A est arrêtée, puis sa requête en vol revient.
+    ancienne.arreter();
+    const avant = [...etats];
+    lacher();
+    await ancienne.repos();
+
+    // Seule la requête déjà partie a eu lieu : la charge en attente est jetée.
+    expect(ecrites).toEqual(["A, première"]);
+    // Et son verdict ne remonte pas à l'écran du compte suivant.
+    expect(etats).toEqual(avant);
+  });
+
+  it("refuse toute nouvelle valeur", async () => {
+    const ecrire = vi.fn(async (_p: DeclarationPayload, r: number) => ({
+      statut: "ecrite" as const,
+      revision: r,
+    }));
+    const f = creerFileDeclaration({ revision: 0, ecrire });
+    f.arreter();
+    f.enfiler(declaration("après l'arrêt"));
+    await f.repos();
+    expect(ecrire).not.toHaveBeenCalled();
+  });
+});

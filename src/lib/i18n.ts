@@ -199,7 +199,7 @@ export const COMPOSER = {
     legend: "Légende",
     legendDefaultRule: "Règle par défaut",
     versionsFailed:
-      "Vos versions n'ont pas pu être lues. Rechargez la page : ce que vous voyez à l'écran n'est pas perdu.",
+      "Vos versions n'ont pas pu être lues. Ce que vous voyez à l'écran n'est pas perdu, et votre compte n'est pas vide pour autant.",
     versionActionFailed:
       "L'opération sur cette version a échoué. Rien n'a été modifié dans votre compte.",
     // Libellés du PDF de la Constitution
@@ -272,6 +272,44 @@ export const COMPOSER = {
     bookWith: (name: string) => `Réserver avec ${name}`,
     coachingPricing:
       "Au-delà de la découverte : supervision par un coach senior, 500 €/h ou 3000 €/jour.",
+    versionsRetry: "Réessayer",
+    releaseLoadFailed: (date: string) =>
+      `La Constitution du ${date}, avec laquelle cette version a été composée, n'a pas pu être chargée. Vérifiez votre connexion, puis rouvrez la version.`,
+    releaseRejoinAction: "Poursuivre sur la Constitution d'aujourd'hui",
+    moduleActivated: (label: string) =>
+      `« ${label} » est activé dans votre Constitution.`,
+    moduleAlreadyActive: (label: string) =>
+      `« ${label} » est déjà activé dans votre Constitution.`,
+    emailLabel: "Votre adresse e-mail",
+    emailSending: "Envoi...",
+    emailFailed:
+      "Le lien n'a pas pu être envoyé. Vérifiez l'adresse, patientez une minute, puis réessayez.",
+    googleFailed:
+      "La connexion avec Google n'a pas pu démarrer. Réessayez, ou demandez un lien par e-mail.",
+    companyFailed:
+      "Votre organisation n'a pas pu être enregistrée. Réessayez, ou choisissez « Plus tard ».",
+    valuesAdd: "Ajouter vos valeurs et principes",
+    valuesCount: (n: number) => `${n}/4 paragraphes`,
+    valuesPlaceholder:
+      "Exprimez les valeurs et principes propres à votre organisation. Restez bref : 4 paragraphes maximum. Séparez les paragraphes par une ligne vide.",
+    valuesTip:
+      "Conseil : restez sous 4 paragraphes pour garder le préambule lisible.",
+    notCovered: "Ce tier ne couvre pas :",
+    notCoveredHint: "Activez-les pour voir ce contenu.",
+    coachSectionTitle: "Aller plus loin avec un coach",
+    coachSectionBody:
+      "Composer, c'est un début. Faites relire et co-construire votre Constitution avec un coach certifié en Holacracy.",
+    coachSectionFree: "20 minutes de découverte offertes",
+    coachSectionFreeRest: "à la création de votre compte.",
+    coachSectionPaid: "Supervision par un coach senior :",
+    coachSectionRates: ["500 €/h", "ou", "3000 €/jour"],
+    coachSectionCta: "Réserver mes 20 minutes offertes",
+    logoAlt: "Logo de l'organisation",
+    fontAria: "Police du document",
+    colorAria: "Couleur du titre",
+    requiredBy: (labels: string) => `Requis par : ${labels}`,
+    alsoActivates: (labels: string) => `Active aussi : ${labels}`,
+    defaultRuleShort: (label: string) => `Règle par défaut : ${label}`,
     dateLocale: "fr-FR",
   },
   en: {
@@ -344,7 +382,7 @@ export const COMPOSER = {
     legend: "Legend",
     legendDefaultRule: "Default rule",
     versionsFailed:
-      "Your saved versions could not be read. Reload the page: what you see on screen is not lost.",
+      "Your saved versions could not be read. What you see on screen is not lost, and this does not mean your account is empty.",
     versionActionFailed:
       "That version operation failed. Nothing was changed in your account.",
     // Constitution PDF labels
@@ -408,6 +446,44 @@ export const COMPOSER = {
     bookWith: (name: string) => `Book with ${name}`,
     coachingPricing:
       "Beyond onboarding: senior coach supervision, 500 €/h or 3 000 €/day.",
+    versionsRetry: "Try again",
+    releaseLoadFailed: (date: string) =>
+      `The Constitution of ${date}, which this version was composed with, could not be loaded. Check your connection, then open the version again.`,
+    releaseRejoinAction: "Continue on today's Constitution",
+    moduleActivated: (label: string) =>
+      `“${label}” is now active in your Constitution.`,
+    moduleAlreadyActive: (label: string) =>
+      `“${label}” is already active in your Constitution.`,
+    emailLabel: "Your email address",
+    emailSending: "Sending...",
+    emailFailed:
+      "The link could not be sent. Check the address, wait a minute, then try again.",
+    googleFailed:
+      "Sign-in with Google could not start. Try again, or request a link by email.",
+    companyFailed:
+      "Your organization could not be saved. Try again, or choose “Later”.",
+    valuesAdd: "Add your values and principles",
+    valuesCount: (n: number) => `${n}/4 paragraphs`,
+    valuesPlaceholder:
+      "State the values and principles specific to your organization. Keep it short: 4 paragraphs at most. Separate paragraphs with a blank line.",
+    valuesTip:
+      "Tip: stay under 4 paragraphs to keep the preamble readable.",
+    notCovered: "Not covered by this tier:",
+    notCoveredHint: "Activate them to see this content.",
+    coachSectionTitle: "Go further with a coach",
+    coachSectionBody:
+      "Composing is a start. Have your Constitution reviewed and co-designed with a certified Holacracy coach.",
+    coachSectionFree: "A complimentary 20-minute discovery session",
+    coachSectionFreeRest: "when you create your account.",
+    coachSectionPaid: "Senior coach supervision:",
+    coachSectionRates: ["500 €/h", "or", "3 000 €/day"],
+    coachSectionCta: "Book my complimentary 20 minutes",
+    logoAlt: "Organization logo",
+    fontAria: "Document font",
+    colorAria: "Title color",
+    requiredBy: (labels: string) => `Required by: ${labels}`,
+    alsoActivates: (labels: string) => `Also activates: ${labels}`,
+    defaultRuleShort: (label: string) => `Default rule: ${label}`,
     dateLocale: "en-GB",
   },
 };
@@ -462,7 +538,7 @@ export const MARKETPLACE = {
     subtitle:
       "Constitutional extensions and apps to plug into your Constitution. Catalogue in progress, more coming.",
     requires: "Requires:",
-    discover: "Learn more",
+    discover: "Learn more (in French)",
     activate: "Activate →",
     sectionExtensions: "Constitutional extensions",
     sectionExtensionsDesc:
@@ -558,6 +634,14 @@ export const PRINCIPES_UI = {
       "Elle a été rédigée avant votre connexion, sur ce navigateur. Voulez-vous l'enregistrer dans votre compte, ou repartir d'une Déclaration vierge ?",
     attachKeep: "Enregistrer dans mon compte",
     attachReset: "Repartir de zéro",
+    recoverTitle:
+      "Des modifications de votre Déclaration n'ont pas été enregistrées dans votre compte.",
+    recoverBody:
+      "Elles sont restées sur ce navigateur. Voulez-vous les reprendre, ou garder la Déclaration telle qu'elle est dans votre compte ?",
+    recoverNewer:
+      "Votre compte a été modifié depuis, dans un autre onglet ou sur un autre appareil : reprendre vos modifications remplacera cette version plus récente.",
+    recoverLocal: "Reprendre mes modifications",
+    recoverAccount: "Garder la version de mon compte",
     gateTitle: "Téléchargez votre Déclaration",
     gateDesc:
       "Le PDF signable de votre Déclaration de Principes est réservé aux membres, la création de compte est gratuite.",
@@ -625,6 +709,14 @@ export const PRINCIPES_UI = {
       "It was drafted before you signed in, on this browser. Would you like to save it to your account, or start from a blank Declaration?",
     attachKeep: "Save to my account",
     attachReset: "Start over",
+    recoverTitle:
+      "Some changes to your Declaration were not saved to your account.",
+    recoverBody:
+      "They are still on this browser. Do you want to restore them, or keep the Declaration as it is in your account?",
+    recoverNewer:
+      "Your account has been changed since, in another tab or on another device: restoring your changes will replace that more recent version.",
+    recoverLocal: "Restore my changes",
+    recoverAccount: "Keep my account's version",
     gateTitle: "Download your Declaration",
     gateDesc:
       "The signable PDF of your Declaration of Principles is for members only, account creation is free.",

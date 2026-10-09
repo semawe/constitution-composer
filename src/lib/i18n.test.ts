@@ -95,3 +95,92 @@ describe("données bilingues : structures alignées", () => {
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// La langue du document, et les libellés que les dictionnaires ne voyaient pas.
+// La parité des clés ne dit rien d'un texte écrit en dur dans un composant, ni
+// de la langue que la page déclare : l'audit du 04/10/2026 (F15) a trouvé les
+// pages anglaises annoncées `lang="fr"`, et du français dans leur document.
+// ---------------------------------------------------------------------------
+
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+function fichiers(dossier: string): string[] {
+  return readdirSync(dossier).flatMap((nom) => {
+    const chemin = join(dossier, nom);
+    return statSync(chemin).isDirectory() ? fichiers(chemin) : [chemin];
+  });
+}
+
+describe("langue déclarée par les pages", () => {
+  const racine = (groupe: string) =>
+    readFileSync(join("src/app", groupe, "layout.tsx"), "utf8");
+
+  it("chaque langue a son layout racine, et il déclare la sienne", () => {
+    expect(racine("(fr)")).toMatch(/<html\s+lang="fr"/);
+    expect(racine("(en)")).toMatch(/<html\s+lang="en"/);
+  });
+
+  it("toutes les pages anglaises vivent sous la racine anglaise", () => {
+    // Une page `/en/…` posée ailleurs hériterait d'une autre racine, donc d'une
+    // autre langue : c'est le défaut d'origine.
+    const pages = fichiers("src/app").filter((f) => f.endsWith("page.tsx"));
+    const anglaises = pages.filter((f) => /[\\/]en[\\/]/.test(f));
+    expect(anglaises.length).toBeGreaterThan(0);
+    for (const page of anglaises)
+      expect(page, `${page} : hors de la racine anglaise`).toContain("(en)");
+    for (const page of pages.filter((f) => f.includes("(en)")))
+      expect(page, `${page} : page non anglaise sous la racine anglaise`).toMatch(
+        /[\\/]en[\\/]/,
+      );
+  });
+});
+
+describe("aucun libellé français écrit en dur dans le document composé", () => {
+  // Les composants que les deux langues partagent, sur le chemin du document.
+  // Un texte visible y passe par un dictionnaire ; écrit en dur, il sort en
+  // français dans l'interface anglaise.
+  //
+  // La garde est une heuristique, et elle le dit : elle reconnaît une phrase
+  // française à ses accents et à ses apostrophes. Une phrase sans accent lui
+  // échappe ; la relecture des pages `/en` rendues reste nécessaire.
+  const PARTAGES = [
+    "src/components/composer/ComposerDocument.tsx",
+    "src/components/composer/ComposerEntete.tsx",
+    "src/components/composer/ComposerIdentite.tsx",
+    "src/components/composer/ComposerPanel.tsx",
+    "src/components/composer/ComposerModales.tsx",
+    "src/components/composer/pieces.tsx",
+    "src/components/compte/ConnexionChoix.tsx",
+    "src/components/VersionDoc.tsx",
+  ];
+
+  /** Le source sans ses commentaires, qui sont en français par convention. */
+  const sansCommentaires = (source: string) =>
+    source
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "")
+      .replace(/\s\/\/ .*$/gm, "");
+
+  it.each(PARTAGES)("%s", (chemin) => {
+    const source = sansCommentaires(readFileSync(chemin, "utf8"));
+    // Texte de balise, attribut lisible ou gabarit portant une lettre accentuée
+    // ou une apostrophe typée : la signature d'une phrase française.
+    const suspects = [
+      ...source.matchAll(/>([^<>{}]*[àâçéèêëîïôùûœ][^<>{}]*)</gi),
+      ...source.matchAll(
+        /(?:alt|title|placeholder|aria-label)="([^"]*[a-zà-ÿ]{3,}[^"]*)"/gi,
+      ),
+      // Gabarits d'une seule ligne : ceux qui courent sur plusieurs sont des
+      // listes de classes, pas des phrases.
+      ...source.matchAll(/`([^`\n]*[àâçéèêëîïôùûœ][^`\n]*)`/gi),
+      ...source.matchAll(/&apos;/g),
+    ]
+      .map((m) => (m[1] ?? m[0]).trim())
+      // Un nom propre n'est pas un libellé.
+      .filter((texte) => texte !== "Sémawé");
+    expect(suspects).toEqual([]);
+  });
+});

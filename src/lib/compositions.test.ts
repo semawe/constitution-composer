@@ -8,7 +8,8 @@
 // il mérite sa garde.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CURRENT_RELEASE, releaseSha } from "./releases";
+import { ARCHIVED_RELEASES } from "../data/releases";
+import { CURRENT_RELEASE, currentContentRef, releaseSha } from "./releases";
 
 /** Un localStorage minimal : node n'en a pas, et vitest tourne en node ici. */
 function installerLocalStorage() {
@@ -42,7 +43,7 @@ describe("sauvegarde d'une composition (repli local)", () => {
 
   it("estampille la release courante, sans que l'appelant ait à y penser", async () => {
     const { saveComposition } = await import("./compositions");
-    const ligne = await saveComposition("Ma version", charge(), "fr");
+    const ligne = await saveComposition("Ma version", charge(), currentContentRef("fr"));
     expect(ligne.payload.schemaVersion).toBe(2);
     expect(ligne.payload.content).toEqual({
       locale: "fr",
@@ -54,9 +55,45 @@ describe("sauvegarde d'une composition (repli local)", () => {
     });
   });
 
+  it("garde la référence du document affiché, release et langue, même anciennes", async () => {
+    // Le défaut de l'audit du 04/10/2026 (F01) : enregistrer une version relue
+    // sur une release ancienne la rattachait au texte du jour, et une
+    // composition anglaise ouverte depuis la route française devenait française.
+    // Enregistrer n'est pas migrer : la référence est celle qu'on lui donne.
+    const { saveComposition } = await import("./compositions");
+    const ancienne = ARCHIVED_RELEASES[0];
+    const affichee = {
+      locale: "en" as const,
+      release: ancienne.id,
+      sha256: ancienne.sha256["constitution.en.json"],
+    };
+    const ligne = await saveComposition("Relue", charge(), affichee);
+    expect(ligne.payload.content).toEqual({ ...affichee, kind: "constitution" });
+  });
+
+  it("refuse une référence que l'archive ne sait pas relire", async () => {
+    // La frontière ne croit pas l'appelant sur parole : une release inconnue,
+    // ou une empreinte qui n'est pas celle de l'archive, ne s'inscrit pas.
+    const { saveComposition, listCompositions } = await import("./compositions");
+    await expect(
+      saveComposition("Inconnue", charge(), {
+        locale: "fr",
+        release: "1999-01-01",
+        sha256: "0".repeat(64),
+      }),
+    ).rejects.toThrow("REFERENCE");
+    await expect(
+      saveComposition("Altérée", charge(), {
+        ...currentContentRef("fr"),
+        sha256: "0".repeat(64),
+      }),
+    ).rejects.toThrow("REFERENCE");
+    expect(await listCompositions()).toHaveLength(0);
+  });
+
   it("estampille la langue demandée, pas une langue par défaut", async () => {
     const { saveComposition } = await import("./compositions");
-    const ligne = await saveComposition("My version", charge(), "en");
+    const ligne = await saveComposition("My version", charge(), currentContentRef("en"));
     expect(ligne.payload.content?.locale).toBe("en");
     expect(ligne.payload.content?.sha256).toBe(releaseSha(CURRENT_RELEASE, "en"));
   });
@@ -70,7 +107,7 @@ describe("sauvegarde d'une composition (repli local)", () => {
         schemaVersion: 2,
         content: { locale: "fr", release: "1999-01-01", sha256: "0".repeat(64) },
       },
-      "fr",
+      currentContentRef("fr"),
     );
     expect(ligne.payload.content?.release).toBe(CURRENT_RELEASE);
   });
@@ -78,10 +115,10 @@ describe("sauvegarde d'une composition (repli local)", () => {
   it("refuse au-delà du plafond de cinq versions", async () => {
     const { saveComposition, MAX_COMPOSITIONS } = await import("./compositions");
     for (let i = 0; i < MAX_COMPOSITIONS; i++)
-      await saveComposition(`v${i}`, charge(), "fr");
-    await expect(saveComposition("une de trop", charge(), "fr")).rejects.toThrow(
-      "LIMIT",
-    );
+      await saveComposition(`v${i}`, charge(), currentContentRef("fr"));
+    await expect(
+      saveComposition("une de trop", charge(), currentContentRef("fr")),
+    ).rejects.toThrow("LIMIT");
   });
 
   it("rejouer une version en crée une autre, et laisse l'originale intacte", async () => {
@@ -91,7 +128,11 @@ describe("sauvegarde d'une composition (repli local)", () => {
     const { saveComposition, migrateComposition, listCompositions } = await import(
       "./compositions"
     );
-    const ancienne = await saveComposition("Notre Constitution", charge(), "fr");
+    const ancienne = await saveComposition(
+      "Notre Constitution",
+      charge(),
+      currentContentRef("fr"),
+    );
     // On la ramène à une release antérieure, comme le serait une version de l'an
     // dernier ouverte aujourd'hui. Écrit dans le magasin plutôt que par une
     // trappe exportée : le code de production n'a pas à porter de porte de test.
@@ -124,7 +165,7 @@ describe("sauvegarde d'une composition (repli local)", () => {
     const { saveComposition, migrateComposition, listCompositions, MAX_COMPOSITIONS } =
       await import("./compositions");
     for (let i = 0; i < MAX_COMPOSITIONS; i++)
-      await saveComposition(`v${i}`, charge(), "fr");
+      await saveComposition(`v${i}`, charge(), currentContentRef("fr"));
     const source = (await listCompositions())[0];
     await expect(
       migrateComposition(source, "une de trop", "fr"),
@@ -141,7 +182,7 @@ describe("sauvegarde d'une composition (repli local)", () => {
     const { saveComposition, repinComposition, listCompositions, MAX_COMPOSITIONS } =
       await import("./compositions");
     for (let i = 0; i < MAX_COMPOSITIONS; i++)
-      await saveComposition(`v${i}`, charge(), "fr");
+      await saveComposition(`v${i}`, charge(), currentContentRef("fr"));
     const rows = await listCompositions();
     const cible = rows[0];
     // On simule une version d'avant l'archivage : aucune référence de contenu.

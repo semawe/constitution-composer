@@ -3,7 +3,7 @@ import { compose, type ConstitutionData } from "@/lib/constitution";
 import { fontVars } from "@/lib/branding";
 import { SiteNav, SiteFooter } from "@/components/SiteChrome";
 import Prose from "@/components/Prose";
-import { type Locale, UI } from "@/lib/i18n";
+import { COMPOSER, type Locale, UI } from "@/lib/i18n";
 import { REPO_V6_URL, v5Href } from "@/lib/links";
 
 // Rendu Markdown léger partagé avec le Composer (gras + listes).
@@ -87,11 +87,11 @@ export default function VersionDoc({
                 {it.kind !== "block" && it.moduleLabel && (
                   <p className="mb-1 text-[0.7rem] uppercase tracking-wide text-muted">
                     {it.warning
-                      ? `Règle par défaut : ${it.moduleLabel}`
+                      ? COMPOSER[locale].defaultRuleShort(it.moduleLabel)
                       : it.moduleLabel}
                   </p>
                 )}
-                <Prose text={it.text} keyBase={it.key} />
+                <Prose text={it.text} keyBase={it.key} locale={locale} />
               </div>
             </section>
           ))}

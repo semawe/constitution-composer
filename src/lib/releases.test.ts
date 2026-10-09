@@ -14,7 +14,7 @@ import {
   resolvePrincipes,
   shortSha,
 } from "./releases";
-import { ARCHIVED_RELEASES } from "../data/releases";
+import { ARCHIVED_FILES, ARCHIVED_RELEASES } from "../data/releases";
 import { type ConstitutionData, compose, defaultActive } from "./constitution";
 import frCourant from "../data/constitution.fr.json";
 
@@ -26,31 +26,44 @@ describe("archive des releases", () => {
     );
   });
 
-  it("chaque release archivée porte les deux langues et leurs empreintes", () => {
+  it("chaque release archivée porte les deux langues et leurs empreintes", async () => {
     for (const r of ARCHIVED_RELEASES) {
       for (const locale of ["fr", "en"] as const)
         for (const kind of ["constitution", "principes"] as const) {
-          expect(r[kind][locale], `${r.id} ${kind} ${locale} : fond absent`).toBeTruthy();
+          const nom = `${kind}.${locale}.json`;
           expect(
-            r.sha256[`${kind}.${locale}.json`],
+            await ARCHIVED_FILES[r.id]?.[nom]?.(),
+            `${r.id} ${kind} ${locale} : fond absent`,
+          ).toBeTruthy();
+          expect(
+            r.sha256[nom],
             `${r.id} ${kind}.${locale} : empreinte absente`,
           ).toMatch(/^[0-9a-f]{64}$/);
         }
     }
   });
 
-  it("la release courante est le fond que l'application sert", () => {
+  it("la release courante est le fond que l'application sert", async () => {
     // Si ces deux-là divergent, une composition sauvegardée aujourd'hui serait
     // estampillée d'une release qui ne décrit pas ce qu'elle contient.
     // `npm run release:check` garde la même invariante sur les octets.
-    const courant = ARCHIVED_RELEASES[ARCHIVED_RELEASES.length - 1].constitution
-      .fr as unknown as ConstitutionData;
+    const courant = (await ARCHIVED_FILES[CURRENT_RELEASE][
+      "constitution.fr.json"
+    ]()) as ConstitutionData;
     expect(courant.blocks.map((b) => b.id)).toEqual(
       frCourant.blocks.map((b) => b.id),
     );
     expect(courant.modules.map((m) => m.id)).toEqual(
       frCourant.modules.map((m) => m.id),
     );
+  });
+
+  it("le manifeste ne porte aucun texte : les fonds ne descendent qu'à la demande", () => {
+    // Le coût que l'audit du 04/10/2026 a mesuré (F12) : douze fonds importés
+    // d'office à l'ouverture du Composer. Le manifeste ne garde que de quoi
+    // décider — identifiant et empreintes.
+    for (const r of ARCHIVED_RELEASES)
+      expect(Object.keys(r).sort()).toEqual(["id", "sha256"]);
   });
 });
 
@@ -60,8 +73,8 @@ describe("resolveContent", () => {
     ...over,
   });
 
-  it("résout une release archivée dont l'empreinte correspond", () => {
-    const r = resolveContent(ref());
+  it("résout une release archivée dont l'empreinte correspond", async () => {
+    const r = await resolveContent(ref());
     expect(r.statut).toBe("resolue");
     if (r.statut === "resolue") {
       expect(r.release).toBe(CURRENT_RELEASE);
@@ -69,33 +82,33 @@ describe("resolveContent", () => {
     }
   });
 
-  it("sans référence, dit « non figée » plutôt que de garantir quoi que ce soit", () => {
-    expect(resolveContent(undefined).statut).toBe("non-figee");
-    expect(resolveContent(null).statut).toBe("non-figee");
-    expect(resolveContent(ref({ release: "" })).statut).toBe("non-figee");
+  it("sans référence, dit « non figée » plutôt que de garantir quoi que ce soit", async () => {
+    expect((await resolveContent(undefined)).statut).toBe("non-figee");
+    expect((await resolveContent(null)).statut).toBe("non-figee");
+    expect((await resolveContent(ref({ release: "" }))).statut).toBe("non-figee");
   });
 
-  it("refuse une release absente de l'archive, sans repli sur le fond courant", () => {
-    const r = resolveContent(ref({ release: "1999-01-01" }));
+  it("refuse une release absente de l'archive, sans repli sur le fond courant", async () => {
+    const r = await resolveContent(ref({ release: "1999-01-01" }));
     expect(r.statut).toBe("release-absente");
     expect(r).not.toHaveProperty("data");
   });
 
-  it("refuse une empreinte qui ne correspond pas à l'archive", () => {
-    const r = resolveContent(ref({ sha256: "0".repeat(64) }));
+  it("refuse une empreinte qui ne correspond pas à l'archive", async () => {
+    const r = await resolveContent(ref({ sha256: "0".repeat(64) }));
     expect(r.statut).toBe("empreinte-divergente");
     expect(r).not.toHaveProperty("data");
   });
 
-  it("tolère une référence sans empreinte, mais jamais une empreinte fausse", () => {
+  it("tolère une référence sans empreinte, mais jamais une empreinte fausse", async () => {
     // Cas d'un payload écrit par une version antérieure du format : la release
     // suffit à retrouver le texte, l'empreinte n'y était pas encore.
-    expect(resolveContent(ref({ sha256: "" })).statut).toBe("resolue");
+    expect((await resolveContent(ref({ sha256: "" }))).statut).toBe("resolue");
   });
 
-  it("chaque langue résout son propre fond", () => {
-    const fr = resolveContent(currentContentRef("fr"));
-    const en = resolveContent(currentContentRef("en"));
+  it("chaque langue résout son propre fond", async () => {
+    const fr = await resolveContent(currentContentRef("fr"));
+    const en = await resolveContent(currentContentRef("en"));
     expect(fr.statut).toBe("resolue");
     expect(en.statut).toBe("resolue");
     if (fr.statut === "resolue" && en.statut === "resolue")
@@ -104,40 +117,40 @@ describe("resolveContent", () => {
 });
 
 describe("resolvePrincipes", () => {
-  it("résout les Principes de la release courante", () => {
-    const r = resolvePrincipes(currentContentRef("fr", "principes"));
+  it("résout les Principes de la release courante", async () => {
+    const r = await resolvePrincipes(currentContentRef("fr", "principes"));
     expect(r.statut).toBe("resolue");
     if (r.statut === "resolue") expect(r.data.principles.length).toBeGreaterThan(5);
   });
 
-  it("refuse une release absente et une empreinte divergente", () => {
+  it("refuse une release absente et une empreinte divergente", async () => {
     const ref = currentContentRef("fr", "principes");
-    expect(resolvePrincipes({ ...ref, release: "1999-01-01" }).statut).toBe(
+    expect((await resolvePrincipes({ ...ref, release: "1999-01-01" })).statut).toBe(
       "release-absente",
     );
-    expect(resolvePrincipes({ ...ref, sha256: "0".repeat(64) }).statut).toBe(
+    expect((await resolvePrincipes({ ...ref, sha256: "0".repeat(64) })).statut).toBe(
       "empreinte-divergente",
     );
   });
 
-  it("ne confond pas les deux fonds d'une même release", () => {
+  it("ne confond pas les deux fonds d'une même release", async () => {
     // Une référence de Constitution passée au résolveur des Principes ne doit
     // pas rendre les Principes : ce serait servir un document pour un autre.
     const constitution = currentContentRef("fr", "constitution");
-    expect(resolvePrincipes(constitution).statut).toBe("non-figee");
+    expect((await resolvePrincipes(constitution)).statut).toBe("non-figee");
     const principes = currentContentRef("fr", "principes");
-    expect(resolveContent(principes).statut).toBe("non-figee");
+    expect((await resolveContent(principes)).statut).toBe("non-figee");
     // Et leurs empreintes diffèrent : ce ne sont pas les mêmes fichiers.
     expect(constitution.sha256).not.toBe(principes.sha256);
   });
 
-  it("une référence d'avant le genre est lue comme une Constitution", () => {
+  it("une référence d'avant le genre est lue comme une Constitution", async () => {
     // Les premières références n'avaient pas de `kind` : elles ne parlaient que
     // de la Constitution, et doivent continuer à se résoudre ainsi.
     const { kind: _k, ...sansGenre } = currentContentRef("fr", "constitution");
     void _k;
-    expect(resolveContent(sansGenre).statut).toBe("resolue");
-    expect(resolvePrincipes(sansGenre).statut).toBe("non-figee");
+    expect((await resolveContent(sansGenre)).statut).toBe("resolue");
+    expect((await resolvePrincipes(sansGenre)).statut).toBe("non-figee");
   });
 });
 
@@ -173,12 +186,12 @@ describe("état d'une référence", () => {
 });
 
 describe("ce que l'immuabilité protège", () => {
-  it("une retouche du fond courant ne change pas ce qu'une version figée rend", () => {
+  it("une retouche du fond courant ne change pas ce qu'une version figée rend", async () => {
     // L'épreuve du chantier : c'est exactement le défaut d'origine. On compose
     // depuis la release archivée, on réécrit le fond **courant** sous les pieds,
     // et le document rendu doit être identique — sinon l'archive n'archive rien.
     const ref = currentContentRef("fr");
-    const premier = resolveContent(ref);
+    const premier = await resolveContent(ref);
     if (premier.statut !== "resolue") throw new Error("release non résolue");
     const avant = JSON.stringify(compose(premier.data, defaultActive(premier.data)));
 
@@ -186,7 +199,7 @@ describe("ce que l'immuabilité protège", () => {
     const memoire = courant.blocks[1].text;
     courant.blocks[1].text = "Texte réécrit après coup par une nouvelle release.";
     try {
-      const second = resolveContent(ref);
+      const second = await resolveContent(ref);
       if (second.statut !== "resolue") throw new Error("release non résolue");
       expect(
         JSON.stringify(compose(second.data, defaultActive(second.data))),
@@ -199,8 +212,8 @@ describe("ce que l'immuabilité protège", () => {
     }
   });
 
-  it("le fond résolu compose un document complet, comme le fond courant", () => {
-    const r = resolveContent(currentContentRef("fr"));
+  it("le fond résolu compose un document complet, comme le fond courant", async () => {
+    const r = await resolveContent(currentContentRef("fr"));
     if (r.statut !== "resolue") throw new Error("release courante non résolue");
     const items = compose(r.data, defaultActive(r.data));
     expect(items.filter((i) => i.kind === "block")).toHaveLength(
@@ -209,9 +222,9 @@ describe("ce que l'immuabilité protège", () => {
     expect(items.length).toBeGreaterThan(r.data.blocks.length);
   });
 
-  it("deux résolutions de la même référence rendent le même texte", () => {
-    const a = resolveContent(currentContentRef("fr"));
-    const b = resolveContent(currentContentRef("fr"));
+  it("deux résolutions de la même référence rendent le même texte", async () => {
+    const a = await resolveContent(currentContentRef("fr"));
+    const b = await resolveContent(currentContentRef("fr"));
     if (a.statut !== "resolue" || b.statut !== "resolue")
       throw new Error("release courante non résolue");
     expect(JSON.stringify(compose(a.data, defaultActive(a.data)))).toBe(

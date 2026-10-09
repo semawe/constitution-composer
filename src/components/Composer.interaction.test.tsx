@@ -8,7 +8,7 @@
 // disparu, figer, rejouer.
 //
 // Le montage se fait sans Supabase (aucune clé dans l'environnement de test) :
-// `getSupabase()` rend null, le compte est celui du repli local, et les versions
+// `getService()` rend null, le compte est celui du repli local, et les versions
 // vivent dans `localStorage`. C'est exactement le chemin qu'emprunte le
 // développement sans clés, et il suffit à conduire l'interface.
 

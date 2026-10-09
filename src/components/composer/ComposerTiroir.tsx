@@ -1,5 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import { motion } from "framer-motion";
+import { useDialogue } from "@/components/Modale";
 
 // Le tiroir du panneau sur petit écran. Sorti de `Composer.tsx` (tâche #1057) :
 // c'est une pièce d'interface, elle ne décide rien.
@@ -21,30 +22,63 @@ import { motion } from "framer-motion";
 // pas le risque de rester coincé, et c'est sur un tiroir plein écran que rester
 // coincé coûte le plus cher. L'entrée reste animée — si elle s'interrompt, le
 // tiroir est simplement à mi-course, et il se ferme toujours.
+//
+// Le tiroir est une boîte modale : il couvre la page d'un voile. Il en porte donc
+// le contrat — rôle, focus qui entre et tourne dans le panneau, Échap, fond figé,
+// focus rendu au bouton qui l'a ouvert (audit du 04/10/2026, F17). Le contrat vit
+// dans `useDialogue`, partagé avec `Modale`.
 export function ComposerTiroir({
   ouvert,
   onClose,
   fermer,
+  nom,
   children,
 }: {
   ouvert: boolean;
   onClose: () => void;
   /** Libellé du bouton de fermeture. */
   fermer: string;
+  /** Nom du panneau, annoncé à l'ouverture. */
+  nom: string;
   children: ReactNode;
 }) {
   if (!ouvert) return null;
   return (
+    <Panneau onClose={onClose} fermer={fermer} nom={nom}>
+      {children}
+    </Panneau>
+  );
+}
+
+function Panneau({
+  onClose,
+  fermer,
+  nom,
+  children,
+}: {
+  onClose: () => void;
+  fermer: string;
+  nom: string;
+  children: ReactNode;
+}) {
+  const boite = useRef<HTMLElement>(null);
+  useDialogue(boite, onClose, { figerLeFond: true });
+  return (
     <div className="fixed inset-0 z-40 lg:hidden">
       <div
         onClick={onClose}
+        aria-hidden
         className="absolute inset-0 bg-slate-900/30"
       />
       <motion.aside
+        ref={boite}
+        role="dialog"
+        aria-modal="true"
+        aria-label={nom}
         initial={{ x: "-100%" }}
         animate={{ x: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 32 }}
-        className="absolute left-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto bg-background p-5 shadow-xl"
+        className="absolute left-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto overscroll-contain bg-background p-5 shadow-xl"
       >
         <div className="mb-2 flex justify-end">
           <button

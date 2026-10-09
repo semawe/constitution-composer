@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Composer from "@/components/Composer";
 import type { PrincipesData } from "@/lib/principes-data";
@@ -24,10 +24,31 @@ const Marketplace = dynamic(() => import("@/components/Marketplace"), {
   ssr: false,
 });
 import type { ConstitutionData } from "@/lib/constitution";
-import { getSupabase } from "@/lib/supabase";
+import { type Compte, getService } from "@/lib/service";
 import { APP_UI, type Locale } from "@/lib/i18n";
+import { reprendreVue } from "@/lib/intention";
 
 const LS_BRANDING = "cc-branding";
+
+type Vue = "constitution" | "principes" | "glossaire" | "appstore";
+const VUES: readonly Vue[] = ["constitution", "principes", "glossaire", "appstore"];
+const estVue = (v: string | null): v is Vue =>
+  v !== null && (VUES as readonly string[]).includes(v);
+
+/** L'onglet que l'URL désigne (`?vue=…`), ou null si elle n'en dit rien. */
+function vueDeLUrl(): Vue | null {
+  const v = new URLSearchParams(window.location.search).get("vue");
+  return estVue(v) ? v : null;
+}
+
+/** L'URL de la page pour cet onglet : la Constitution est l'onglet sans paramètre. */
+function urlDeLaVue(vue: Vue): string {
+  const params = new URLSearchParams(window.location.search);
+  if (vue === "constitution") params.delete("vue");
+  else params.set("vue", vue);
+  const q = params.toString();
+  return window.location.pathname + (q ? `?${q}` : "") + window.location.hash;
+}
 
 function tabClass(active: boolean) {
   return `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition ${
@@ -48,54 +69,116 @@ export default function App({
   // Un onglet ouvert une fois reste monté : le rouvrir ne doit pas relire le
   // brouillon ni relancer ses requêtes à chaque aller-retour.
   const [vus, setVus] = useState<Set<string>>(new Set(["constitution"]));
-  const [view, setViewBrut] = useState<
-    "constitution" | "principes" | "glossaire" | "appstore"
-  >("constitution");
+  const [view, setViewBrut] = useState<Vue>("constitution");
   const [glossaryOrigin, setGlossaryOrigin] = useState<{
     view: "constitution" | "principes";
     scrollY: number;
   } | null>(null);
+  /** Affiche un onglet, sans toucher à l'historique. */
+  const montrer = useCallback((v: Vue) => {
+    setVus((s) => (s.has(v) ? s : new Set(s).add(v)));
+    setViewBrut(v);
+  }, []);
+  // L'onglet vit dans l'URL. Il n'était qu'en mémoire : actualiser la
+  // Déclaration, suivre un lien direct ou revenir en arrière ramenait toujours à
+  // la Constitution (audit du 04/10/2026, F14). Changer d'onglet pousse une
+  // entrée d'historique, pour que Précédent et Suivant fassent ce qu'on attend.
   const setView = useCallback(
-    (v: "constitution" | "principes" | "glossaire" | "appstore") => {
-      setVus((s) => (s.has(v) ? s : new Set(s).add(v)));
-      setViewBrut(v);
+    (v: Vue) => {
+      montrer(v);
+      const url = urlDeLaVue(v);
+      const actuelle =
+        window.location.pathname + window.location.search + window.location.hash;
+      if (url !== actuelle) window.history.pushState(null, "", url);
     },
-    [],
+    [montrer],
   );
 
-  const openInComposer = (anchor: string) => {
-    setView("constitution");
-    setTimeout(() => {
-      document
-        .getElementById(anchor)
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 60);
-  };
+  // Un module à activer dans le Composer, demandé par l'App Store ou par la
+  // fiche d'une app (`?activer=<id>`).
+  const [demande, setDemande] = useState<{ module: string; n: number } | null>(
+    null,
+  );
+  const compteurDemandes = useRef(0);
+  const activerDansComposer = useCallback(
+    (id: string) => {
+      setView("constitution");
+      compteurDemandes.current += 1;
+      setDemande({ module: id, n: compteurDemandes.current });
+    },
+    [setView],
+  );
+
+  // L'URL est lue après le montage : la page est exportée en statique, donc
+  // prérendue sans elle, et la lire pendant le rendu ferait diverger le premier
+  // rendu client de l'HTML servi.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const aActiver = params.get("activer");
+    if (aActiver) {
+      // Consommé une fois : un rechargement ne doit pas réactiver un module
+      // que la personne aurait retiré entre-temps.
+      params.delete("activer");
+      params.delete("vue");
+      const q = params.toString();
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + (q ? `?${q}` : "") + window.location.hash,
+      );
+      compteurDemandes.current += 1;
+      setDemande({ module: aActiver, n: compteurDemandes.current });
+    } else {
+      // À défaut d'onglet dans l'URL, celui d'où une connexion est partie.
+      const retenue = reprendreVue();
+      const vue = vueDeLUrl() ?? (estVue(retenue) ? retenue : null);
+      if (vue && vue !== "constitution") {
+        montrer(vue);
+        window.history.replaceState(null, "", urlDeLaVue(vue));
+      }
+    }
+    const surHistorique = () => montrer(vueDeLUrl() ?? "constitution");
+    window.addEventListener("popstate", surHistorique);
+    return () => window.removeEventListener("popstate", surHistorique);
+  }, [montrer]);
+
+  // La navigation dit sa hauteur à ce qui se cale dessous. Elle tient sur une
+  // rangée à partir de 640 px et sur deux en dessous, et grandit avec la taille
+  // du texte : une valeur en dur finit toujours par mentir.
+  const racine = useRef<HTMLDivElement>(null);
+  const navigation = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const nav = navigation.current;
+    if (!nav) return;
+    const poser = () =>
+      racine.current?.style.setProperty(
+        "--cc-nav-h",
+        `${nav.getBoundingClientRect().height}px`,
+      );
+    poser();
+    const observateur = new ResizeObserver(poser);
+    observateur.observe(nav);
+    // L'observateur ne tire que lorsque la page est peinte ; l'événement de
+    // redimensionnement couvre l'onglet resté en arrière-plan pendant qu'on
+    // changeait la taille de la fenêtre.
+    window.addEventListener("resize", poser);
+    return () => {
+      observateur.disconnect();
+      window.removeEventListener("resize", poser);
+    };
+  }, []);
 
   const [signedIn, setSignedIn] = useState(false);
   const [userName, setUserName] = useState("");
   useEffect(() => {
-    const sb = getSupabase();
-    if (!sb) return;
-    const sync = (
-      u: {
-        email?: string;
-        user_metadata?: Record<string, unknown>;
-      } | null,
-    ) => {
+    const service = getService();
+    if (!service) return;
+    const sync = (u: Compte | null) => {
       setSignedIn(!!u);
-      const name =
-        (u?.user_metadata?.given_name as string) ||
-        (u?.user_metadata?.full_name as string) ||
-        u?.email ||
-        "";
-      setUserName(name);
+      setUserName(u?.prenom || u?.nom || u?.email || "");
     };
-    sb.auth.getSession().then(({ data }) => sync(data.session?.user ?? null));
-    const { data: sub } = sb.auth.onAuthStateChange((_e, s) =>
-      sync(s?.user ?? null),
-    );
-    return () => sub.subscription.unsubscribe();
+    service.lireSession().then(sync);
+    return service.ecouterSession(sync);
   }, []);
 
   // Ouvre la connexion (modal géré dans le Composer) depuis n'importe quel
@@ -197,7 +280,7 @@ export default function App({
   const otherLangHref = locale === "en" ? "/composer" : "/en/composer";
 
   return (
-    <div>
+    <div ref={racine}>
       {/* Barre d'onglets. Sur téléphone, les quatre onglets ne tiennent pas
           dans la même rangée que le retour, le compte, la langue et le thème :
           ils prenaient 135 px de fenêtre pour 507 px de contenu, et le
@@ -205,7 +288,10 @@ export default function App({
           (`scrollLeft` ne descend pas sous zéro). Ils passent donc sur une
           seconde rangée, pleine largeur, et ne se centrent qu'à partir du
           moment où la barre les contient. */}
-      <nav className="sticky top-0 z-40 border-b border-rule bg-background/90 px-2 backdrop-blur">
+      <nav
+        ref={navigation}
+        className="sticky top-0 z-40 border-b border-rule bg-background/90 px-2 backdrop-blur"
+      >
         <div className="flex h-11 items-center">
           <Link
             href={homeHref}
@@ -258,6 +344,7 @@ export default function App({
           branding={branding}
           onTermClick={goToTerm}
           locale={locale}
+          demande={demande}
         />
       </div>
       <div className={view === "principes" ? "" : "hidden"}>
@@ -285,7 +372,7 @@ export default function App({
         {vus.has("appstore") && (
         <Marketplace
           data={constitution}
-          onOpen={openInComposer}
+          onActiver={activerDansComposer}
           locale={locale}
           signedIn={signedIn}
           onRequestSignIn={requestSignIn}

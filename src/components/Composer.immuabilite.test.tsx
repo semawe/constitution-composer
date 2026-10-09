@@ -33,31 +33,32 @@ vi.mock("@/data/releases", async () => {
   const principes = (await import("@/data/principes.fr.json")).default;
   const ancien = structuredClone(courant) as typeof courant;
   ancien.blocks[1].text = `${ancien.blocks[1].text}\n\nDisposition retirée depuis : elle n'existe que dans le texte de janvier.`;
+  const empreintes = (c: string) => ({
+    "constitution.fr.json": c.repeat(64),
+    "constitution.en.json": c.repeat(64),
+    "principes.fr.json": c.repeat(64),
+    "principes.en.json": c.repeat(64),
+  });
   return {
     ARCHIVED_RELEASES: [
-      {
-        id: "2026-01-01",
-        sha256: {
-          "constitution.fr.json": "1".repeat(64),
-          "constitution.en.json": "1".repeat(64),
-          "principes.fr.json": "1".repeat(64),
-          "principes.en.json": "1".repeat(64),
-        },
-        constitution: { fr: ancien, en: ancien },
-        principes: { fr: principes, en: principes },
-      },
-      {
-        id: "2026-08-19",
-        sha256: {
-          "constitution.fr.json": "2".repeat(64),
-          "constitution.en.json": "2".repeat(64),
-          "principes.fr.json": "2".repeat(64),
-          "principes.en.json": "2".repeat(64),
-        },
-        constitution: { fr: courant, en: anglais },
-        principes: { fr: principes, en: principes },
-      },
+      { id: "2026-01-01", sha256: empreintes("1") },
+      { id: "2026-08-19", sha256: empreintes("2") },
     ],
+    // Même forme que l'index généré : un chargeur par fichier archivé.
+    ARCHIVED_FILES: {
+      "2026-01-01": {
+        "constitution.fr.json": async () => ancien,
+        "constitution.en.json": async () => ancien,
+        "principes.fr.json": async () => principes,
+        "principes.en.json": async () => principes,
+      },
+      "2026-08-19": {
+        "constitution.fr.json": async () => courant,
+        "constitution.en.json": async () => anglais,
+        "principes.fr.json": async () => principes,
+        "principes.en.json": async () => principes,
+      },
+    },
   };
 });
 
@@ -140,19 +141,19 @@ describe("relire une version telle qu'elle a été adoptée", () => {
   it("l'archive simulée est bien celle que ce fichier décrit", async () => {
     // Garde contre une retouche d'un seul côté : la fabrique hissée ne peut pas
     // partager les constantes, donc on vérifie la concordance ici.
-    const { ARCHIVED_RELEASES } = await import("@/data/releases");
+    const { ARCHIVED_RELEASES, ARCHIVED_FILES } = await import("@/data/releases");
     expect(ARCHIVED_RELEASES.map((r) => r.id)).toEqual([
       RELEASE_ANCIENNE,
       RELEASE_COURANTE,
     ]);
     expect(ARCHIVED_RELEASES[0].sha256["constitution.fr.json"]).toBe(SHA_ANCIENNE);
     expect(ARCHIVED_RELEASES[1].sha256["constitution.fr.json"]).toBe(SHA_COURANTE);
-    expect(ARCHIVED_RELEASES[0].constitution.fr.blocks[1].text).toContain(
-      PHRASE_ANCIENNE,
-    );
-    expect(ARCHIVED_RELEASES[1].constitution.fr.blocks[1].text).not.toContain(
-      PHRASE_ANCIENNE,
-    );
+    const texte = async (release: string) =>
+      (
+        (await ARCHIVED_FILES[release]["constitution.fr.json"]()) as ConstitutionData
+      ).blocks[1].text;
+    expect(await texte(RELEASE_ANCIENNE)).toContain(PHRASE_ANCIENNE);
+    expect(await texte(RELEASE_COURANTE)).not.toContain(PHRASE_ANCIENNE);
   });
 
   it("affiche le texte de sa release, pas celui du jour", async () => {

@@ -46,6 +46,12 @@ export interface FileDeclaration {
   perimee(): boolean;
   /** Résolue quand la file est vide. Sert aux épreuves. */
   repos(): Promise<void>;
+  /**
+   * Arrête la file pour de bon : la valeur en attente est jetée, plus aucun état
+   * n'est rendu, plus rien n'est écrit. À appeler quand le compte pour lequel
+   * elle a été créée n'est plus celui de la session.
+   */
+  arreter(): void;
 }
 
 /**
@@ -85,38 +91,50 @@ export function creerFileDeclaration({
   let enAttente: DeclarationPayload | null = null;
   let enVol: Promise<void> | null = null;
   let perime = false;
+  // Une file appartient à un compte. Remplacée sans être arrêtée, elle
+  // continuait sa boucle : la valeur en attente du compte A partait après le
+  // changement de session, donc sous le jeton du compte B — la RPC écrit sous
+  // `auth.uid()`, pas sous l'identité pour laquelle la charge a été préparée
+  // (audit du 04/10/2026, F07).
+  let arretee = false;
+
+  const dire = (e: EtatSauvegarde) => {
+    if (!arretee) etat?.(e);
+  };
 
   const vider = async () => {
     try {
-      while (enAttente && !perime) {
+      while (enAttente && !perime && !arretee) {
         const courant = enAttente;
         enAttente = null;
         const r = await ecrire(courant, revision + 1);
+        // Arrêtée pendant l'écriture : son verdict ne concerne plus personne.
+        if (arretee) return;
         if (r.statut === "erreur") {
           // La valeur n'est pas perdue pour de bon : le payload dérive de
           // l'état, la frappe suivante la remet dans la file.
-          etat?.("error");
+          dire("error");
           return;
         }
         revision = r.revision;
         if (r.statut === "perimee") {
           perime = true;
-          etat?.("perimee");
+          dire("perimee");
           return;
         }
       }
-      etat?.("saved");
+      dire("saved");
     } catch {
-      etat?.("error");
+      dire("error");
     }
   };
 
   return {
     enfiler(payload) {
-      if (perime) return;
+      if (perime || arretee) return;
       enAttente = payload;
       if (enVol) return;
-      etat?.("saving");
+      dire("saving");
       enVol = vider().finally(() => {
         enVol = null;
       });
@@ -125,6 +143,10 @@ export function creerFileDeclaration({
     perimee: () => perime,
     async repos() {
       while (enVol) await enVol;
+    },
+    arreter() {
+      arretee = true;
+      enAttente = null;
     },
   };
 }

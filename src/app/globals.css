@@ -289,6 +289,19 @@ body {
      1 280 → 1 216 : 256 + 32 + 688 + 32 + 208, la colonne valant 66ch
      1 440 → 1 376 : 272 + 32 + 816 + 32 + 224, la colonne valant 66ch + 32 + 176
      ≥ 1 536      : coquille capée à 96rem, donc identique au palier de 1 440 */
+/* Hauteur de la navigation du Composer, sous laquelle se cale sa barre mobile.
+   Valeur de départ, pour le premier rendu : deux rangées sous 640 px, une
+   au-delà. La navigation la remplace par sa hauteur mesurée dès le montage
+   (`App.tsx`), parce qu'elle varie avec la taille du texte. */
+:root {
+  --cc-nav-h: 5.375rem;
+}
+@media (min-width: 40rem) {
+  :root {
+    --cc-nav-h: 2.8125rem;
+  }
+}
+
 :root {
   --cc-rail: 15rem;
   --cc-sommaire: 11rem;

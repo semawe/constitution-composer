@@ -1,8 +1,8 @@
 // Soumissions d'apps/extensions par les utilisateurs (App Store).
-// Compte requis : pas de repli localStorage. Sans Supabase configuré ou sans
+// Compte requis : pas de repli localStorage. Sans service configuré ou sans
 // session, createSubmission lève une erreur explicite que l'UI traduit.
 
-import { getSupabase } from "./supabase";
+import { getService } from "./service";
 
 export type SubmissionKind = "extension" | "app";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
@@ -29,50 +29,21 @@ export interface NewSubmission {
   rationale: string;
 }
 
-const SELECT =
-  "id,user_id,name,kind,integration_point,description,rationale,status,admin_note,created_at,reviewed_at";
-
-/** true si la fonctionnalité de soumission est disponible (Supabase configuré). */
-export const submissionsAvailable = getSupabase() !== null;
+/** true si la fonctionnalité de soumission est disponible (service configuré). */
+export const submissionsAvailable = getService() !== null;
 
 /** Crée une soumission pour l'utilisateur connecté. Lève "UNAVAILABLE" ou "AUTH". */
 export async function createSubmission(
   input: NewSubmission,
 ): Promise<AppSubmission> {
-  const sb = getSupabase();
-  if (!sb) throw new Error("UNAVAILABLE");
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) throw new Error("AUTH");
-  const { data, error } = await sb
-    .from("app_submissions")
-    .insert({
-      user_id: user.id,
-      name: input.name,
-      kind: input.kind,
-      integration_point: input.integrationPoint || null,
-      description: input.description,
-      rationale: input.rationale || null,
-    })
-    .select(SELECT)
-    .single();
-  if (error) throw error;
-  return data as AppSubmission;
+  const service = getService();
+  if (!service) throw new Error("UNAVAILABLE");
+  return service.creerProposition(input);
 }
 
 /** Liste les soumissions de l'utilisateur connecté (RLS : les siennes). */
 export async function listMySubmissions(): Promise<AppSubmission[]> {
-  const sb = getSupabase();
-  if (!sb) return [];
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) return [];
-  const { data, error } = await sb
-    .from("app_submissions")
-    .select(SELECT)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as AppSubmission[];
+  const service = getService();
+  if (!service) return [];
+  return service.listerMesPropositions();
 }

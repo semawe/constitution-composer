@@ -59,11 +59,15 @@ export interface PanelVersions {
   liste: SavedComposition[];
   message: string | null;
   illisible: boolean;
+  /** Relit la liste après une lecture ratée. */
+  onRetry: () => void;
   occupe: boolean;
   pdfEnEchec: boolean;
   releaseMsg: string | null;
   aFiger: SavedComposition | null;
   aRejouer: SavedComposition | null;
+  /** Ramène le document sur le texte du jour, quand aucune version ne s'y prête. */
+  onRejoindre?: () => void;
   onSave: () => void;
   onLoad: (v: SavedComposition) => void;
   onRename: (v: SavedComposition) => void;
@@ -215,7 +219,7 @@ export function ComposerPanel({
             {t.myVersions}
           </h2>
           <span className="text-xs text-muted">
-            {versions.liste.length}/{MAX_COMPOSITIONS}
+            {versionsUnread ? "–" : versions.liste.length}/{MAX_COMPOSITIONS}
           </span>
         </div>
         <button
@@ -249,12 +253,26 @@ export function ComposerPanel({
                 {t.releaseMigrateAction}
               </button>
             )}
+            {versions.onRejoindre && !aFiger && !aRejouer && (
+              <button
+                onClick={versions.onRejoindre}
+                className="mt-1.5 rounded-full bg-amber-900 px-2.5 py-1 text-[0.7rem] font-medium text-white transition hover:bg-amber-800"
+              >
+                {t.releaseRejoinAction}
+              </button>
+            )}
           </div>
         )}
         {versionsUnread && (
-          <p role="alert" className="mt-1.5 text-xs text-danger-text">
-            {t.versionsFailed}
-          </p>
+          <div role="alert" className="mt-1.5 text-xs text-danger-text">
+            <p>{t.versionsFailed}</p>
+            <button
+              onClick={versions.onRetry}
+              className="mt-1 rounded-full border border-current px-2.5 py-0.5 font-medium transition hover:opacity-80"
+            >
+              {t.versionsRetry}
+            </button>
+          </div>
         )}
         {pdfError && (
           <p role="alert" className="mt-1.5 text-xs text-danger-text">
@@ -292,11 +310,16 @@ export function ComposerPanel({
                     })}
                   </span>
                 </button>
+                {/* Renommer et supprimer n'apparaissaient qu'au survol : hors de
+                    portée au clavier comme au doigt, alors que supprimer est la
+                    seule façon de libérer une des cinq places (audit du
+                    04/10/2026, F17). Ils restent discrets là où le survol
+                    existe, et se montrent au focus ; sans survol, ils sont là. */}
                 <button
                   onClick={() => handleRenameVersion(v)}
                   aria-label={t.rename}
                   title={t.rename}
-                  className="shrink-0 rounded p-1 text-muted opacity-0 transition hover:text-body group-hover:opacity-100"
+                  className="shrink-0 rounded p-1 text-muted transition hover:text-body [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100"
                 >
                   ✎
                 </button>
@@ -304,7 +327,7 @@ export function ComposerPanel({
                   onClick={() => handleDeleteVersion(v)}
                   aria-label={t.delete}
                   title={t.delete}
-                  className="shrink-0 rounded p-1 text-muted opacity-0 transition hover:text-rose-600 group-hover:opacity-100"
+                  className="shrink-0 rounded p-1 text-muted transition hover:text-rose-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100"
                 >
                   ✕
                 </button>
@@ -379,6 +402,7 @@ export function ComposerPanel({
                     return dep ? [dep.label] : [];
                   })}
                   onToggle={() => toggle(m.id)}
+                  libelles={t}
                 />
               ))}
             </ul>

@@ -39,7 +39,7 @@ export function useComposition({
   setActive: (s: ReadonlySet<string>) => void;
   estConnecte: () => boolean;
   /** Le mur du compte, quand la bascule demande une extension ou une app. */
-  onGate: () => void;
+  onGate: (id: string) => void;
   /** Ce vers quoi défiler pour montrer ce que la bascule vient de changer. */
   viser: (cible: { primary?: string; fallback?: string }) => void;
 }) {
@@ -63,7 +63,7 @@ export function useComposition({
     const activating = next.size > active.size;
     // Paliers : activer une Extension ou une App requiert un compte.
     if (!estConnecte() && activating && mod && isGatedTier(mod.tier)) {
-      onGate();
+      onGate(id);
       track("gate", { contexte: "modules", module: id });
       return;
     }

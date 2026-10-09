@@ -76,6 +76,7 @@ export function ModuleToggle({
   lockedBy,
   requires,
   onToggle,
+  libelles,
 }: {
   mod: Module;
   on: boolean;
@@ -83,13 +84,14 @@ export function ModuleToggle({
   lockedBy: string[];
   requires: string[];
   onToggle: () => void;
+  libelles: (typeof COMPOSER)[Locale];
 }) {
   const ui = TIER_UI[mod.tier];
   const locked = on && lockedBy.length > 0;
   const title = locked
-    ? `Requis par : ${lockedBy.join(", ")}`
+    ? libelles.requiredBy(lockedBy.join(", "))
     : requires.length
-      ? `${mod.description}\n\nActive aussi : ${requires.join(", ")}`
+      ? `${mod.description}\n\n${libelles.alsoActivates(requires.join(", "))}`
       : mod.description;
   return (
     <li>
@@ -217,24 +219,31 @@ export function InsertDivider({
 export function PreambleValues({
   values,
   setValues,
+  ui,
 }: {
   values: string;
   setValues: (v: string) => void;
+  ui: (typeof COMPOSER)[Locale];
 }) {
-  const [editing, setEditing] = useState(values.trim().length > 0);
+  const [demande, setDemande] = useState(false);
+  // Le champ est ouvert dès qu'il porte un texte, d'où qu'il vienne. Il ne
+  // regardait que sa valeur au montage : des valeurs arrivées ensuite — un
+  // brouillon restauré, une version ouverte — restaient derrière le bouton
+  // « ajouter », absentes de l'écran et présentes dans le PDF.
+  const ouvert = demande || values.trim().length > 0;
   const paraCount = values
     .split(/\n{2,}/)
     .map((s) => s.trim())
     .filter(Boolean).length;
 
-  if (!editing) {
+  if (!ouvert) {
     return (
       <button
-        onClick={() => setEditing(true)}
+        onClick={() => setDemande(true)}
         className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-field px-3 py-1 text-xs text-muted transition hover:border-field-accent hover:text-body"
       >
         <span className="text-base leading-none">+</span>
-        Ajouter vos valeurs et principes
+        {ui.valuesAdd}
       </button>
     );
   }
@@ -243,27 +252,26 @@ export function PreambleValues({
     <div className="mt-4 rounded-md border border-rule bg-surface/70 p-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-medium uppercase tracking-wide text-muted">
-          Valeurs et principes
+          {ui.pdfValuesHeading}
         </span>
         <span
           className={`text-xs ${
             paraCount > 4 ? "text-warning-muted" : "text-muted"
           }`}
         >
-          {paraCount}/4 paragraphes
+          {ui.valuesCount(paraCount)}
         </span>
       </div>
       <textarea
         value={values}
         onChange={(e) => setValues(e.target.value)}
         rows={6}
-        placeholder="Exprimez les valeurs et principes propres à votre organisation. Restez bref : 4 paragraphes maximum. Séparez les paragraphes par une ligne vide."
+        aria-label={ui.pdfValuesHeading}
+        placeholder={ui.valuesPlaceholder}
         className="doc-prose w-full resize-y rounded border border-field bg-surface p-3 text-[0.98rem] leading-relaxed text-body outline-none transition focus:border-field-accent"
       />
       {paraCount > 4 && (
-        <p className="mt-1 text-xs text-warning-muted">
-          Conseil : restez sous 4 paragraphes pour garder le préambule lisible.
-        </p>
+        <p className="mt-1 text-xs text-warning-muted">{ui.valuesTip}</p>
       )}
     </div>
   );

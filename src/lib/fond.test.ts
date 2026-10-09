@@ -73,9 +73,20 @@ function mots(s: string): string {
     .trim();
 }
 
+/**
+ * Le Sommaire de la source (lot éditorial du 15/06) est une navigation, pas un
+ * article : il ne porte ni note d'intention ni règle. Le Composer ne le reprend
+ * pas dans son fond parce qu'il génère lui-même sa navigation à partir des
+ * blocs composés (tâche ERP 1090) ; un Sommaire figé dans le fond mentirait dès
+ * qu'un module est décoché. On l'écarte donc ici, et lui seul.
+ */
+const TITRES_DE_NAVIGATION = new Set(["sommaire", "contents"]);
+
 /** Les titres d'articles de la source, dans l'ordre (préambule compris). */
 function titresCanoniques(markdown: string): string[] {
-  return [...markdown.matchAll(/^##\s+(.+?)\s*$/gm)].map((m) => m[1]);
+  return [...markdown.matchAll(/^##\s+(.+?)\s*$/gm)]
+    .map((m) => m[1])
+    .filter((titre) => !TITRES_DE_NAVIGATION.has(mots(titre)));
 }
 
 /** Les notes d'intention de la source, appariées au titre qui les précède. */

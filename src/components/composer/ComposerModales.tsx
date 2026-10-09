@@ -1,5 +1,7 @@
-import { type User } from "@supabase/supabase-js";
+import type { Compte } from "@/lib/service";
 import Modale from "@/components/Modale";
+import { ConnexionChoix } from "@/components/compte/ConnexionChoix";
+import { type Connexion } from "@/components/compte/useConnexion";
 import { type COMPOSER } from "@/lib/i18n";
 
 // Les trois boîtes de dialogue du Composer : mur du compte, saisie de
@@ -21,16 +23,13 @@ export function ComposerModales({
   gate,
   setGate,
   user,
-  email,
-  setEmail,
-  otpSent,
-  signInGoogle,
-  signInOtp,
+  connexion,
   needsCompany,
   setNeedsCompany,
   account,
   company,
   setCompany,
+  companyEchec,
   submitCompany,
   booking,
   setBooking,
@@ -39,17 +38,15 @@ export function ComposerModales({
   t: Ui;
   gate: "pdf" | "save" | "modules" | "account" | null;
   setGate: (g: "pdf" | "save" | "modules" | "account" | null) => void;
-  user: User | null;
-  email: string;
-  setEmail: (v: string) => void;
-  otpSent: boolean;
-  signInGoogle: () => void;
-  signInOtp: () => void;
+  user: Compte | null;
+  connexion: Connexion;
   needsCompany: boolean;
   setNeedsCompany: (v: boolean) => void;
   account: boolean;
   company: string;
   setCompany: (v: string) => void;
+  /** L'organisation n'a pas pu être enregistrée : la boîte reste et le dit. */
+  companyEchec: boolean;
   submitCompany: () => void;
   booking: boolean;
   setBooking: (v: boolean) => void;
@@ -103,45 +100,7 @@ export function ComposerModales({
                     </span>
                   </p>
                 </div>
-                <button
-                  onClick={signInGoogle}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-field bg-surface px-4 py-2.5 text-sm font-medium text-body shadow-sm transition hover:bg-surface-subtle"
-                >
-                  <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
-                    <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
-                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" />
-                    <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
-                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
-                  </svg>
-                  {t.continueGoogle}
-                </button>
-                <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-muted">
-                  <span className="h-px flex-1 bg-surface-strong" />
-                  {t.orByEmail}
-                  <span className="h-px flex-1 bg-surface-strong" />
-                </div>
-                {otpSent ? (
-                  <p className="rounded-lg bg-accent-soft px-3 py-2 text-sm text-teal-800">
-                    {t.emailSent}
-                  </p>
-                ) : (
-                  <div className="flex gap-2">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t.emailPlaceholder}
-                      className="min-w-0 flex-1 rounded-lg border border-field px-3 py-2 text-sm outline-none transition focus:border-field-accent"
-                    />
-                    <button
-                      onClick={signInOtp}
-                      disabled={!email.trim()}
-                      className="shrink-0 rounded-lg btn-ink px-3 py-2 text-sm font-medium transition disabled:opacity-50"
-                    >
-                      {t.sendLink}
-                    </button>
-                  </div>
-                )}
+                <ConnexionChoix t={t} connexion={connexion} />
                 <p className="mt-4 text-center text-[0.7rem] leading-relaxed text-muted">
                   {t.accountNotice}
                 </p>
@@ -161,8 +120,8 @@ export function ComposerModales({
               className="font-serif text-xl font-semibold text-strong"
             >
               {t.welcome}
-              {user?.user_metadata?.given_name
-                ? `, ${user.user_metadata.given_name}`
+              {user?.prenom
+                ? `, ${user.prenom}`
                 : ""}{" "}
               !
             </h2>
@@ -189,6 +148,11 @@ export function ComposerModales({
             >
               {t.continue}
             </button>
+            {companyEchec && (
+              <p role="alert" className="mt-2 text-xs text-danger-text">
+                {t.companyFailed}
+              </p>
+            )}
             <button
               onClick={() => setNeedsCompany(false)}
               className="mt-2 w-full rounded-lg px-4 py-2 text-xs text-muted transition hover:text-body"

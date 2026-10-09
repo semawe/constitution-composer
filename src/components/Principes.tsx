@@ -19,18 +19,62 @@ import {
   releaseLabel,
   resolvePrincipes,
 } from "@/lib/releases";
-import { normalizeDeclaration } from "@/lib/declaration";
+import {
+  type DeclarationPayload,
+  normalizeDeclaration,
+} from "@/lib/declaration";
+import { reprendreIntention, retenirIntention } from "@/lib/intention";
+import { ConnexionChoix } from "@/components/compte/ConnexionChoix";
+import { useConnexion } from "@/components/compte/useConnexion";
 import {
   type Ecrire,
   type EtatSauvegarde,
   type FileDeclaration,
   creerFileDeclaration,
-  verdict,
 } from "@/lib/declaration-sync";
-import { getSupabase } from "@/lib/supabase";
+import { type DeclarationDistante, getService } from "@/lib/service";
 import { COMPOSER, PRINCIPES_UI, type Locale, UI } from "@/lib/i18n";
 
 const LS_PRINCIPES = "cc_principes";
+
+/**
+ * Ce qui fait qu'une Déclaration est la même qu'une autre, indépendamment de
+ * l'ordre dans lequel ses retraits ont été cochés.
+ */
+function empreinteDeclaration(p: DeclarationPayload): string {
+  return JSON.stringify({
+    fond: p.content ? `${p.content.release}/${p.content.locale}` : null,
+    removed: [...p.removed].sort(),
+    custom: p.custom,
+    order: p.order,
+    raisonEtre: p.raisonEtre,
+    devise: p.devise,
+    ratifiers: p.ratifiers,
+    signatories: p.signatories,
+  });
+}
+
+/** Le miroir local d'un compte : sa Déclaration, et si elle restait à écrire. */
+function lireMiroir(
+  userId: string,
+  builtinIds: readonly string[],
+): { declaration: DeclarationPayload; aEcrire: boolean; base: number } | null {
+  try {
+    const raw = localStorage.getItem(`${LS_PRINCIPES}:${userId}`);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Record<string, unknown>;
+    if (!s || typeof s !== "object") return null;
+    return {
+      declaration: normalizeDeclaration(s, builtinIds),
+      // Un miroir d'avant ce champ ne dit rien : on ne propose pas de reprendre
+      // ce dont on ne sait pas s'il a été écrit.
+      aEcrire: s.aEcrire === true,
+      base: typeof s.base === "number" ? s.base : 0,
+    };
+  } catch {
+    return null;
+  }
+}
 
 // Les types vivent dans `@/lib/principes-data` : l'index des releases doit
 // pouvoir les importer sans dépendre de ce composant.
@@ -73,6 +117,9 @@ export default function Principes({
   const [dragId, setDragId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  // La session est lue de façon asynchrone : tant qu'elle ne l'est pas, on ne
+  // sait pas sous quelle clé garder le brouillon, ni de qui il est.
+  const [sessionConnue, setSessionConnue] = useState(false);
   // Cycle de vie de la Déclaration du compte : tant qu'on n'a pas fini de lire
   // celle du serveur, on n'écrit RIEN dessus (sinon le brouillon affiché — qui
   // peut être celui de la personne précédente sur un poste partagé — écrase ou
@@ -93,24 +140,15 @@ export default function Principes({
   // Brouillon anonyme non vide face à un compte sans Déclaration : on demande
   // avant de rattacher, on ne recopie pas d'office.
   const [offerAttach, setOfferAttach] = useState(false);
-
-  const clearDeclaration = () => {
-    setRemoved(new Set());
-    setCustom([]);
-    setOrder([]);
-    setRaisonEtre("");
-    setDevise("");
-    setRatifiers("");
-    setSignatories("");
-    setOfferAttach(false);
-    try {
-      localStorage.removeItem(LS_PRINCIPES);
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const k = localStorage.key(i);
-        if (k?.startsWith(`${LS_PRINCIPES}:`)) localStorage.removeItem(k);
-      }
-    } catch {}
-  };
+  // Des modifications faites sous ce compte sont restées sur ce navigateur sans
+  // atteindre le compte (sauvegarde en échec, puis rechargement). On ne les
+  // remonte pas d'office — le compte a pu avancer ailleurs depuis — et on ne les
+  // jette pas non plus : on demande.
+  const [offreReprise, setOffreReprise] = useState<{
+    locale: DeclarationPayload;
+    /** Le compte a été modifié ailleurs depuis ces modifications. */
+    compteAvance: boolean;
+  } | null>(null);
 
   // Compte (mur freemium du PDF de la Déclaration, comme la Constitution).
   // Comme pour la Constitution : le fond rendu est celui que la Déclaration
@@ -123,68 +161,118 @@ export default function Principes({
   const [releaseMsg, setReleaseMsg] = useState<string | null>(null);
   const [aFiger, setAFiger] = useState(false);
 
-  const supabase = useMemo(() => getSupabase(), []);
+  const service = useMemo(() => getService(), []);
   const [account, setAccount] = useState(false);
   const [gate, setGate] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfError, setPdfError] = useState(false);
-  const [email, setEmail] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+
+  /** Ce que le compte porte, au dernier état connu : sert à dire ce qui reste à écrire. */
+  const confirme = useRef<string | null>(null);
+  /** La dernière valeur confiée à la file d'écriture. */
+  const dernierEnfile = useRef<DeclarationPayload | null>(null);
+
+  const clearDeclaration = () => {
+    setRemoved(new Set());
+    setCustom([]);
+    setOrder([]);
+    setRaisonEtre("");
+    setDevise("");
+    setRatifiers("");
+    setSignatories("");
+    setOfferAttach(false);
+    setOffreReprise(null);
+    // Les formulaires ouverts partent avec le reste : un principe en cours
+    // d'ajout ou d'édition est aussi ce que la personne précédente a tapé
+    // (audit du 04/10/2026, F06).
+    setAdding(false);
+    setNewTitle("");
+    setNewText("");
+    setEditingId(null);
+    setEditTitle("");
+    setEditText("");
+    setConfirmId(null);
+    // Et le fond revient à celui de la page, avec ce qu'on en disait.
+    setData(fondCourant);
+    setContentRef(currentContentRef(locale, "principes"));
+    setReleaseMsg(null);
+    setAFiger(false);
+    setSaveState("idle");
+    setRevisionCompte(0);
+    confirme.current = null;
+    dernierEnfile.current = null;
+    try {
+      localStorage.removeItem(LS_PRINCIPES);
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k?.startsWith(`${LS_PRINCIPES}:`)) localStorage.removeItem(k);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
-    if (!supabase) {
+    if (!service) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       try {
         // repli compte simulé lu dans localStorage après montage.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (localStorage.getItem("cc_account") === "1") setAccount(true);
       } catch {}
+      setSessionConnue(true);
+      /* eslint-enable react-hooks/set-state-in-effect */
       return;
     }
-    supabase.auth.getSession().then(({ data }) => {
-      setAccount(!!data.session?.user);
-      setUserId(data.session?.user?.id ?? null);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((e, s) => {
-      setAccount(!!s?.user);
-      setUserId(s?.user?.id ?? null);
-      // Déconnexion : on ne laisse pas la Déclaration de la personne précédente
-      // à l'écran — elle serait recopiée dans le compte suivant.
-      if (e === "SIGNED_OUT") clearDeclaration();
-    });
-    return () => sub.subscription.unsubscribe();
-  }, [supabase]);
+    const poser = (compte: { id: string } | null) => {
+      setAccount(!!compte);
+      setUserId(compte?.id ?? null);
+      setSessionConnue(true);
+    };
+    service.lireSession().then(poser);
+    return service.ecouterSession(poser);
+  }, [service]);
 
-  const signIn = async () => {
-    if (!supabase) {
+  // Le compte qui s'en va emporte sa Déclaration : on ne la laisse pas à
+  // l'écran, elle serait proposée au compte suivant. La purge ne tenait qu'à
+  // l'événement de déconnexion ; passer d'un compte à un autre sans lui (une
+  // autre session ouverte dans un second onglet) gardait le document du premier
+  // devant le second (audit du 04/10/2026, F06). Elle tient maintenant à
+  // l'identité.
+  //
+  // Déclaré avant la lecture du compte : dans un même rendu, la purge passe
+  // d'abord, la lecture ensuite.
+  const identiteVue = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (!service || !sessionConnue) return;
+    const avant = identiteVue.current;
+    identiteVue.current = userId;
+    if (avant === undefined || avant === null || avant === userId) return;
+    clearDeclaration();
+    // Ne réagit qu'au changement d'identité.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [service, sessionConnue, userId]);
+
+  const connexion = useConnexion({
+    service,
+    // Le brouillon anonyme est déjà gardé en continu ; reste à retenir le geste.
+    onAvantRedirection: () => retenirIntention("pdf-principes"),
+    onSimulee: () => {
       setAccount(true);
       try {
         localStorage.setItem("cc_account", "1");
       } catch {}
       setGate(false);
-      return;
-    }
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin + window.location.pathname,
-      },
-    });
-  };
+      retenirIntention("pdf-principes");
+    },
+  });
 
-  const signInOtp = async () => {
-    const addr = email.trim();
-    if (!addr) return;
-    if (!supabase) {
-      signIn();
-      return;
-    }
-    await supabase.auth.signInWithOtp({
-      email: addr,
-      options: {
-        emailRedirectTo: window.location.origin + window.location.pathname,
-      },
-    });
-    setOtpSent(true);
+  /** Pose à l'écran les champs d'une Déclaration déjà normalisée. */
+  const poserChamps = (p: DeclarationPayload) => {
+    setRemoved(new Set(p.removed));
+    setCustom(p.custom);
+    setOrder(p.order);
+    setRaisonEtre(p.raisonEtre);
+    setDevise(p.devise);
+    setRatifiers(p.ratifiers);
+    setSignatories(p.signatories);
   };
 
   // Restaure l'état des principes (survit au changement d'onglet et au
@@ -208,37 +296,6 @@ export default function Principes({
     setLoaded(true);
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
-
-  // Persiste à chaque changement (après le chargement initial). Une fois
-  // connecté, le miroir local est nominatif : le brouillon d'une personne ne
-  // réapparaît pas sous le compte de la suivante sur un poste partagé.
-  useEffect(() => {
-    if (!loaded) return;
-    try {
-      localStorage.setItem(
-        userId ? `${LS_PRINCIPES}:${userId}` : LS_PRINCIPES,
-        JSON.stringify({
-          removed: [...removed],
-          custom,
-          raisonEtre,
-          devise,
-          ratifiers,
-          signatories,
-          order,
-        }),
-      );
-    } catch {}
-  }, [
-    loaded,
-    userId,
-    removed,
-    custom,
-    raisonEtre,
-    devise,
-    ratifiers,
-    signatories,
-    order,
-  ]);
 
   // Rattachement au compte : la Déclaration est aussi stockée dans Supabase
   // dès que l'utilisateur est connecté, pour la retrouver sur ses appareils.
@@ -269,6 +326,65 @@ export default function Principes({
     ],
   );
 
+  // Persiste à chaque changement (après le chargement initial). Une fois
+  // connecté, le miroir local est nominatif : le brouillon d'une personne ne
+  // réapparaît pas sous le compte de la suivante sur un poste partagé.
+  //
+  // Le miroir nominatif ne s'écrit qu'une fois la Déclaration du compte lue, et
+  // tant qu'aucune reprise n'attend de décision. Il s'écrivait dès la connexion,
+  // avec ce qui était à l'écran à cet instant : c'est-à-dire par-dessus les
+  // modifications qu'il était seul à garder après une sauvegarde en échec, avant
+  // que personne ne les ait relues (audit du 04/10/2026, F10). `aEcrire` dit si
+  // ce qu'il porte a atteint le compte : c'est ce qui sépare « des modifications
+  // à reprendre » d'un simple état plus ancien que celui d'un autre appareil.
+  useEffect(() => {
+    if (!loaded || !sessionConnue) return;
+    if (userId && (remote !== "ready" || offreReprise)) return;
+    try {
+      if (userId) {
+        localStorage.setItem(
+          `${LS_PRINCIPES}:${userId}`,
+          JSON.stringify({
+            ...declarationPayload,
+            base: revisionCompte,
+            aEcrire: empreinteDeclaration(declarationPayload) !== confirme.current,
+          }),
+        );
+      } else {
+        localStorage.setItem(
+          LS_PRINCIPES,
+          JSON.stringify({
+            removed: [...removed],
+            custom,
+            raisonEtre,
+            devise,
+            ratifiers,
+            signatories,
+            order,
+          }),
+        );
+      }
+    } catch {}
+    // `saveState` est une entrée à part entière : une sauvegarde qui aboutit ne
+    // change pas le document, mais change ce qu'il reste à écrire.
+  }, [
+    loaded,
+    sessionConnue,
+    userId,
+    remote,
+    offreReprise,
+    revisionCompte,
+    saveState,
+    declarationPayload,
+    removed,
+    custom,
+    raisonEtre,
+    devise,
+    ratifiers,
+    signatories,
+    order,
+  ]);
+
   // Y a-t-il quelque chose à perdre dans le brouillon local ?
   const draftIsEmpty =
     removed.size === 0 &&
@@ -277,111 +393,143 @@ export default function Principes({
     !devise.trim() &&
     !ratifiers.trim() &&
     !signatories.trim();
+  // Lu au moment où le compte répond, donc par un ref : la valeur capturée par
+  // l'effet daterait du rendu où la session est arrivée.
+  const brouillonVide = useRef(draftIsEmpty);
+  useEffect(() => {
+    brouillonVide.current = draftIsEmpty;
+  });
+
+  /**
+   * Pose une Déclaration à l'écran, sur le fond qu'elle désigne. Rend faux si ce
+   * fond se refuse (release absente, empreinte divergente, texte injoignable) :
+   * rien n'est alors posé, et la raison est affichée.
+   */
+  const poserDeclaration = async (
+    brut: DeclarationPayload,
+    encoreLa: () => boolean,
+  ): Promise<boolean> => {
+    const resolution = await resolvePrincipes(brut.content);
+    if (!encoreLa()) return false;
+    if (resolution.statut === "release-absente") {
+      setReleaseMsg(c.releaseMissing(releaseLabel(resolution.release, locale)));
+      return false;
+    }
+    if (resolution.statut === "empreinte-divergente") {
+      setReleaseMsg(c.releaseMismatch(releaseLabel(resolution.release, locale)));
+      return false;
+    }
+    if (resolution.statut === "chargement-echoue") {
+      setReleaseMsg(
+        c.releaseLoadFailed(releaseLabel(resolution.release, locale)),
+      );
+      return false;
+    }
+    if (resolution.statut === "resolue") {
+      setData(resolution.data);
+      setContentRef(brut.content ?? null);
+      setReleaseMsg(
+        isOutdated(brut.content)
+          ? c.releasePinned(releaseLabel(resolution.release, locale))
+          : null,
+      );
+      setAFiger(false);
+    } else {
+      // Déclaration d'avant l'archivage : ouverte sur les Principes du jour,
+      // et on le dit plutôt que de laisser croire à une garantie.
+      setData(fondCourant);
+      setContentRef(null);
+      setReleaseMsg(c.releaseNotPinned);
+      setAFiger(true);
+    }
+    poserChamps(brut);
+    return true;
+  };
 
   // À la connexion : charge la Déclaration du compte si elle existe.
   useEffect(() => {
-    if (!supabase || !userId) {
+    if (!service || !userId) {
       // remise à zéro du cycle de lecture distante quand la session tombe.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRemote("idle");
       return;
     }
     let alive = true;
-    // Capturé avant l'appel : dans la réponse Supabase, `data` désigne la ligne
-    // lue et masquerait la propriété `data` du composant.
+    const encoreLa = () => alive;
     const builtinIds = fondCourant.principles.map((x) => x.id);
     setRemote("loading");
     setOfferAttach(false);
-    supabase
-      .from("declarations")
-      // La révision arrive avec le document : c'est elle qui dit à la file
-      // d'écriture d'où partir (voir 0009_revision_declarations.sql).
-      .select("payload,revision")
-      .eq("user_id", userId)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (!alive) return;
-        if (error) {
-          // Ni lecture ni écriture : on ne sait pas ce que le compte contient,
-          // donc on n'y touche pas. L'autosauvegarde reste bloquée.
-          setRemote("error");
-          return;
-        }
-        if (!data?.payload) {
-          // Compte sans Déclaration. Si un brouillon anonyme est à l'écran, on
-          // ne le verse pas d'office dans ce compte : on propose.
-          setRevisionCompte(0);
-          setOfferAttach(!draftIsEmpty);
-          setRemote("ready");
-          return;
-        }
-        setRevisionCompte(
-          typeof data.revision === "number" ? data.revision : 0,
-        );
-        const brut = normalizeDeclaration(data.payload, builtinIds);
-        const resolution = resolvePrincipes(brut.content);
-        if (resolution.statut === "release-absente") {
-          setRemote("error");
-          setReleaseMsg(
-            c.releaseMissing(releaseLabel(resolution.release, locale)),
-          );
-          return;
-        }
-        if (resolution.statut === "empreinte-divergente") {
-          setRemote("error");
-          setReleaseMsg(
-            c.releaseMismatch(releaseLabel(resolution.release, locale)),
-          );
-          return;
-        }
-        if (resolution.statut === "resolue") {
-          setData(resolution.data);
-          setContentRef(brut.content ?? null);
-          setReleaseMsg(
-            isOutdated(brut.content)
-              ? c.releasePinned(releaseLabel(resolution.release, locale))
-              : null,
-          );
-          setAFiger(false);
-        } else {
-          // Déclaration d'avant l'archivage : ouverte sur les Principes du jour,
-          // et on le dit plutôt que de laisser croire à une garantie.
-          setData(fondCourant);
-          setContentRef(null);
-          setReleaseMsg(c.releaseNotPinned);
-          setAFiger(true);
-        }
-        const p = brut;
-        setRemoved(new Set(p.removed));
-        setCustom(p.custom);
-        setOrder(p.order);
-        setRaisonEtre(p.raisonEtre);
-        setDevise(p.devise);
-        setRatifiers(p.ratifiers);
-        setSignatories(p.signatories);
-        setRemote("ready");
-      });
+    setOffreReprise(null);
+    void (async () => {
+      let lue: DeclarationDistante | null;
+      try {
+        // La révision arrive avec le document : c'est elle qui dit à la file
+        // d'écriture d'où partir.
+        lue = await service.lireDeclaration(userId);
+      } catch {
+        // Ni lecture ni écriture : on ne sait pas ce que le compte contient,
+        // donc on n'y touche pas. L'autosauvegarde reste bloquée.
+        if (alive) setRemote("error");
+        return;
+      }
+      if (!alive) return;
+      const revision = lue?.revision ?? 0;
+      const distante = lue
+        ? normalizeDeclaration(lue.payload, builtinIds)
+        : null;
+      if (distante && !(await poserDeclaration(distante, encoreLa))) {
+        if (alive) setRemote("error");
+        return;
+      }
+      setRevisionCompte(revision);
+      confirme.current = distante ? empreinteDeclaration(distante) : null;
+
+      // Ce que ce navigateur a gardé pour ce compte et qui n'a pas atteint le
+      // compte : lu maintenant, avant que le miroir ne soit réécrit.
+      const miroir = lireMiroir(userId, builtinIds);
+      const aReprendre =
+        miroir !== null &&
+        miroir.aEcrire &&
+        empreinteDeclaration(miroir.declaration) !== confirme.current;
+      if (aReprendre) {
+        setOffreReprise({
+          locale: miroir.declaration,
+          compteAvance: revision > miroir.base,
+        });
+      } else if (!distante) {
+        // Compte sans Déclaration. Si un brouillon anonyme est à l'écran, on
+        // ne le verse pas d'office dans ce compte : on propose.
+        setOfferAttach(!brouillonVide.current);
+      }
+      setRemote("ready");
+    })();
     return () => {
       alive = false;
     };
-    // draftIsEmpty n'est lu qu'au moment de la réponse : le relire en dépendance
+    // Le brouillon n'est lu qu'au moment de la réponse : le relire en dépendance
     // relancerait la requête à chaque frappe.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supabase, userId]);
+  }, [service, userId]);
 
-  // L'écriture elle-même : `save_declaration()` n'accepte qu'une révision
-  // strictement supérieure à celle en base, et dit ce qu'elle a fait.
+  /** Reprend les modifications restées sur ce navigateur : elles iront au compte. */
+  const reprendreLocal = async () => {
+    if (!offreReprise) return;
+    const pose = await poserDeclaration(offreReprise.locale, () => true);
+    // Refusée (son fond ne se retrouve pas) : l'offre reste, et la raison est
+    // affichée. Posée : l'autosauvegarde la portera au compte.
+    if (pose) setOffreReprise(null);
+  };
+
+  // L'écriture elle-même : le service n'accepte qu'une révision strictement
+  // supérieure à celle du compte, et dit ce qu'il a fait. Elle dit aussi pour
+  // quel compte la charge a été préparée : le service refuse si la session en
+  // porte un autre (audit du 04/10/2026, F07).
   const ecrire = useCallback<Ecrire>(
     async (payload, revision) => {
-      if (!supabase || !userId) return { statut: "erreur" };
-      const { data, error } = await supabase.rpc("save_declaration", {
-        p_payload: payload,
-        p_revision: revision,
-      });
-      if (error) return { statut: "erreur" };
-      return verdict(data);
+      if (!service || !userId) return { statut: "erreur" };
+      return service.ecrireDeclaration(payload, revision, userId);
     },
-    [supabase, userId],
+    [service, userId],
   );
 
   // File d'écriture de la Déclaration : une requête en vol au plus, la dernière
@@ -394,26 +542,51 @@ export default function Principes({
   // repartirait de la valeur lue au chargement, donc se ferait refuser à tort.
   // Les seuls moments où elle doit repartir sont ceux où la révision de départ
   // change vraiment : changement de compte, ou relecture de la Déclaration.
+  //
+  // La file remplacée est **arrêtée** : sans cela elle finissait sa boucle, et
+  // la charge du compte précédent partait sous le jeton du suivant.
   const file = useRef<FileDeclaration | null>(null);
   useEffect(() => {
-    file.current = creerFileDeclaration({
+    const instance = creerFileDeclaration({
       revision: revisionCompte,
       ecrire,
-      etat: setSaveState,
+      etat: (e) => {
+        // File vide et dernière écriture acceptée : ce qu'on lui avait confié en
+        // dernier est ce que le compte porte.
+        if (e === "saved" && dernierEnfile.current)
+          confirme.current = empreinteDeclaration(dernierEnfile.current);
+        setSaveState(e);
+      },
     });
+    file.current = instance;
+    return () => {
+      instance.arreter();
+      if (file.current === instance) file.current = null;
+    };
   }, [userId, revisionCompte, ecrire]);
 
   // Sauvegarde différée dans le compte à chaque changement (connecté).
-  // Trois verrous avant d'écrire : le chargement local est fini, la Déclaration
-  // du compte a été lue (`remote === "ready"`), et aucun rattachement n'est en
-  // attente de décision. Le quatrième est dans la file : après un refus, elle
-  // n'écrit plus rien.
+  // Quatre verrous avant d'écrire : le chargement local est fini, la Déclaration
+  // du compte a été lue (`remote === "ready"`), et ni rattachement ni reprise
+  // n'attendent de décision. Le cinquième est dans la file : après un refus,
+  // elle n'écrit plus rien.
   useEffect(() => {
-    if (!supabase || !userId || !loaded) return;
-    if (remote !== "ready" || offerAttach) return;
-    const t = setTimeout(() => file.current?.enfiler(declarationPayload), 1500);
+    if (!service || !userId || !loaded) return;
+    if (remote !== "ready" || offerAttach || offreReprise) return;
+    const t = setTimeout(() => {
+      dernierEnfile.current = declarationPayload;
+      file.current?.enfiler(declarationPayload);
+    }, 1500);
     return () => clearTimeout(t);
-  }, [supabase, userId, loaded, remote, offerAttach, declarationPayload]);
+  }, [
+    service,
+    userId,
+    loaded,
+    remote,
+    offerAttach,
+    offreReprise,
+    declarationPayload,
+  ]);
 
   const remove = (id: string) => {
     setRemoved((s) => new Set([...s, id]));
@@ -580,6 +753,19 @@ export default function Principes({
     doPdf();
   };
 
+  // Le PDF demandé avant la connexion part au retour, une fois le compte établi
+  // et sa Déclaration lue : avant, on exporterait le document d'accueil.
+  useEffect(() => {
+    if (!account || !loaded) return;
+    if (service && remote !== "ready") return;
+    // Reprise d'un geste retenu hors de React pendant l'aller-retour de
+    // connexion : l'effet est la forme juste.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (reprendreIntention((g) => g === "pdf-principes")) void doPdf();
+    // `doPdf` est celui du rendu courant ; seule l'arrivée du compte déclenche.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, loaded, remote, service]);
+
   return (
     <div
       className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8"
@@ -639,6 +825,32 @@ export default function Principes({
       <p aria-live="polite" className="sr-only">
         {saveState === "saving" ? t.saving : saveState === "saved" ? t.saved : ""}
       </p>
+      {offreReprise && (
+        <div
+          role="alert"
+          className="mb-6 rounded-lg border border-warning-border bg-warning-soft p-4 text-sm text-warning-strong"
+        >
+          <p className="font-medium">{t.recoverTitle}</p>
+          <p className="mt-1">{t.recoverBody}</p>
+          {offreReprise.compteAvance && (
+            <p className="mt-1 font-medium">{t.recoverNewer}</p>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              onClick={() => void reprendreLocal()}
+              className="rounded-full bg-amber-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-800"
+            >
+              {t.recoverLocal}
+            </button>
+            <button
+              onClick={() => setOffreReprise(null)}
+              className="rounded-full border border-amber-400 px-3 py-1.5 text-xs font-medium transition hover:bg-amber-100"
+            >
+              {t.recoverAccount}
+            </button>
+          </div>
+        </div>
+      )}
       {offerAttach && (
         <div className="mb-6 rounded-lg border border-warning-border bg-warning-soft p-4 text-sm text-warning-strong">
           <p className="font-medium">
@@ -1046,45 +1258,7 @@ export default function Principes({
               </p>
             </div>
             <div className="px-6 py-6">
-              <button
-                onClick={signIn}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-field bg-surface px-4 py-2.5 text-sm font-medium text-body shadow-sm transition hover:bg-surface-subtle"
-              >
-                <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden>
-                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
-                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" />
-                  <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" />
-                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
-                </svg>
-                {c.continueGoogle}
-              </button>
-              <div className="my-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-wide text-muted">
-                <span className="h-px flex-1 bg-surface-strong" />
-                {c.orByEmail}
-                <span className="h-px flex-1 bg-surface-strong" />
-              </div>
-              {otpSent ? (
-                <p className="rounded-lg bg-accent-soft px-3 py-2 text-sm text-teal-800">
-                  {c.emailSent}
-                </p>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={c.emailPlaceholder}
-                    className="min-w-0 flex-1 rounded-lg border border-field px-3 py-2 text-sm outline-none transition focus:border-field-accent"
-                  />
-                  <button
-                    onClick={signInOtp}
-                    disabled={!email.trim()}
-                    className="shrink-0 rounded-lg btn-ink px-3 py-2 text-sm font-medium transition disabled:opacity-50"
-                  >
-                    {c.sendLink}
-                  </button>
-                </div>
-              )}
+              <ConnexionChoix t={c} connexion={connexion} />
             </div>
         </Modale>
       )}
