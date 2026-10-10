@@ -5,7 +5,7 @@
   "description": "Service des comptes du Constitution Composer : connexion, versions, Déclarations, propositions.",
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": ">=22.23"
   },
   "scripts": {
     "start": "node src/serveur.ts",
