@@ -1,15 +1,19 @@
 // Publication du miroir public (semawe/constitution-composer) depuis main
 // (semawe/app-constitution-composer, privé) : tâche ERP 3040.
 //
-// Deux dossiers de main ne sont pas publiés :
+// Les chemins internes de main ne sont pas publiés (EXCLUS) :
 //   - echanges/ : la boîte aux lettres entre agents (audits, constats de
 //     sécurité, comptes rendus de remédiation) ;
 //   - deploy/   : l'exploitation de l'instance partagée de Sémawé (vhosts et
 //     exceptions du pare-feu applicatif, banc d'essai du WAF, installeur).
-//     Décision d'Aliocha du 09/10/2026.
+//     Décision d'Aliocha du 09/10/2026 ;
+//   - CLAUDE.md, AGENTS.md : le contexte des agents, versionné ici depuis le
+//     11/10/2026 ;
+//   - docs/journal-des-chantiers.md : le récit daté des chantiers (audits,
+//     décisions, épisodes d'exploitation). Décision d'Aliocha du 11/10/2026.
 //
 // Le miroir reçoit donc un instantané, pas l'historique : un commit dont
-// l'arbre est celui de main moins ces dossiers, et dont le parent est la tête
+// l'arbre est celui de main moins ces chemins, et dont le parent est la tête
 // du miroir. Le commit nomme la source (`Miroir-de: <sha>`) et liste les commits
 // de main qu'il couvre. Le miroir avance en avance rapide, et main n'en est plus
 // un descendant : un `git push public main` direct est refusé par GitHub (non
@@ -27,7 +31,13 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-export const EXCLUS = ['echanges', 'deploy'];
+export const EXCLUS = [
+  'echanges',
+  'deploy',
+  'CLAUDE.md',
+  'AGENTS.md',
+  'docs/journal-des-chantiers.md',
+];
 const REMOTE = process.env.MIROIR_REMOTE || 'public';
 const aBlanc = process.argv.includes('--dry-run');
 
@@ -69,7 +79,7 @@ if (head !== git(['rev-parse', 'origin/main']))
 const tete = git(['rev-parse', `${REMOTE}/main`]);
 const source = sourcePubliee(tete);
 
-// Arbre de main moins les dossiers exclus, par un index jetable : ni l'index
+// Arbre de main moins les chemins exclus, par un index jetable : ni l'index
 // ni l'arbre de travail du dépôt ne bougent.
 const temp = mkdtempSync(join(tmpdir(), 'miroir-'));
 let arbre;
@@ -82,7 +92,11 @@ try {
   rmSync(temp, { recursive: true, force: true });
 }
 
-const fuites = git(['ls-tree', '--name-only', arbre]).split('\n').filter((n) => EXCLUS.includes(n));
+// Contrôle sur l'arbre entier, pas sur sa seule racine : un chemin exclu peut
+// être un fichier dans un sous-dossier.
+const fuites = git(['ls-tree', '-r', '--name-only', arbre])
+  .split('\n')
+  .filter((n) => EXCLUS.some((e) => n === e || n.startsWith(`${e}/`)));
 if (fuites.length) arreter(`l’arbre filtré porte encore ${fuites.join(', ')}.`);
 
 if (arbre === git(['rev-parse', `${tete}^{tree}`])) {
@@ -102,7 +116,7 @@ const couverts = git([
 const message = [
   `Publication du miroir depuis ${head.slice(0, 7)}`,
   '',
-  `Instantané de main sans ${EXCLUS.map((d) => `${d}/`).join(' ni ')}.`,
+  `Instantané de main sans ${EXCLUS.join(', ')}.`,
   ...(couverts ? ['', 'Commits couverts :', couverts] : []),
   '',
   `Miroir-de: ${head}`,

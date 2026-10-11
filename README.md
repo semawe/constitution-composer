@@ -8,7 +8,7 @@ poussée ni chaque pull request : une contre-épreuve hebdomadaire bornée à di
 l'environnement forge. Elle refuse les relances. Le keep-alive Supabase est désactivé depuis la
 bascule de la production vers le serveur de Sémawé, le 05/10/2026.
 
-**Interactive Holacracy® Constitution builder** — select the articles you need, see the document compose in real time, export a ready-to-sign PDF.
+**Interactive Holacracy® Constitution builder**: select the articles you need, see the document compose in real time, export a ready-to-sign PDF.
 
 🔗 **Live instance:** [constitution-composer.com](https://constitution-composer.com)
 
@@ -24,13 +24,14 @@ Built by [Sémawé](https://semawe.fr), a French Holacracy consulting firm.
 
 ## Features
 
-- **Lite model** — retractable core blocks + optional extensions
-- **Principles Declaration** — drag-and-drop principles, ratifiers, signatories
-- **App Store** — additional modules (governance apps, adaptations)
-- **Glossary** — terms highlighted inline with tooltips
-- **Auth** — Google login or magic link (Supabase)
-- **PDF export** — constitution + declaration, custom logo and font
-- **Dark mode** · **French / English** · **Freemium** (free core, account for extensions)
+- **Lite model**: retractable core blocks + optional extensions
+- **Principles Declaration**: drag-and-drop principles, ratifiers, signatories
+- **App Store**: additional modules (governance apps, adaptations)
+- **Glossary**: terms highlighted inline with tooltips
+- **Auth**: Google login or magic link (Supabase)
+- **PDF export**: constitution + declaration, custom logo and font
+- **Dark mode** · **French / English** · **Freemium** by tiers: the core and the Lite blocks are free;
+  extensions, apps and the PDF export ask for an account
 
 ---
 
@@ -40,7 +41,7 @@ Built by [Sémawé](https://semawe.fr), a French Holacracy consulting firm.
 - TypeScript · [Tailwind v4](https://tailwindcss.com) · [Framer Motion](https://www.framer.com/motion/)
 - [Supabase](https://supabase.com) (auth, storage)
 - [react-pdf](https://react-pdf.org) (PDF generation)
-- [Vitest](https://vitest.dev) — engine, export, markup and content-fidelity tests (see [Tests](#tests))
+- [Vitest](https://vitest.dev): engine, export, markup and content-fidelity tests (see [Tests](#tests))
 
 ---
 
@@ -61,7 +62,7 @@ npm install
 
 The `--recurse-submodules` flag pulls in `vendor/holacracy-constitution`, the canonical
 Constitution text (see [Constitution content pipeline](#constitution-content-pipeline)). It is
-only needed to regenerate or verify the content files, not to build the app — if you already
+only needed to regenerate or verify the content files, not to build the app. If you already
 cloned without it, run `git submodule update --init --recursive`.
 
 ### Environment variables
@@ -69,11 +70,11 @@ cloned without it, run `git submodule update --init --recursive`.
 Copy `env.example` to `.env.local` and fill in your values:
 
 ```env
-# Supabase (required — create your own project at supabase.com)
+# Supabase (required: create your own project at supabase.com)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-# Analytics — Umami (optional)
+# Analytics: Umami (optional)
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=
 ```
 
@@ -97,17 +98,18 @@ npm run fond:check # verify the content files match the canonical Constitution
 ## Constitution content pipeline
 
 The app does not own the text it serves. The canonical Constitution lives in
-[semawe/Holacracy-Constitution](https://github.com/semawe/Holacracy-Constitution) as Markdown
-under `edition-semawe/`, and the JSON in `src/data/` is a machine encoding of it.
+[semawe/Holacracy-Constitution](https://github.com/semawe/Holacracy-Constitution): the Markdown
+under `edition-semawe/`, and the structured constitution and glossaries it publishes under
+`composer/`. The JSON in `src/data/` is a machine encoding of it.
 
 **How the source is reached: a git submodule**, pinned at `vendor/holacracy-constitution`.
 
-Three ways were on the table — a submodule, an npm dependency, or a sibling clone expected next
+Three ways were on the table: a submodule, an npm dependency, or a sibling clone expected next
 to this repo. The submodule wins on the three properties that matter here:
 
 - **Pinned and reproducible.** The commit is recorded in the tree, so a given checkout of this
   repo always regenerates the exact same content. A sibling clone would silently regenerate
-  against whatever the contributor happens to have on disk — which is the very failure this
+  against whatever the contributor happens to have on disk, which is the very failure this
   pipeline exists to prevent.
 - **Available in CI without credentials.** `semawe/Holacracy-Constitution` is public, so the
   guard below runs on any fork and any pull request. Wiring CI to a private working repo would
@@ -119,25 +121,27 @@ Regenerating:
 
 ```bash
 git submodule update --init --recursive
-npm run fond:build   # rewrites src/data/principes.{fr,en}.json
+npm run fond:build   # rewrites the six content files of src/data/ (see below)
 ```
 
-**`src/data/principes.fr.json` and `principes.en.json` are generated. Do not edit them by hand.**
-What the Markdown does not carry — the warning shown when a principle is unchecked, the legal
-notice, the license — lives in `src/data/principes.overlay.{fr,en}.json` and is merged in by
+**The six content files of `src/data/` are generated. Do not edit them by hand.**
+`principes.{fr,en}.json` are built from the Markdown of `edition-semawe/`;
+`constitution.{fr,en}.json` and `glossaire.{fr,en}.json` are copied byte for byte from `composer/`
+(`scripts/fond.mjs`). What the Markdown does not carry (the warning shown when a principle is unchecked, the legal
+notice, the license) lives in `src/data/principes.overlay.{fr,en}.json` and is merged in by
 identifier. A canonical principle with no matching warning (or a warning with no matching
 principle) fails the generation rather than passing silently: adding a principle upstream forces
 the editorial work here.
 
 CI enforces this. The `Fond synchronisé avec la Constitution canonique` step in
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `npm run fond:check`, which
-regenerates in memory and compares against what is committed. Any divergence — a hand edit here,
-or an advance in the canonical text without a regeneration — fails the build with the command to
+regenerates in memory and compares against what is committed. Any divergence (a hand edit here,
+or an advance in the canonical text without a regeneration) fails the build with the command to
 run. Generation without that guard would protect nothing, since nobody would run it.
 
 ---
 
-## Content releases — why a saved version keeps its text
+## Content releases: why a saved version keeps its text
 
 A saved composition used to carry only its configuration: checked modules, title, values,
 branding. Nothing of the text itself. So after an editorial update of `src/data/constitution.*.json`,
@@ -152,24 +156,24 @@ npm run release:new     # archives the current content as a new release
 npm run release:check   # archives are intact, and the served content matches the newest one
 ```
 
-- `src/data/releases/<id>/{constitution,principes}.{fr,en}.json` — the archived copies, four files
+- `src/data/releases/<id>/{constitution,principes}.{fr,en}.json`: the archived copies, four files
   per release. **Immutable**: the check fails if one of them changes. The Principles are archived
   too: the Declaration is the document ratifiers *sign*, so it must be re-readable exactly as it
   was signed.
-- `src/data/releases/manifest.json` and `index.ts` — the registry (generated; the check fails if
+- `src/data/releases/manifest.json` and `index.ts`: the registry (generated; the check fails if
   it drifts from the manifest; `npm run release:index` regenerates it alone). The registry itself
-  is light — ids and digests — and each archived file has its own literal `import()`, so a release
+  is light (ids and digests) and each archived file has its own literal `import()`, so a release
   is downloaded only when a document asks for it. Importing them all statically made every visit
   to the Composer download every release in both languages, a cost that grew with each release.
-- A saved composition — and a saved Declaration — stores `{ locale, release, sha256, kind }`.
+- A saved composition, and a saved Declaration, stores `{ locale, release, sha256, kind }`.
   Reopening it composes **from that release's archive**, not from today's content. The two contents
   of one release are never confused: a Constitution reference handed to the Principles resolver
   resolves to nothing rather than to the wrong document.
 - Resolution is strict: an unknown release, or a digest that does not match, refuses to open and
-  says so. It never silently falls back to the current content — that fallback *is* the defect.
+  says so. It never silently falls back to the current content: that fallback *is* the defect.
   An archive that could not be downloaded is a separate, retryable outcome, and says so too.
 - Saving keeps the text of the document on screen. `saveComposition()` takes the content
-  reference of what is displayed — release *and* language — and validates it against the archive
+  reference of what is displayed (release *and* language) and validates it against the archive
   before writing. Moving a document to today's text is a separate, explicit gesture
   (`migrateComposition()`). The local draft carries its reference as well, so a reload brings the
   same document back on the same text.
@@ -187,74 +191,74 @@ CI enforces both invariants (`release:check`), like it does for the generated co
 `npm test` runs the Vitest suite (also run in CI, along with `fond:check`, the type check, the
 lint and a full static build). What each file guards:
 
-- **`src/lib/constitution.test.ts` — the composition engine.** `compose()`, `toggleModule()` and
+- **`src/lib/constitution.test.ts`: the composition engine.** `compose()`, `toggleModule()` and
   `normalizeActive()` on a synthetic fixture (default / requires / conflicts / fallback /
   conditional insertion), then the real content in **both languages**: every insertion comes out
   exactly once and inside its anchor block, the bare framework still carries every mandatory
   replacement, and checking one more module never removes a section already composed.
-- **`src/lib/pdf.test.tsx` — the export.** Everything `compose()` produces must reach the PDF
+- **`src/lib/pdf.test.tsx`: the export.** Everything `compose()` produces must reach the PDF
   document: block headings, intent notes, insertions, mandatory replacements, organisation values,
-  license and notice — with no markup leaking through (a stray `*` or a raw `- ` means the export
+  license and notice, with no markup leaking through (a stray `*` or a raw `- ` means the export
   failed to read a pattern) and nothing from an unchecked module left behind. The other export,
   the Principles document, is covered the same way, signature lists included. The tests walk the
   document element tree instead of rendering a PDF: fonts and a browser are not needed, and what
   is checked is the presence of the content, not the layout. A section silently missing from the
   document an organisation adopts is the worst defect this app can produce, hence the emphasis.
-- **`src/lib/fond.test.ts` — fidelity to the canonical Constitution.** Article titles, intent
+- **`src/lib/fond.test.ts`: fidelity to the canonical Constitution.** Article titles, intent
   notes and the terms the source defines in bold are compared against
   `vendor/holacracy-constitution`, in both directions: a retouch here or an advance upstream both
-  turn it red. Requires the submodule (`git submodule update --init --recursive`) — the file says
+  turn it red. Requires the submodule (`git submodule update --init --recursive`); the file says
   so rather than skipping. Also compares the FR and EN content structurally: an insertion added on
   one side only would otherwise produce an English Constitution missing a section, without
   breaking anything.
-- **`src/lib/pdf.render.test.tsx` — the export, for real.** Renders actual PDFs (both documents, both languages, all five fonts) and asserts real bytes come out. The tree walk above sees what a document *contains*; it is blind to anything that breaks inside the PDF engine. This file exists because of one such defect: none of the five bundled fonts ships an italic variant, and react-pdf throws rather than synthesizing an oblique — so the Principles export, whose intro is italic, failed on every attempt in production, silently. Italic emphasis now maps to a built-in PDF italic face (`Times-Italic` / `Helvetica-Oblique`), and this test would catch the regression the moment it came back.
-- **`src/lib/releases.test.ts` — immutability of a saved version.** Resolution of a content
+- **`src/lib/pdf.render.test.tsx`: the export, for real.** Renders actual PDFs (both documents, both languages, all five fonts) and asserts real bytes come out. The tree walk above sees what a document *contains*; it is blind to anything that breaks inside the PDF engine. This file exists because of one such defect: none of the five bundled fonts ships an italic variant, and react-pdf throws rather than synthesizing an oblique, so the Principles export, whose intro is italic, failed on every attempt in production, silently. Italic emphasis now maps to a built-in PDF italic face (`Times-Italic` / `Helvetica-Oblique`), and this test would catch the regression the moment it came back.
+- **`src/lib/releases.test.ts`: immutability of a saved version.** Resolution of a content
   reference: an archived release resolves, an unknown release or a mismatched digest is refused
   with no fallback, a reference-less payload is reported as unpinned rather than silently trusted.
   The decisive case rewrites the *current* content underneath and asserts that what a pinned
   version renders does not move.
-- **`src/lib/markup.test.ts` — the markup grammar.** The fond uses five patterns and no more (paragraphs, bullet lists, numbered lists, bold, italic), parsed in one place by `src/lib/markup.ts`. Beyond unit cases, a property check over every text of the real content in both languages: the grammar restitutes every word, in order — it loses nothing and invents nothing. Its two deliberate limits (no nested lists, no single-item list) are guarded on the content side rather than silently tolerated.
-- **`src/components/Composer.interaction.test.tsx` and `Composer.immuabilite.test.tsx` — the
+- **`src/lib/markup.test.ts`: the markup grammar.** The fond uses five patterns and no more (paragraphs, bullet lists, numbered lists, bold, italic), parsed in one place by `src/lib/markup.ts`. Beyond unit cases, a property check over every text of the real content in both languages: the grammar restitutes every word, in order: it loses nothing and invents nothing. Its two deliberate limits (no nested lists, no single-item list) are guarded on the content side rather than silently tolerated.
+- **`src/components/Composer.interaction.test.tsx` and `Composer.immuabilite.test.tsx`: the
   interface, driven.** Every other file exercises the engine, the content, the grammar and the two
   exports; none of them touches a button. These two mount the Composer in jsdom and use it: opening
-  a saved version, refusing one whose text is gone, pinning an old one, and — the decisive case —
+  a saved version, refusing one whose text is gone, pinning an old one, and (the decisive case)
   opening a version pinned to an earlier release and asserting **the sentence only that release
   contains is on screen**. The animation layer is stubbed out: outside a browser that paints, an
   AnimatePresence exit never completes and the node lingers, so a test would measure what the
   animation has not finished removing rather than what React renders. Animations themselves remain
   out of coverage, and that is stated where it matters.
-- **`src/components/Principes.interaction.test.tsx` — accessibility, driven.** The principles can
+- **`src/components/Principes.interaction.test.tsx`: accessibility, driven.** The principles can
   be reordered entirely from the keyboard (the HTML drag-and-drop offered no path at all), and the
   dialog behaves like a dialog: it announces its role, is named by its heading, takes focus on open,
   traps it, closes on Escape and gives focus back to whatever opened it.
-- **`src/components/App.interaction.test.tsx` — tabs mount when opened.** The Declaration and the
+- **`src/components/App.interaction.test.tsx`: tabs mount when opened.** The Declaration and the
   App Store no longer run their effects (account read, submissions fetch) on every `/composer` load,
-  and a button of a hidden tab is no longer clickable — a phantom that once corrupted one of our own
+  and a button of a hidden tab is no longer clickable, a phantom that once corrupted one of our own
   verifications. The test waits for deferred imports before asserting absence, otherwise it would
   prove nothing.
-- **`src/components/Composer.document.test.tsx` — a document is content plus its text.** Saving a
+- **`src/components/Composer.document.test.tsx`: a document is content plus its text.** Saving a
   version reopened on an older release keeps that release and its language; opening a version is
   never overwritten by the previous draft; signing out leaves nothing of the document on screen,
   in the browser draft or in the branding, while an anonymous draft follows its author through
   sign-in and the gesture that asked for the account is resumed afterwards.
-- **`src/components/Principes.compte.test.tsx` — the Declaration and the account.** Driven against
+- **`src/components/Principes.compte.test.tsx`: the Declaration and the account.** Driven against
   a stand-in service whose session is switched by hand: one account replacing another without a
   sign-out in between does not inherit its Declaration; a write says which account it was prepared
-  for; and after a failed save, reloading offers the unsaved changes back instead of losing them —
+  for; and after a failed save, reloading offers the unsaved changes back instead of losing them,
   warning first when the account has moved on elsewhere.
-- **`src/components/Modale.interaction.test.tsx` — dialogs, typed into.** The earlier dialog tests
+- **`src/components/Modale.interaction.test.tsx`: dialogs, typed into.** The earlier dialog tests
   opened and closed the box without typing a character, which is how a focus reset on every
   keystroke went unnoticed. These type whole addresses and sentences through the re-render. The
   mobile drawer is held to the same contract.
 - **`src/components/composer/useComposerVersions.test.tsx`, `compte/useConnexion.test.tsx`,
-  `src/lib/intention.test.ts`** — a failed first read of the saved versions is reported rather
+  `src/lib/intention.test.ts`**: a failed first read of the saved versions is reported rather
   than shown as an empty account, a reply sent for one account never lands on the next, and
   sign-in only announces success on a successful response.
-- **`scripts/deploiement.test.mjs` — the deployment, without the host.** The backend guard, the
+- **`scripts/deploiement.test.mjs`: the deployment, without the host.** The backend guard, the
   retention of previous-generation chunks (against a file-backed stand-in for the SFTP client), and
-  the host key check — the latter against a real local SSH server, asserting that a wrong key is
+  the host key check, the latter against a real local SSH server, asserting that a wrong key is
   refused before any credential leaves.
-- **`src/lib/i18n.test.ts` — FR/EN parity** of the UI dictionaries and of the bilingual data, the
+- **`src/lib/i18n.test.ts`: FR/EN parity** of the UI dictionaries and of the bilingual data, the
   language each root layout declares, and a heuristic guard against French strings hard-coded in
   the components both languages share.
 
@@ -298,42 +302,42 @@ replicate that setup:
   keeps serving, the directory is checked for completeness (`index.html`, `.htaccess`, `_next/`, and
   a sample of the chunks the pages reference), and only then is the switch made by two renames, the
   previous version kept until the new one answers. This replaced a purge-then-upload that took the
-  English pages offline mid-deploy on 2026-08-19 — a failed upload now leaves the live site
+  English pages offline mid-deploy on 2026-08-19; a failed upload now leaves the live site
   untouched.
 - **The target directory is explicit and confined.** The account hosts three other sites next to
-  this one, and the upload used to default to `/www` — the main site's root. `FTP_REMOTE_DIR` is now
+  this one, and the upload used to default to `/www`, the main site's root. `FTP_REMOTE_DIR` is now
   mandatory with no default, checked against an absolute-path shape (no traversal, no exotic
   characters), and refused outright when its last segment is `www` unless `FTP_ALLOW_WWW=yes` says
   that really is the target. Note the path differs by transport: FTP chroots the session, SFTP starts
   from the real home.
 - **The build must carry a backend.** A build made without the Supabase keys produces a site that
-  *appears* to work — simulated account, saves that stay in the browser, nothing following the user.
+  *appears* to work: simulated account, saves that stay in the browser, nothing following the user.
   Every exported page states what the build embeds (`<meta name="cc-backend">`: `supabase:<host>`
   or `demo`), and the script reads that from the files it is about to upload rather than trusting
   the environment the build ran in. It refuses a demo build, a build without the mark, an `out/`
   mixing two builds, and a mark the JavaScript does not corroborate. `DEPLOY_EXPECT_BACKEND=<host>`
   additionally pins the expected project; `ALLOW_DEMO_DEPLOY=yes` allows a deliberately
   backend-less instance and says so in the output. The previous guard looked for the substring
-  `.supabase.co` in the bundle — which the Supabase SDK contains by itself, so a demo build passed.
+  `.supabase.co` in the bundle, which the Supabase SDK contains by itself, so a demo build passed.
   The mark states what the build embeds; it does not prove the project answers.
 - **The server's host key is verified.** See [SFTP host key](#sftp-host-key--clé-du-serveur-sftp).
 - **Chunks of the previous generation are kept for a while.** A tab opened before a publication
-  still runs the old JavaScript and will later ask for lazily loaded chunks — the PDF engine, the
-  Declaration tab, an archived release — under their old names. After the switch, the script moves
+  still runs the old JavaScript and will later ask for lazily loaded chunks (the PDF engine, the
+  Declaration tab, an archived release) under their old names. After the switch, the script moves
   the previous generation's `_next/static/` files that the new one does not have into the live
   directory (a server-side rename, nothing is re-uploaded), and drops them 30 days after they
   stopped being current (`DEPLOY_FRAGMENT_RETENTION_DAYS`). The date is the one they stopped being
-  current, not their upload date, kept in a registry next to — not inside — the served directory.
+  current, not their upload date, kept in a registry next to, not inside, the served directory.
 - **The commit must be current.** A build can be fresh and still be behind: the guard above compares
   `out/` to the local `HEAD`, which says nothing about whether that `HEAD` is the tip of the branch.
   On a day when three sessions pushed, a deploy served an up-to-date stamp for a tree that was three
   commits old. The script now refreshes `origin/main` and refuses a worktree that is behind, naming
   the missing commits. Two neighbouring cases warn instead of refusing, because blocking there would
   be a false positive: a `fetch` that cannot run says so rather than implying it checked, and local
-  commits that are not pushed are legitimate to deploy but must not be silent — nobody else could
+  commits that are not pushed are legitimate to deploy but must not be silent: nobody else could
   rebuild what is online.
 
-### SFTP host key — clé du serveur SFTP
+### SFTP host key (clé du serveur SFTP)
 
 SFTP encrypts, but encryption alone does not say *who* is at the other end. Without a host key
 check, an attacker on the network path can present their own SSH server, receive the publication
@@ -343,18 +347,18 @@ it. There is deliberately no "accept on first contact": the first contact is exa
 intermediary would present its own key.
 
 - **Format:** `SHA256:` followed by 43 characters, as printed by `ssh-keygen -lf`. Several values
-  may be given, comma-separated — a server presents one key per algorithm.
+  may be given, comma-separated: a server presents one key per algorithm.
 - **Obtaining it:** `ssh-keyscan -t ed25519,rsa <host> | ssh-keygen -lf -` prints the candidates,
   but a scan travels the same network an attacker would sit on. Confirm the value through a channel
   you trust: the hosting provider's documentation or support, or the same scan from a second,
   unrelated network that agrees with the first.
 - **When the check fails:** the script prints the fingerprint the server presented and sends no
-  credential. Do not paste that value into the configuration to make the error go away — a key that
+  credential. Do not paste that value into the configuration to make the error go away. A key that
   changes without an announcement from the provider is what this guard exists to stop.
 - **Rotation:** when the provider announces a new key, add its fingerprint next to the old one,
   deploy, then remove the old one.
 
-`--dry-run` (or `DEPLOY_DRY_RUN=yes`) runs every guard and uploads nothing — it opens no connection.
+`--dry-run` (or `DEPLOY_DRY_RUN=yes`) runs every guard and uploads nothing: it opens no connection.
 It exists because the guards above could not be exercised without touching production, and a guard
 you cannot rehearse is not a guard: proving the freshness check worked cost three unintended deploys.
 The rehearsal is the *last* of the checks, not the first, so that it cannot reassure by short-circuiting
@@ -369,7 +373,7 @@ Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 Quick summary:
 1. Open an issue to discuss the change before writing code
 2. Fork the repo and create a branch from `main`
-3. Make your changes — keep the existing code style (TypeScript strict, Tailwind utilities, no inline styles)
+3. Make your changes and keep the existing code style (TypeScript strict, Tailwind utilities, no inline styles)
 4. Run `npm test` and make sure all tests pass
 5. Open a Pull Request
 
@@ -379,18 +383,22 @@ By contributing, you agree that your code is licensed under AGPL v3.
 
 ## Architecture notes
 
-- **Constitution engine:** `src/lib/constitution.ts` — `compose()` resolves the active set of blocks; `toggleModule()` handles `requires`/`conflicts` constraints
-- **Content source of truth:** the canonical Constitution, vendored as a submodule at `vendor/holacracy-constitution`. `src/data/principes.{fr,en}.json` are generated from it by `scripts/fond.mjs` and guarded in CI — see [Constitution content pipeline](#constitution-content-pipeline). `src/data/constitution.fr.json` and `constitution.en.json` are still hand-mirrored: their structured source (`composer/`) lives in the private working repo, which is deliberately not vendored here
-- **Markup:** `src/lib/markup.ts` owns the grammar of the light markup the content uses; `src/components/Prose.tsx` is the only HTML renderer of it (Composer, `/lite`, `/micro`) and `src/lib/pdf.tsx` the only PDF one. Five copies of that grammar used to coexist and had drifted apart — the PDF ignored italics, and `/lite` printed raw asterisks on an indexed page. One grammar, two renderers: there is no longer anywhere for the drift to happen
-- **PDF:** `src/lib/pdf.tsx` — uses `.woff` fonts (not `.woff2`) due to a react-pdf decoder limitation. Each of the five families ships regular, bold **and italic**: react-pdf does not synthesize obliques, and asking for `fontStyle: "italic"` on a family with no italic variant makes it *throw* — which silently broke the Principles export for weeks. The fonts are all under the SIL Open Font License; each licence sits next to the files as `public/fonts/<family>-OFL.txt`
+- **Constitution engine:** `src/lib/constitution.ts`: `compose()` resolves the active set of blocks; `toggleModule()` handles `requires`/`conflicts` constraints
+- **Content source of truth:** the canonical Constitution, vendored as a submodule at `vendor/holacracy-constitution`. `scripts/fond.mjs` generates `src/data/principes.{fr,en}.json` from its Markdown and copies `constitution.{fr,en}.json` and `glossaire.{fr,en}.json` from its `composer/` folder; `npm run fond:check` guards all six. See [Constitution content pipeline](#constitution-content-pipeline)
+- **Markup:** `src/lib/markup.ts` owns the grammar of the light markup the content uses; `src/components/Prose.tsx` is the only HTML renderer of it (Composer, `/lite`, `/micro`) and `src/lib/pdf.tsx` the only PDF one. Five copies of that grammar used to coexist and had drifted apart: the PDF ignored italics, and `/lite` printed raw asterisks on an indexed page. One grammar, two renderers: there is no longer anywhere for the drift to happen
+- **Routes:** `/` is the marketing splash (`Splash.tsx`); the tool lives on `/composer`, which is `noindex`; `/micro`, `/lite` and `/comprendre` are indexable content pages sharing one chrome (`SiteChrome.tsx`); `/cartographie` now points to the map of organisations published on semawe.fr and is not indexed. Every page exists under `/en/…` as well. `public/sitemap.xml` lists the indexable pages in both languages
+- **Tabs in the URL:** the Composer tab reads from the address, `?vue=principes|glossaire|appstore`, and `?activer=<id>` activates a module on arrival, so a link can open the right view
+- **Browser storage after mount:** `localStorage` is read in an effect after mount, never during render, under a scoped and justified lint directive: reading it during render makes the client's first render diverge from the prerendered HTML
+- **Analytics:** optional Umami events, sent through `src/lib/analytics.ts`: `connexion`, `pdf_export`, `gate` (an account was asked for) and `sauvegarde_version`
+- **PDF:** `src/lib/pdf.tsx` uses `.woff` fonts (not `.woff2`) due to a react-pdf decoder limitation. Each of the five families ships regular, bold **and italic**: react-pdf does not synthesize obliques, and asking for `fontStyle: "italic"` on a family with no italic variant makes it *throw*, which silently broke the Principles export for weeks. The fonts are all under the SIL Open Font License; each licence sits next to the files as `public/fonts/<family>-OFL.txt`
 
 ---
 
 ## License
 
-- **Code** — [GNU Affero General Public License v3.0](LICENSE) (AGPL v3)
+- **Code**: [GNU Affero General Public License v3.0](LICENSE) (AGPL v3)
   Any modified version deployed as a network service must publish its source under the same license.
-- **Constitution content** (`src/data/`, `holacracy-constitution/`) — [CC BY SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- **Constitution content** (`src/data/`, `holacracy-constitution/`): [CC BY SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
   Attribution required. Derivative works must use the same license.
 
 "Holacracy" is a registered trademark of HolacracyOne, LLC.

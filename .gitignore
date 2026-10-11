@@ -33,9 +33,8 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# internal dev context — not relevant for contributors
-CLAUDE.md
-AGENTS.md
+# local agent settings and worktrees (CLAUDE.md and AGENTS.md are versioned
+# here and kept off the public mirror by scripts/publier-miroir.mjs)
 .claude/
 
 # vercel
